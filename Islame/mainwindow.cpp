@@ -77,7 +77,7 @@ bool onMouseClik = false;
 bool desenha = true; // true = desenha. false = seleciona
 GLint espessuraLinha = 2; //PEGAR ESTE VALOR DE UM SELETOR
 
-Transforcao op = TRANSLACAO;
+Transforcao op = COPIA;
 Forma forma = CIRCULO;
 
 GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent) {
@@ -537,14 +537,12 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
         while (aux!=NULL){
             if (aux->objeto->isSelect()){
                 if (op==TRANSLACAO || op==COPIA){
-                    if (forma==CIRCULO){
+                    if (aux->objeto->getTipo() == CIRCULO){
                         Circulo *c = dynamic_cast <Circulo *>(aux->objeto);
                         c->setXc(event->x()-aux->objeto->getXClick());
                         c->setYc(gfWrldSizeY-event->y()-aux->objeto->getYClick());
-                    } else if (forma==QUADRILATERO){
+                    } else if (aux->objeto->getTipo() == QUADRILATERO){
                         Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
-                       // cout<<event->x()-aux->objeto->getXClick()<<", "<<gfWrldSizeY-event->y()-aux->objeto->getYClick()<<endl;
-                       // cout<<"AQIO: "<<q->getXClick()<<", "<<q->getYClick()<<endl;
                         GLint dx = + q->getD().getX() - q->getA().getX();
                         GLint dy = - q->getA().getY() + q->getD().getY();
                         Ponto A(event->x()-aux->objeto->getXClick(), gfWrldSizeY-event->y()-aux->objeto->getYClick()); // ponto de clik
