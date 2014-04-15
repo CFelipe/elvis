@@ -19,7 +19,7 @@ class Objeto{
         GLfloat colorLine[4];
         GLint xclick, yclick;
         GLint espessuraLinha;
-        bool preenchido; // diz se a forma está preenchida com alguma cor
+        bool preenchido; // true  -> a forma está preenchida com alguma cor
     public:
         Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo){ //
             select = false;
