@@ -3,6 +3,8 @@
 #include <QtOpenGL/QGLWidget>
 #include <GL/gl.h>
 
+// COMENTÁRIOOO
+
 int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
