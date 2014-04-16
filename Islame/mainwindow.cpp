@@ -8,6 +8,7 @@
 #include "Objeto.h"
 using namespace std;
 
+#define CONTROL 4 // largura, altura dos pontos de controle e da área de clip do mouse
 /*
 typedef struct _GLintPoint {
         GLint x;
@@ -23,7 +24,7 @@ typedef struct l{
 */
 
 
-enum Transforcao {TRANSLACAO, COPIA, ESCALA};
+enum Transforcao {TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO};
 
 /*
  * Lista encadeada de objetos (circulos, quadrilateros, elipes, polilinhas, e etc).
@@ -77,7 +78,7 @@ bool onMouseClik = false;
 bool desenha = true; // true = desenha. false = seleciona
 GLint espessuraLinha = 2; //PEGAR ESTE VALOR DE UM SELETOR
 
-Transforcao op = COPIA;
+Transforcao op = ROTACAO;
 Forma forma = CIRCULO;
 
 GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent) {
@@ -346,6 +347,63 @@ void Bresenham(GLintPoint p1, GLintPoint p2) {
     }
 }
 */
+
+
+
+void selecionaQuadrilatero(Lista *aux, Quadrilatero *q, Ponto click){
+    aux->objeto->setSelect(true);
+    aux->objeto->setXClick(-q->getA().getX()+ click.getX());
+    aux->objeto->setYClick(-q->getA().getY()+click.getY() );
+    if (op==COPIA){
+        GLfloat fill[4], line[4];
+        q->getColorFill(fill);
+        q->getColorLine(line);
+        Quadrilatero *novo = new Quadrilatero(q->getA(), q->getB(), q->getC(), q->getD(), fill, line, espessuraLinha, QUADRILATERO);
+        insere(novo);
+        aux->objeto->setSelect(false);
+        fim->objeto->setSelect(true);
+        fim->objeto->setXClick(-q->getA().getX() + click.getX());
+        fim->objeto->setYClick(-q->getA().getY() + click.getY() );
+    }
+}
+
+//!
+//! \brief getAreaClippingMouse define a área de click do mouse
+//! @param xmouse e ymouse são as coordenadas do mouse
+//! @return área de clike do mouse (abrangência do clike)
+//! \return
+//!
+//!
+Quadrilatero* getAreaClippingMouse(GLint xmouse, GLint ymouse){
+    int size = 3;
+    Ponto A(xmouse-CONTROL, ymouse+CONTROL);
+    Ponto D(xmouse+CONTROL, ymouse-CONTROL);
+    Ponto B(xmouse-CONTROL, ymouse-CONTROL); // (xmin, ymin)
+    Ponto C(xmouse+CONTROL, ymouse+CONTROL); // (xmax, ymax)GLfloat colorFill[4] = {0, 0, 0, 0};
+    GLfloat colorLine[4] = {0, 0, 0, 0};
+    GLfloat colorFill[4] = {0, 0, 0, 0};
+    Quadrilatero *q = new Quadrilatero(A, B, C, D, colorFill, colorLine, espessuraLinha, QUADRILATERO);
+    return q;
+}
+
+//!
+//! \brief clippingAreaVertice diz se um ponto está dentro ou fora de um região quadriculada em torno de um vértice
+//! \param vertice é o vertice entorno do qual teremos a região quadrada
+//! \param teste é o ponto de teste
+//! \return true se o ponto está dentro
+//!
+bool clippingAreaVertice(Ponto vertice, Ponto teste){
+    cout<<"Area.."<<endl;
+    cout<<vertice.getX()+CONTROL<<", "<<vertice.getY()+CONTROL<<endl;
+    cout<<vertice.getX()+CONTROL<<", "<<vertice.getY()-CONTROL<<endl;
+    cout<<vertice.getX()-CONTROL<<", "<<vertice.getY()+CONTROL<<endl;
+    cout<<vertice.getX()-CONTROL<<", "<<vertice.getY()-CONTROL<<endl;
+    cout<<"Click..."<<endl;
+    cout<<teste.getX()<<", "<<teste.getY()<<endl;
+    return teste.getX()<=(vertice.getX()+CONTROL) && teste.getY()<=(vertice.getY()+CONTROL) && teste.getX()>=(vertice.getX()-CONTROL) && teste.getY()>=(vertice.getY()-CONTROL);
+}
+
+
 void GLWidget::resizeGL(int w, int h) {
     float vfAspect = 0.f;
         float viewDepth = gfWrldSizeZ/2.f;
@@ -400,6 +458,52 @@ void GLWidget::paintGL() {
                         glVertex2i(q->getB().getX(), q->getB().getY());
                         glVertex2i(q->getC().getX(), q->getC().getY());
                         glVertex2i(q->getD().getX(), q->getD().getY());
+                    glEnd();
+                }
+            } else {
+                if (aux->objeto->getTipo()==CIRCULO){
+                    Circulo *c = dynamic_cast <Circulo *>(aux->objeto); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
+                    glPointSize(1);
+                    glColor3f( 0,0, 0 );
+                    glBegin(GL_LINE_LOOP);
+                        glVertex2i(c->getXc()+CONTROL, c->getYc()+CONTROL);
+                        glVertex2i(c->getXc()-CONTROL, c->getYc()+CONTROL);
+                        glVertex2i(c->getXc()-CONTROL, c->getYc()-CONTROL);
+                        glVertex2i(c->getXc()+CONTROL, c->getYc()-CONTROL);
+                    glEnd();
+                    glBegin(GL_LINE_LOOP);
+                        glVertex2i(c->getXc()+c->getRaio()+CONTROL, c->getYc()+CONTROL);
+                        glVertex2i(c->getXc()+c->getRaio()-CONTROL, c->getYc()+CONTROL);
+                        glVertex2i(c->getXc()+c->getRaio()-CONTROL, c->getYc()-CONTROL);
+                        glVertex2i(c->getXc()+c->getRaio()+CONTROL, c->getYc()-CONTROL);
+                    glEnd();
+                } else if (aux->objeto->getTipo()==QUADRILATERO){
+                    Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
+                    glPointSize(1);
+                    glColor3f( 0,0, 0 );
+                    glBegin(GL_LINE_LOOP);
+                        glVertex2i(q->getA().getX()+CONTROL, q->getA().getY()+CONTROL);
+                        glVertex2i(q->getA().getX()-CONTROL, q->getA().getY()+CONTROL);
+                        glVertex2i(q->getA().getX()-CONTROL, q->getA().getY()-CONTROL);
+                        glVertex2i(q->getA().getX()+CONTROL, q->getA().getY()-CONTROL);
+                    glEnd();
+                    glBegin(GL_LINE_LOOP);
+                        glVertex2i(q->getB().getX()+CONTROL, q->getB().getY()+CONTROL);
+                        glVertex2i(q->getB().getX()-CONTROL, q->getB().getY()+CONTROL);
+                        glVertex2i(q->getB().getX()-CONTROL, q->getB().getY()-CONTROL);
+                        glVertex2i(q->getB().getX()+CONTROL, q->getB().getY()-CONTROL);
+                    glEnd();
+                    glBegin(GL_LINE_LOOP);
+                        glVertex2i(q->getC().getX()+CONTROL, q->getC().getY()+CONTROL);
+                        glVertex2i(q->getC().getX()-CONTROL, q->getC().getY()+CONTROL);
+                        glVertex2i(q->getC().getX()-CONTROL, q->getC().getY()-CONTROL);
+                        glVertex2i(q->getC().getX()+CONTROL, q->getC().getY()-CONTROL);
+                    glEnd();
+                    glBegin(GL_LINE_LOOP);
+                        glVertex2i(q->getD().getX()+CONTROL, q->getD().getY()+CONTROL);
+                        glVertex2i(q->getD().getX()-CONTROL, q->getD().getY()+CONTROL);
+                        glVertex2i(q->getD().getX()-CONTROL, q->getD().getY()-CONTROL);
+                        glVertex2i(q->getD().getX()+CONTROL, q->getD().getY()-CONTROL);
                     glEnd();
                 }
             }
@@ -462,22 +566,27 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                             }
                         } else if (aux->objeto->getTipo() == QUADRILATERO){
                              Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
-                             if (event->x()<=q->getD().getX() && event->x()>=q->getA().getX() && (gfWrldSizeY-event->y())<=q->getA().getY() && (gfWrldSizeY-event->y())>=q->getD().getY()){
-                                    aux->objeto->setSelect(true);
-                                    aux->objeto->setXClick(-q->getA().getX()+ event->x());
-                                    aux->objeto->setYClick(-q->getA().getY()+(gfWrldSizeY-event->y()) );
-                                    if (op==COPIA){
-                                        GLfloat fill[4], line[4];
-                                        q->getColorFill(fill);
-                                        q->getColorLine(line);
-                                        Quadrilatero *novo = new Quadrilatero(q->getA(), q->getB(), q->getC(), q->getD(), fill, line, espessuraLinha, QUADRILATERO);
-                                        insere(novo);
-                                        aux->objeto->setSelect(false);
-                                        fim->objeto->setSelect(true);
-                                        fim->objeto->setXClick(-q->getA().getX() + event->x());
-                                        fim->objeto->setYClick(-q->getA().getY() + (gfWrldSizeY-event->y()) );
-                                    }
-                             } else {
+                             Ponto click(event->x(),gfWrldSizeY-event->y());
+                             if (clippingAreaVertice(q->getA(), click) || clippingAreaVertice(q->getB(), click) || clippingAreaVertice(q->getC(), click) || clippingAreaVertice(q->getD(), click)){
+                                 selecionaQuadrilatero(aux, q, click);
+                                 if(clippingAreaVertice(q->getA(), click)){
+                                     q->getPA()->setSelect(true);
+                                 } else if(clippingAreaVertice(q->getB(), click) ){
+                                     q->getPB()->setSelect(true);
+                                 } else if (clippingAreaVertice(q->getC(), click)){
+                                     q->getPC()->setSelect(true);
+                                 } else q->getPD()->setSelect(true);
+                             } else if (q->isPreenchido()){// se o quadrilátero estiver preenchido
+                                 if (event->x()<=q->getD().getX() && event->x()>=q->getA().getX() && (gfWrldSizeY-event->y())<=q->getA().getY() && (gfWrldSizeY-event->y())>=q->getD().getY()){
+                                        selecionaQuadrilatero(aux, q, click);
+                                }
+                                 /*
+                                  * else {
+                            // mais uma possibilidade:
+                                // clicar na linha
+                        }
+                                  */
+                            } else {
                                  aux->objeto->setSelect(false);
                              }
                         }
@@ -493,6 +602,13 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                 do{
                     if (aux!=NULL){
                         aux->objeto->setSelect(false);
+                        if (aux->objeto->getTipo()==QUADRILATERO){
+                            Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
+                            q->getPA()->setSelect(false);
+                            q->getPB()->setSelect(false);
+                            q->getPC()->setSelect(false);
+                            q->getPD()->setSelect(false);
+                        }
                     }
                     aux = aux->next;
                 } while (aux!=NULL);
@@ -525,11 +641,14 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
     if (desenha){
         if (onMouseClik){
             if (fim->objeto->getTipo()==CIRCULO){
-                Objeto *c = fim->objeto;
+                Circulo *c = dynamic_cast <Circulo *>(fim->objeto);
                 c->redimensionar(event->x(), gfWrldSizeY - event->y());
             } else if (fim->objeto->getTipo() == QUADRILATERO){
-                Objeto *c = fim->objeto;
-                c->redimensionar(event->x(), gfWrldSizeY-event->y());
+                Quadrilatero *q = dynamic_cast <Quadrilatero *>(fim->objeto);
+                q->setD(Ponto(event->x(), gfWrldSizeY-event->y()));
+                q->setC(Ponto(q->getD().getX(), q->getA().getY()));
+                q->setB(Ponto(q->getA().getX(), q->getD().getY()));
+//                c->redimensionar(event->x(), gfWrldSizeY-event->y());
             }
         }
     } else if (onMouseClik){ // Primeiro Teste: translação
@@ -555,7 +674,33 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                         q->setD(D);
                     }
                 } else if (op==ESCALA){
-                    aux->objeto->redimensionar(event->x(), gfWrldSizeY-event->y());
+                    if (aux->objeto->getTipo() == CIRCULO){
+                        Circulo *c = dynamic_cast <Circulo *>(aux->objeto);
+                        c->redimensionar(event->x(), gfWrldSizeY-event->y());
+                    } else if (aux->objeto->getTipo() == QUADRILATERO){
+
+                    }
+                } else if (op==DESLOCARPONTOS){
+                    if (aux->objeto->getTipo()==QUADRILATERO){
+                        Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
+                        if (q->getA().isSelect()){
+                            q->setA(Ponto(event->x(), gfWrldSizeY-event->y())); //
+                            q->setB(Ponto(q->getA().getX(), q->getB().getY()));
+                            q->setC(Ponto(q->getC().getX(),q->getA().getY()));
+                        } else if (q->getB().isSelect()){
+                            q->setB(Ponto(event->x(), gfWrldSizeY-event->y()));
+                            q->setA(Ponto(q->getB().getX(), q->getA().getY()));
+                            q->setD(Ponto(q->getD().getX(), q->getB().getY()));
+                        } else if (q->getC().isSelect()){
+                            q->setC(Ponto(event->x(), gfWrldSizeY-event->y()));
+                            q->setA(Ponto(q->getA().getX(), q->getC().getY()));
+                            q->setD(Ponto(q->getC().getX(), q->getD().getY()));
+                        } else if (q->getD().isSelect()){
+                            q->setD(Ponto(event->x(), gfWrldSizeY-event->y()));
+                            q->setB(Ponto(q->getB().getX(), q->getD().getY()));
+                            q->setC(Ponto(q->getD().getX(), q->getC().getY()));
+                        }
+                    }
                 }
             }
             aux = aux->next;

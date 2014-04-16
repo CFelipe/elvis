@@ -19,7 +19,7 @@ class Objeto{
         GLfloat colorLine[4];
         GLint xclick, yclick;
         GLint espessuraLinha;
-        bool preenchido; // diz se a forma está preenchida com alguma cor
+        bool preenchido; // true  -> a forma está preenchida com alguma cor
     public:
         Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo){ //
             select = false;
@@ -37,7 +37,6 @@ class Objeto{
 
         }
         Objeto(){}
-        void virtual redimensionar(GLint xmouse, GLint ymouse)=0;
        // void virtual getDimensao() = 0;
 
         bool isPreenchido(){
@@ -190,13 +189,21 @@ class Circulo: public Objeto{
 class Ponto{
     private:
         GLint x, y;
+        bool select;
     public:
         Ponto(GLint x, GLint y){
             this->x = x;
             this->y = y;
-
+            select = false;
         }
         Ponto(){};
+        bool isSelect(){
+            return select;
+        }
+        void setSelect(bool s){
+            select = s;
+        }
+
         GLint getX(){
             return x;
         }
@@ -225,6 +232,7 @@ class Quadrilatero: public Objeto{
             this->D = D;
         }
     private:
+
         //! Algortimo de rasterização da linha: Bresenham
         void Bresenham(Ponto p1, Ponto p2){
             GLfloat co[4];
@@ -491,36 +499,47 @@ class Quadrilatero: public Objeto{
             Bresenham(D, C);
             Bresenham(C, A);
         }
-        void redimensionar(GLint xmouse, GLint ymouse){
-            D.setX(xmouse);
-            D.setY(ymouse);
-            B.setX(D.getX());
-            B.setY(A.getY());
-            C.setX(A.getX());
-            C.setY(D.getY());
-        }
+
+
        Ponto getA(){
             return A;
        }
+       Ponto *getPA(){
+           return &A;
+       }
+
        Ponto getB(){
             return B;
+       }
+       Ponto *getPB(){
+            return &B;
        }
        Ponto getC(){
             return C;
        }
+       Ponto *getPC(){
+            return &C;
+       }
        Ponto getD(){
             return D;
        }
+       Ponto *getPD(){
+            return &D;
+       }
        Ponto setA(Ponto A){
+           A.setSelect(this->A.isSelect());
            this->A = A;
        }
        Ponto setB(Ponto B){
+           B.setSelect(this->B.isSelect());
            this->B = B;
        }
        Ponto setC(Ponto C){
+           C.setSelect(this->C.isSelect());
            this->C = C;
        }
        Ponto setD(Ponto D){
+           D.setSelect(this->D.isSelect());
            this->D = D;
        }
 };
