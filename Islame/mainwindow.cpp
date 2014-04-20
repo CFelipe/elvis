@@ -5,6 +5,7 @@
 #include <GL/glu.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
+#include <cmath>
 #include "Objeto.h"
 using namespace std;
 
@@ -73,13 +74,22 @@ void remove(Lista *re){
 GLfloat gfWrldSizeX = 800.f;
 GLfloat gfWrldSizeY = 600.f;
 GLfloat gfWrldSizeZ = 400.f;
-GLint xmouse=0, ymouse=0;
 bool onMouseClik = false;
 bool desenha = true; // true = desenha. false = seleciona
 GLint espessuraLinha = 2; //PEGAR ESTE VALOR DE UM SELETOR
 
-Transforcao op = ROTACAO;
-Forma forma = CIRCULO;
+Transforcao op = TRANSLACAO;
+Forma forma = ELIPSE;
+GLdouble anguloDeRotacao = M_PI/2; // Valor do ângulo (em radianos) de rotação. Entrada do usuário (seletor)
+bool opBotaoDireito = false;
+/* A variável opBotaoDireito é usada somente para controlar a possibilidade de rotação de acordo como especificado no documento
+ * opBotaoDireito=true <--> o botão direito foi pressionado em algum local do canvas
+ * opBotaoDireito=fase <--> o botão esquerdo foi pressionado sobre a região da figura ou sobre um ponto de controle
+*/
+Ponto clickCanvas;
+
+GLdouble distanciaAB = 0; // guarda a distancia entre dois pontos quaisquer A e B
+
 
 GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent) {
     setMouseTracking(true);
@@ -349,6 +359,65 @@ void Bresenham(GLintPoint p1, GLintPoint p2) {
 */
 
 
+void retacionaObjeto(Objeto *ob){
+    /* 1 ª Desloca os pontos para a origem
+     * 2 ª rotaciona
+     * 3 ª Devolve às cordenadas iniciais
+     */
+    if (ob->isSelect()){
+        switch(ob->getTipo()){
+            case QUADRILATERO :
+                {
+                Quadrilatero *q = dynamic_cast <Quadrilatero *>(ob); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
+                Ponto A = q->getA();
+                Ponto B = q->getB();
+                Ponto C = q->getC();
+                Ponto D = q->getD();
+                A.setX(A.getX()-clickCanvas.getX());
+                A.setY(A.getY()-clickCanvas.getY());
+                B.setX(B.getX()-clickCanvas.getX());
+                B.setY(B.getY()-clickCanvas.getY());
+                C.setX(C.getX()-clickCanvas.getX());
+                C.setY(C.getY()-clickCanvas.getY());
+                D.setX(D.getX()-clickCanvas.getX());
+                D.setY(D.getY()-clickCanvas.getY());
+                GLint aux = A.getX();
+                A.setX(aux*cos(anguloDeRotacao) - A.getY()*sin(anguloDeRotacao) + clickCanvas.getX());
+                A.setY(aux*sin(anguloDeRotacao) + A.getY()*cos(anguloDeRotacao) + clickCanvas.getY());
+                aux = B.getX();
+                B.setX(aux*cos(anguloDeRotacao) - B.getY()*sin(anguloDeRotacao) + clickCanvas.getX());
+                B.setY(aux*sin(anguloDeRotacao) + B.getY()*cos(anguloDeRotacao) + clickCanvas.getY());
+                aux = C.getX();
+                C.setX(aux*cos(anguloDeRotacao) - C.getY()*sin(anguloDeRotacao) + clickCanvas.getX());
+                C.setY(aux*sin(anguloDeRotacao) + C.getY()*cos(anguloDeRotacao) + clickCanvas.getY());
+                aux = D.getX();
+                D.setX(aux*cos(anguloDeRotacao) - D.getY()*sin(anguloDeRotacao) + clickCanvas.getX());
+                D.setY(aux*sin(anguloDeRotacao) + D.getY()*cos(anguloDeRotacao) + clickCanvas.getY());
+                q->setA(A);
+                q->setB(B);
+                q->setC(C);
+                q->setD(D);}
+                break;
+            case CIRCULO:
+                {
+                Circulo *c = dynamic_cast <Circulo *>(ob); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
+                GLint xc = c->getXc()-clickCanvas.getX();
+                GLint yc = c->getYc()-clickCanvas.getY();
+                c->setXc(xc*cos(anguloDeRotacao) - yc*sin(anguloDeRotacao) + clickCanvas.getX());
+                c->setYc(xc*sin(anguloDeRotacao) + yc*cos(anguloDeRotacao) + clickCanvas.getY());
+                }
+                break;
+            case ELIPSE:
+                {
+
+                }
+            default:
+                cout<<"DEFAUT"<<endl;
+                break;
+
+        }
+    }
+}
 
 void selecionaQuadrilatero(Lista *aux, Quadrilatero *q, Ponto click){
     aux->objeto->setSelect(true);
@@ -393,13 +462,13 @@ Quadrilatero* getAreaClippingMouse(GLint xmouse, GLint ymouse){
 //! \return true se o ponto está dentro
 //!
 bool clippingAreaVertice(Ponto vertice, Ponto teste){
-    cout<<"Area.."<<endl;
+    /*cout<<"Area.."<<endl;
     cout<<vertice.getX()+CONTROL<<", "<<vertice.getY()+CONTROL<<endl;
     cout<<vertice.getX()+CONTROL<<", "<<vertice.getY()-CONTROL<<endl;
     cout<<vertice.getX()-CONTROL<<", "<<vertice.getY()+CONTROL<<endl;
     cout<<vertice.getX()-CONTROL<<", "<<vertice.getY()-CONTROL<<endl;
     cout<<"Click..."<<endl;
-    cout<<teste.getX()<<", "<<teste.getY()<<endl;
+    cout<<teste.getX()<<", "<<teste.getY()<<endl;*/
     return teste.getX()<=(vertice.getX()+CONTROL) && teste.getY()<=(vertice.getY()+CONTROL) && teste.getX()>=(vertice.getX()-CONTROL) && teste.getY()>=(vertice.getY()-CONTROL);
 }
 
@@ -437,6 +506,17 @@ void GLWidget::paintGL() {
         glPushMatrix( );
         glPointSize(3);
         Lista *aux = init;
+        if (op==ROTACAO && opBotaoDireito){ // se a opção se rotação foi selecionada e o botão direito foi pressionado, então desenhe uma cruzinha
+            glPointSize(10);
+            glColor3f( 0,0 , 0 );
+            cout<<clickCanvas.getX()<<", "<<clickCanvas.getY()<<endl;
+            glBegin(GL_LINES);
+                glVertex2i(clickCanvas.getX()+CONTROL, clickCanvas.getY());
+                glVertex2i(clickCanvas.getX()-CONTROL, clickCanvas.getY());
+                glVertex2i(clickCanvas.getX(), clickCanvas.getY()+CONTROL);
+                glVertex2i(clickCanvas.getX(), clickCanvas.getY()-CONTROL);
+            glEnd();
+        }
         while (aux!=NULL){
              Objeto *c = aux->objeto;
             c->desenha();
@@ -459,6 +539,29 @@ void GLWidget::paintGL() {
                         glVertex2i(q->getC().getX(), q->getC().getY());
                         glVertex2i(q->getD().getX(), q->getD().getY());
                     glEnd();
+                } else if (aux->objeto->getTipo() == ELIPSE){
+                    Elipse *e = dynamic_cast <Elipse *>(aux->objeto); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
+                    glEnable(GL_LINE_STIPPLE);
+                    glLineStipple(1, 0xAAAA);
+                    glColor3f(0,0.5, 0);
+                    glBegin(GL_LINES);
+                         glVertex2i(-e->getRaioHorizontal()+e->getCentro().getX(), e->getRaioVertical()+e->getCentro().getY());
+                         glVertex2i(-e->getRaioHorizontal()+e->getCentro().getX(), -e->getRaioVertical()+e->getCentro().getY());
+                         glVertex2i(e->getRaioHorizontal()+e->getCentro().getX(), e->getRaioVertical()+e->getCentro().getY());
+                         glVertex2i(e->getRaioHorizontal()+e->getCentro().getX(), -e->getRaioVertical()+e->getCentro().getY());
+                         glVertex2i(-e->getRaioHorizontal()+e->getCentro().getX(),e->getRaioVertical()+e->getCentro().getY());
+                         glVertex2i(e->getRaioHorizontal()+e->getCentro().getX(), e->getRaioVertical()+e->getCentro().getY());
+                         glVertex2i(e->getRaioHorizontal()+e->getCentro().getX(), -e->getRaioVertical()+e->getCentro().getY());
+                         glVertex2i(-e->getRaioHorizontal()+e->getCentro().getX(), -e->getRaioVertical()+e->getCentro().getY());
+
+                    glEnd();
+                    glDisable(GL_LINE_STIPPLE);
+                    glPointSize(6);
+                    glBegin(GL_POINTS);
+                        glVertex2i(e->getCentro().getX(), e->getCentro().getY());
+                        glVertex2i(e->getControl().getX(), e->getControl().getY());
+                    glEnd();
+
                 }
             } else {
                 if (aux->objeto->getTipo()==CIRCULO){
@@ -505,6 +608,37 @@ void GLWidget::paintGL() {
                         glVertex2i(q->getD().getX()-CONTROL, q->getD().getY()-CONTROL);
                         glVertex2i(q->getD().getX()+CONTROL, q->getD().getY()-CONTROL);
                     glEnd();
+                } else if (aux->objeto->getTipo() == ELIPSE){
+                    Elipse *e = dynamic_cast <Elipse *>(aux->objeto); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
+                    glPointSize(1);
+                    glColor3f( 0,0, 0 );
+                    glBegin(GL_LINE_LOOP);
+                        glVertex2i(e->getControl().getX()+CONTROL, e->getControl().getY()+CONTROL);
+                        glVertex2i(e->getControl().getX()-CONTROL, e->getControl().getY()+CONTROL);
+                        glVertex2i(e->getControl().getX()-CONTROL, e->getControl().getY()-CONTROL);
+                        glVertex2i(e->getControl().getX()+CONTROL, e->getControl().getY()-CONTROL);
+                    glEnd();
+                    glBegin(GL_LINE_LOOP);
+                        glVertex2i(e->getCentro().getX()+CONTROL, e->getCentro().getY()+CONTROL);
+                        glVertex2i(e->getCentro().getX()-CONTROL, e->getCentro().getY()+CONTROL);
+                        glVertex2i(e->getCentro().getX()-CONTROL, e->getCentro().getY()-CONTROL);
+                        glVertex2i(e->getCentro().getX()+CONTROL, e->getCentro().getY()-CONTROL);
+
+                   glEnd();
+                   glEnable(GL_LINE_STIPPLE);
+                   glLineStipple(1, 0xAAAA);
+                   glBegin(GL_LINES);
+                        glVertex2i(-e->getRaioHorizontal()+e->getCentro().getX(), e->getRaioVertical()+e->getCentro().getY());
+                        glVertex2i(-e->getRaioHorizontal()+e->getCentro().getX(), -e->getRaioVertical()+e->getCentro().getY());
+                        glVertex2i(e->getRaioHorizontal()+e->getCentro().getX(), e->getRaioVertical()+e->getCentro().getY());
+                        glVertex2i(e->getRaioHorizontal()+e->getCentro().getX(), -e->getRaioVertical()+e->getCentro().getY());
+                        glVertex2i(-e->getRaioHorizontal()+e->getCentro().getX(),e->getRaioVertical()+e->getCentro().getY());
+                        glVertex2i(e->getRaioHorizontal()+e->getCentro().getX(), e->getRaioVertical()+e->getCentro().getY());
+                        glVertex2i(e->getRaioHorizontal()+e->getCentro().getX(), -e->getRaioVertical()+e->getCentro().getY());
+                        glVertex2i(-e->getRaioHorizontal()+e->getCentro().getX(), -e->getRaioVertical()+e->getCentro().getY());
+
+                   glEnd();
+                   glDisable(GL_LINE_STIPPLE);
                 }
             }
             aux = aux->next;
@@ -535,6 +669,12 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                     GLfloat colorLine[4] = {1, 0, 0, 0};
                     Quadrilatero *q = new Quadrilatero(A, B, C, D, colorFill, colorLine, espessuraLinha, QUADRILATERO);
                     insere(q);
+                } else if (forma==ELIPSE){
+                    GLint xc =event->x();
+                    GLint yc = gfWrldSizeY-event->y();
+                    GLfloat color[4] = {1, 0, 0, 0};
+                    Elipse *e = new Elipse(Ponto(xc, yc), 0, 0, color, color, espessuraLinha, ELIPSE);
+                    insere (e);
                 }
             }
             onMouseClik = !onMouseClik;
@@ -564,7 +704,44 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                             } else {
                                 aux->objeto->setSelect(false);
                             }
-                        } else if (aux->objeto->getTipo() == QUADRILATERO){
+                        } else if(aux->objeto->getTipo() == ELIPSE){
+                            Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
+                            /* caso a elipse não esteja preenchicda,
+                                 * então a única possibilidade de selecioná-la será
+                                 * através do ponto de controle ou clicando sobre seus limites
+                                 * que formam o desenho (e não as linhas potilhadas)
+                             */
+                             Ponto click(event->x(),gfWrldSizeY-event->y());
+                             if (clippingAreaVertice(e->getControl(), click)){
+                                 aux->objeto->setSelect(true);
+                                 aux->objeto->setXClick(e->getControl().getX()-e->getCentro().getX());
+                                 aux->objeto->setYClick(e->getControl().getY()-e->getCentro().getY());
+                                 e->getPControl()->setSelect(true);
+                            //} else {
+                                 //sobre os limites da elipse rasterizada
+                             } else {
+                                  aux->objeto->setSelect(false);
+                             }
+                            //} //if (Preenchida){
+                              //se a forma estiver preenchida
+                            //}
+                             if (aux->objeto->isSelect()){
+                                 if (op==COPIA){
+                                     GLfloat fill[4], line[4];
+                                     e->getColorFill(fill);
+                                     e->getColorLine(line);
+                                     Elipse *novo = new Elipse(e->getCentro(), e->getRaioHorizontal(), e->getRaioVertical(), fill, line, espessuraLinha, ELIPSE);
+                                     novo->setControl(e->getControl());
+                                     insere (novo);
+                                     aux->objeto->setSelect(false);
+                                     fim->objeto->setSelect(true);
+
+                                     fim->objeto->setXClick(aux->objeto->getXClick());
+                                     fim->objeto->setYClick(aux->objeto->getYClick());
+                                 }
+                             }
+
+                        }else if (aux->objeto->getTipo() == QUADRILATERO){
                              Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
                              Ponto click(event->x(),gfWrldSizeY-event->y());
                              if (clippingAreaVertice(q->getA(), click) || clippingAreaVertice(q->getB(), click) || clippingAreaVertice(q->getC(), click) || clippingAreaVertice(q->getD(), click)){
@@ -590,6 +767,13 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                                  aux->objeto->setSelect(false);
                              }
                         }
+                        if (op==ROTACAO){
+                            if (opBotaoDireito==false) { // se o usuário não clicou com o botão direito fora da área do quadrado
+                                clickCanvas.setX(event->x());
+                                clickCanvas.setY(gfWrldSizeY-event->y());
+                            }
+                           retacionaObjeto(aux->objeto);
+                        }
                         aux = aux->next;
                     }
                 }while (aux!=auxFim->next);
@@ -602,12 +786,16 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                 do{
                     if (aux!=NULL){
                         aux->objeto->setSelect(false);
+                        // o código abaixo "deseleciona" os pontos de controle da forma, caso a operação realizada tenha sido um deslocamento de pontos
                         if (aux->objeto->getTipo()==QUADRILATERO){
                             Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
                             q->getPA()->setSelect(false);
                             q->getPB()->setSelect(false);
                             q->getPC()->setSelect(false);
                             q->getPD()->setSelect(false);
+                        } else if (aux->objeto->getTipo()==ELIPSE){
+                            Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
+                            e->getPControl()->setSelect(false);
                         }
                     }
                     aux = aux->next;
@@ -624,10 +812,19 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
         insere(p1, p2);
         onMouseClik = !onMouseClik;*/
     } else if ((event->buttons() & Qt::RightButton) == Qt::RightButton){
-        if (onMouseClik){ // se durante a rasterização da forma o botão direito for pressionado, então delete a forma [QUALQUER]
-            onMouseClik = false;
-            remove(fim);
-            updateGL();
+        if (desenha){
+            if (onMouseClik){ // se durante a rasterização da forma o botão direito for pressionado, então delete a forma [QUALQUER]
+                onMouseClik = false;
+                remove(fim);
+                updateGL();
+            }
+        } else {
+            if (op==ROTACAO){
+                clickCanvas.setX(event->x());
+                clickCanvas.setY(gfWrldSizeY-event->y());
+                opBotaoDireito = true;
+                updateGL();
+            }
         }
     }
 }
@@ -648,10 +845,14 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                 q->setD(Ponto(event->x(), gfWrldSizeY-event->y()));
                 q->setC(Ponto(q->getD().getX(), q->getA().getY()));
                 q->setB(Ponto(q->getA().getX(), q->getD().getY()));
-//                c->redimensionar(event->x(), gfWrldSizeY-event->y());
+            } else if (fim->objeto->getTipo()==ELIPSE){
+                Elipse *e = dynamic_cast <Elipse *>(fim->objeto);
+                e->setRaioHorizontal(abs(event->x()-e->getCentro().getX()));
+                e->setRaioVertical(abs(gfWrldSizeY-event->y()-e->getCentro().getY()));
+                e->setControl(Ponto(event->x(), gfWrldSizeY-event->y()));
             }
         }
-    } else if (onMouseClik){ // Primeiro Teste: translação
+    } else if (onMouseClik){
         Lista *aux = init;
         while (aux!=NULL){
             if (aux->objeto->isSelect()){
@@ -666,19 +867,45 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                         GLint dy = - q->getA().getY() + q->getD().getY();
                         Ponto A(event->x()-aux->objeto->getXClick(), gfWrldSizeY-event->y()-aux->objeto->getYClick()); // ponto de clik
                         Ponto D(A.getX()+dx, A.getY()+dy);
-                        Ponto B(D.getX(), A.getY());
-                        Ponto C(A.getX(), D.getY());
+                        Ponto C(D.getX(), A.getY());
+                        Ponto B(A.getX(), D.getY());
                         q->setA(A);
                         q->setB(B);
                         q->setC(C);
                         q->setD(D);
+                    } else if (aux->objeto->getTipo()==ELIPSE){
+                        Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
+                        GLint ax = e->getControl().getX()==e->getCentro().getX()+e->getRaioHorizontal()?(1):(-1), ay = e->getControl().getY()==e->getCentro().getY()+e->getRaioVertical()?(1):(-1);
+                        e->setCentro(Ponto(event->x()-e->getXClick(), gfWrldSizeY-event->y()- e->getYClick()));
+
+                        e->setControl(Ponto(e->getCentro().getX()+ax*(e->getRaioHorizontal()),e->getCentro().getY()+ay*(e->getRaioVertical())));
+
                     }
                 } else if (op==ESCALA){
                     if (aux->objeto->getTipo() == CIRCULO){
                         Circulo *c = dynamic_cast <Circulo *>(aux->objeto);
                         c->redimensionar(event->x(), gfWrldSizeY-event->y());
                     } else if (aux->objeto->getTipo() == QUADRILATERO){
+                        Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
+                        Ponto centro = q->getCentro();
+                        GLdouble aux = distanciaAB;
+                        distanciaAB = sqrt(pow(event->x()-centro.getX(), 2)+pow(gfWrldSizeY-event->y()-centro.getY(), 2));
+                        GLint fatorx = 3, fatory = 3;//abs(distanciaAB-(xclick-centro.getX())), fatory = abs(distanciaAB-(yclick -centro.getY()));
+                        if (aux-distanciaAB>0){ // setinha do mouse "entrando" na forma
+                            q->escala((-1)*fatorx, (-1)*fatory);
+                        } else{ // "saindo"
+                            q->escala(fatorx, fatory);
+                        }
+                    } else if (aux->objeto->getTipo() == ELIPSE){  // de qualquer ponto selecionado
+                        Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
+                        GLint rh = abs(event->x()-e->getCentro().getX())+1;
+                        GLint rv = abs(gfWrldSizeY-event->y()-e->getCentro().getY())+1;
+                        GLint ax = e->getControl().getX()==e->getCentro().getX()+e->getRaioHorizontal()?(1):(-1), ay = e->getControl().getY()==e->getCentro().getY()+e->getRaioVertical()?(1):(-1);
 
+                        e->setControl(Ponto(e->getCentro().getX()+ax*(rh),e->getCentro().getY()+ay*(rv)));
+                        e->setRaioHorizontal(rh);
+                        e->setRaioVertical(rv);
+                        //cout<<rh<<","<<rv<<endl;
                     }
                 } else if (op==DESLOCARPONTOS){
                     if (aux->objeto->getTipo()==QUADRILATERO){
@@ -699,6 +926,16 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                             q->setD(Ponto(event->x(), gfWrldSizeY-event->y()));
                             q->setB(Ponto(q->getB().getX(), q->getD().getY()));
                             q->setC(Ponto(q->getD().getX(), q->getC().getY()));
+                        }
+                    } else if (aux->objeto->getTipo() == CIRCULO){
+                        // fazer primeiro a elipse;
+                    } else if (aux->objeto->getTipo() == ELIPSE){
+                        Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
+                        cout<<e->getControl().isSelect()<<endl;
+                        if (e->getControl().isSelect()){ // apenas por ponto de controle
+                            e->setRaioHorizontal(abs(event->x()-e->getCentro().getX()));
+                            e->setRaioVertical(abs(gfWrldSizeY-event->y()-e->getCentro().getY()));
+                            e->setControl(Ponto(event->x(), gfWrldSizeY-event->y()));
                         }
                     }
                 }
@@ -726,11 +963,16 @@ void GLWidget::keyPressEvent(QKeyEvent* event) {
               aux->objeto->setSelect(false);
               aux = aux->next;
           }
+          opBotaoDireito = false;
           updateGL();
-    } else if(event->key()==81){
+    } else if(event->key()==81){ //q
            forma = QUADRILATERO;
-    } else if (event->key()==67){
+    } else if (event->key()==67){ //c
            forma = CIRCULO;
+    } else if (event->key()==69){ //e
+        forma = ELIPSE;
+    } else if (Qt::Key_Escape){
+        opBotaoDireito = false;
     }
-
+    cout<<event->key()<<endl;
 }

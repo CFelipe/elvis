@@ -103,6 +103,152 @@ class Objeto{
 
 };
 
+class Ponto{
+    private:
+        GLint x, y;
+        bool select;
+    public:
+        Ponto(GLint x, GLint y){
+            this->x = x;
+            this->y = y;
+            select = false;
+        }
+        Ponto(){};
+        bool isSelect(){
+            return select;
+        }
+        void setSelect(bool s){
+            select = s;
+        }
+
+        GLint getX(){
+            return x;
+        }
+        GLint getY(){
+            return y;
+        }
+        void setY(GLint y) {
+            this->y = y;
+        }
+        void setX(GLint x){
+            this->x = x;
+        }
+
+};
+
+
+/*
+ * Criamos uma classe Circulo e outra Elipse.
+ * Poderíamos tratar tudo como elipse, porém,
+ * de fato, o usuário pode ter a necessidade de desenhar exatamente um circulo.
+ * Esta forma, quando editada com o deslocamento de pontos ou escala, continuará um circulo
+ * A elipse, por sua vez, pode virar um circulo, caso o raio vertical seja igual ao do horizontal (deslocamento de pontos)
+*/
+class Elipse: public Objeto{
+    private:
+        Ponto centro;
+        GLint raioHorizontal, raioVertical;
+        Ponto control;
+        /* control.x  = centro.x + raioHorizontal
+         * control.y = centro.y - raioVertical
+         */
+
+
+    public:
+
+        Elipse(Ponto centro, GLint raioHorizontal, GLint raioVertical, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo) : Objeto(colorfill, colorLine, espessuraLinha, tipo){
+            this->centro = centro;
+            this->raioHorizontal = raioHorizontal;
+            this->raioVertical = raioVertical;
+            this->control = centro;
+        }
+        void desenha(){
+            GLfloat co[4];
+            getColorLine(co);
+            glColor4f( co[0],co[1],co[2], co[3]);
+
+            GLdouble d2;
+            GLint x =0;
+            GLint y = raioVertical;
+            GLdouble d1 = raioVertical*raioVertical - (raioHorizontal*raioHorizontal*raioVertical) + (0.25*raioHorizontal*raioHorizontal);
+
+            glPointSize(getEspessuraLinha());
+
+            glBegin(GL_POINTS);
+              //  glVertex2i(x+centro.getX(), y+centro.getY());
+                glVertex2i(  x+centro.getX(),  y+centro.getY() );
+                glVertex2i(  x+centro.getX(), -y+centro.getY() );
+                glVertex2i( -x+centro.getX(),  y+centro.getY() );
+                glVertex2i( -x+centro.getX(), -y+centro.getY() );
+            glEnd();
+            while (raioHorizontal*raioHorizontal*(y-0.5) > raioVertical*raioVertical*(x+1)){
+                if (d1<0){
+                    d1 += raioVertical*raioVertical*(2*x+3);
+                }else{
+                    d1 += raioVertical*raioVertical*(2*x+3) + raioHorizontal*raioHorizontal*((-2)*y +2);
+                    y--;
+                }
+                x++;
+                glBegin(GL_POINTS);
+                    glVertex2i(  x+centro.getX(),  y+centro.getY() );
+                    glVertex2i(  x+centro.getX(), -y+centro.getY() );
+                    glVertex2i( -x+centro.getX(),  y+centro.getY() );
+                    glVertex2i( -x+centro.getX(), -y+centro.getY() );
+                glEnd();
+            }
+            d2 = raioVertical*raioVertical*(x+0.5)*(x+0.5) + raioHorizontal*raioHorizontal*(y-1)*(y-1) - raioHorizontal*raioHorizontal*raioVertical*raioVertical;
+            while (y>0){
+                if (d2<0){
+                    d2+=raioVertical*raioVertical*(2*x+2) + raioHorizontal*raioHorizontal*((-2)*y + 3);
+                    x++;
+                } else {
+                    d2+=raioHorizontal*raioHorizontal*((-2)*y + 3);
+                }
+                y--;
+                glBegin(GL_POINTS);
+                    glVertex2i(  x+centro.getX(),  y+centro.getY() );
+                    glVertex2i(  x+centro.getX(), -y+centro.getY() );
+                    glVertex2i( -x+centro.getX(),  y+centro.getY() );
+                    glVertex2i( -x+centro.getX(), -y+centro.getY() );
+                glEnd();
+            }
+        }
+
+        Ponto getCentro(){
+            return centro;
+        }
+        GLint getRaioHorizontal(){
+            return raioHorizontal;
+        }
+        GLint getRaioVertical(){
+            return raioVertical;
+        }
+        Ponto getControl(){
+            return control;
+        }
+        Ponto *getPControl(){
+            return &control;
+        }
+
+        void setCentro(Ponto c){
+            centro = c;
+           // updateControl();
+        }
+        void setRaioHorizontal(GLint n){
+            raioHorizontal = n;
+           // updateControl();
+        }
+        void setRaioVertical(GLint n){
+            raioVertical = n;
+          //  updateControl();
+        }
+        void setControl(Ponto c){
+            c.setSelect(this->control.isSelect());
+            this->control = c;
+        }
+
+
+};
 
 class Circulo: public Objeto{
     private:
@@ -186,50 +332,30 @@ class Circulo: public Objeto{
 
 };
 
-class Ponto{
-    private:
-        GLint x, y;
-        bool select;
-    public:
-        Ponto(GLint x, GLint y){
-            this->x = x;
-            this->y = y;
-            select = false;
-        }
-        Ponto(){};
-        bool isSelect(){
-            return select;
-        }
-        void setSelect(bool s){
-            select = s;
-        }
-
-        GLint getX(){
-            return x;
-        }
-        GLint getY(){
-            return y;
-        }
-        void setY(GLint y) {
-            this->y = y;
-        }
-        void setX(GLint x){
-            this->x = x;
-        }
-
-};
 
 
 class Quadrilatero: public Objeto{
     private:
-        Ponto A; // âncora, isto é, vértice de onde partirá o processo de rasterização
+        Ponto A;
         Ponto B, C, D;
+        Ponto centro;
+        Ponto max, min;
+        /*
+         * Mantemos A, B, C, D para facilitar o processo de rasterização dos lados, bem como manipulação dos pontos de controle
+         * Mesmo assim, é necessário manter os pontos max e min, pois não sabemos quais deles serão max e min
+         * max e min serão atualizados sempre que A B C ou D também o forem
+        */
     public:
         Quadrilatero(Ponto A, Ponto B, Ponto C, Ponto D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo) : Objeto(colorfill, colorLine, espessuraLinha, tipo){
             this->A = A;
             this->B = B;
             this->C = C;
             this->D = D;
+            Ponto m(A.getX(), A.getY());
+            min = m;
+            max = m;
+            Ponto c((max.getX()-min.getX())/2 + min.getX(), (max.getY()- min.getY())/2 + min.getY());
+            this->centro = c;
         }
     private:
 
@@ -238,6 +364,23 @@ class Quadrilatero: public Objeto{
             GLfloat co[4];
             getColorLine(co);
             glColor4f( co[0],co[1],co[2], co[3]);
+            /*glPointSize(getEspessuraLinha()+10); //especifica o diâmetro do ponto
+            glBegin(GL_POINTS);
+                glVertex2i(centro.getX(), centro.getY());
+            glEnd();
+            glPointSize(getEspessuraLinha()+5); //especifica o diâmetro do ponto
+
+            glBegin(GL_POINTS);
+                glVertex2i(A.getX(), A.getY());
+            glEnd();
+
+            glPointSize(getEspessuraLinha()+15); //especifica o diâmetro do ponto
+
+            glBegin(GL_POINTS);
+                glVertex2i(D.getX(), D.getY());
+            glEnd();
+            */
+
             glPointSize(getEspessuraLinha()); //especifica o diâmetro do ponto
 
             GLint x, y;
@@ -500,6 +643,9 @@ class Quadrilatero: public Objeto{
             Bresenham(C, A);
         }
 
+       Ponto getCentro(){
+           return centro;
+       }
 
        Ponto getA(){
             return A;
@@ -526,21 +672,101 @@ class Quadrilatero: public Objeto{
        Ponto *getPD(){
             return &D;
        }
+       void atualizaMINMAX(Ponto A){
+
+           Ponto c((max.getX()-min.getX())/2 + min.getX(), (max.getY()- min.getY())/2 + min.getY());
+           this->centro = c;
+       }
+
        Ponto setA(Ponto A){
            A.setSelect(this->A.isSelect());
            this->A = A;
+
+           if (A.getX()>D.getX()){
+               max.setX(A.getX());
+               min.setX(D.getX());
+           } else{
+               max.setX(D.getX());
+               min.setX(A.getX());
+           }
+           if (A.getY()>D.getY()){
+               max.setY(A.getY());
+               min.setY(D.getY());
+           } else{
+               max.setY(D.getY());
+               min.setY(A.getY());
+           }
+           Ponto c((max.getX()-min.getX())/2 + min.getX(), (max.getY()- min.getY())/2 + min.getY());
+           this->centro = c;
        }
        Ponto setB(Ponto B){
            B.setSelect(this->B.isSelect());
            this->B = B;
+           //atualizaMINMAX(B);
+
        }
        Ponto setC(Ponto C){
            C.setSelect(this->C.isSelect());
            this->C = C;
+           //atualizaMINMAX(C);
+
        }
        Ponto setD(Ponto D){
            D.setSelect(this->D.isSelect());
            this->D = D;
+           //atualizaMINMAX(D);
+           if (A.getX()>D.getX()){
+               max.setX(A.getX());
+               min.setX(D.getX());
+           } else{
+               max.setX(D.getX());
+               min.setX(A.getX());
+           }
+           if (A.getY()>D.getY()){
+               max.setY(A.getY());
+               min.setY(D.getY());
+           } else{
+               max.setY(D.getY());
+               min.setY(A.getY());
+           }
+
+           Ponto c((max.getX()-min.getX())/2 + min.getX(), (max.getY()- min.getY())/2 + min.getY());
+           this->centro = c;
+       }
+       void escala(GLint fatorx, GLint fatory){
+           /*if (A.getX()==max.getX()){
+               A.setX(A.getX()+fatorx);
+               D.setX(D.getX()-fatorx);
+           } else{
+               A.setX(A.getX()-fatorx);
+               D.setX(D.getX()+fatorx);
+           }
+           if (A.getY()==max.getY()){
+               A.setY(A.getY()+fatory);
+               D.setY(D.getY()-fatory);
+           } else{
+               A.setY(A.getY()-fatory);
+               D.setY(D.getY()+fatory);
+           }*/
+           if (A.getX()>D.getX()){
+               A.setX(A.getX()+fatorx);
+               D.setX(D.getX()-fatorx);
+           } else{
+               D.setX(D.getX()+fatorx);
+               A.setX(A.getX()-fatory);
+           }
+           if (A.getY()>D.getY()){
+               A.setY(A.getY()+fatory);
+               D.setY(D.getY()-fatory);
+           } else{
+               D.setY(D.getY()+fatory);
+               A.setY(A.getY()-fatory);
+           }
+           B.setX(A.getX());
+           B.setY(D.getY());
+           C.setX(D.getX());
+           C.setY(A.getY());
+
        }
 };
 
