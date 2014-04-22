@@ -1,5 +1,4 @@
 #include "window.h"
-#include "glwidget.h"
 #include "objeto.h"
 
 #include <QtWidgets>

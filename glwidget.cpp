@@ -6,6 +6,56 @@ using namespace std;
 
 #define CONTROL 5 // largura, altura dos pontos de controle e da área de clip do mouse
 
+
+Operacao op;
+Objeto::Forma forma;
+
+GLint espessuraLinha;
+bool preenchido; // true  -> a forma está preenchida com alguma cor
+bool desenha; // true = desenha. false = seleciona
+
+// ---------------
+// Lista encadeada
+typedef struct l {
+    Objeto *objeto;
+    l *next;
+    l *previous;
+} Lista;
+
+Lista *init=NULL, *fim=NULL;
+
+void insere(Objeto *ob) { // insere sempre no final da lista
+    Lista *novo = new Lista;
+    novo->objeto = ob;
+    novo->next = NULL;
+    novo->previous = fim;
+    if (init==NULL && fim==NULL){
+        init=novo;
+    } else {
+        fim->next = novo;
+    }
+    fim = novo;
+}
+
+void remove(Lista *re){
+    if (re==init && re==fim){
+        init=NULL;
+        fim=NULL;
+    } else if (re==init){
+        init = re->next;
+        (re->next)->previous = NULL; // re->next != NULL (certeza)
+
+    } else if (re==fim){
+        fim = re->previous;
+        re->previous->next = NULL; //re->previous != NULL (certeza)
+    } else {
+        (re->previous)->next = re->next;
+        (re->next)->previous = re->previous;
+    }
+}
+// ---------------
+
+
 /*
  * Lista encadeada de objetos (circulos, quadrilateros, elipes, polilinhas, e etc).
  * Não há necessidade de polimorfismo ou modelagem orientada a objeto. Por isso usamos struct
@@ -99,11 +149,11 @@ void GLWidget::rotacionaObjeto(Objeto *ob){
     }
 }
 
-void GLWidget::selecionaQuadrilatero(Lista *aux, Quadrilatero *q, Ponto click){
+void selecionaQuadrilatero(Lista *aux, Quadrilatero *q, Ponto click){
     aux->objeto->setSelect(true);
     aux->objeto->setXClick(-q->getA().getX()+ click.getX());
     aux->objeto->setYClick(-q->getA().getY()+click.getY() );
-    if (op == GLWidget::COPIA){
+    if (op== COPIA){
         GLfloat fill[4], line[4];
         q->getColorFill(fill);
         q->getColorLine(line);
@@ -634,16 +684,16 @@ void GLWidget::setForma(QAction* q) {
     // Encontrar maneira melhor
     // Depender do texto é péssimo
     if(q->text() == "Retângulo") {
-        this->forma = Objeto::QUADRILATERO;
+        forma = Objeto::QUADRILATERO;
         desenha = true;
     } else if(q->text() == "Círculo") {
-        this->forma = Objeto::CIRCULO;
+        forma = Objeto::CIRCULO;
         desenha = true;
     } else if(q->text() == "Polilinha") {
         //this->forma = Objeto::POLILINHA;
         qDebug() << "Não implementado";
     } else if(q->text() == "Elipse") {
-        this->forma = Objeto::ELIPSE;
+        forma = Objeto::ELIPSE;
         desenha = true;
     } else if(q->text() == "Selecionar") {
         desenha = false;
