@@ -78,7 +78,7 @@ bool onMouseClik = false;
 bool desenha = true; // true = desenha. false = seleciona
 GLint espessuraLinha = 2; //PEGAR ESTE VALOR DE UM SELETOR
 
-Transforcao op = TRANSLACAO;
+Transforcao op = ROTACAO;
 Forma forma = ELIPSE;
 GLdouble anguloDeRotacao = M_PI/2; // Valor do ângulo (em radianos) de rotação. Entrada do usuário (seletor)
 bool opBotaoDireito = false;
@@ -409,8 +409,20 @@ void retacionaObjeto(Objeto *ob){
                 break;
             case ELIPSE:
                 {
+                Elipse *e = dynamic_cast <Elipse *>(ob); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
+                GLint xc = e->getCentro().getX()-clickCanvas.getX();
+                GLint yc = e->getCentro().getY()-clickCanvas.getY();
+                GLint ax = e->getControl().getX()==e->getCentro().getX()+e->getRaioHorizontal()?(1):(-1), ay = e->getControl().getY()==e->getCentro().getY()+e->getRaioVertical()?(1):(-1);
+                Ponto cen(xc*cos(anguloDeRotacao) - yc*sin(anguloDeRotacao) + clickCanvas.getX(), xc*sin(anguloDeRotacao) + yc*cos(anguloDeRotacao) + clickCanvas.getY() );
+                GLint aux = e->getRaioHorizontal();
+                e->setRaioHorizontal(e->getRaioVertical());
+                e->setRaioVertical(aux);
+                e->setCentro(cen);
+                e->setControl(Ponto(e->getCentro().getX()+ax*(e->getRaioHorizontal()),e->getCentro().getY()+ay*(e->getRaioVertical())));
 
+                cout<<"ROTACAO ELISPE "<<endl;
                 }
+                break;
             default:
                 cout<<"DEFAUT"<<endl;
                 break;
