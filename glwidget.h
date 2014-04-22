@@ -4,18 +4,13 @@
 #include "objeto.h"
 #include <QtOpenGL/QGLWidget>
 
-
 enum Operacao {TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO};
-
-
 
 class GLWidget : public QGLWidget {
 
     Q_OBJECT
 
     public:
-
-
         GLWidget(QWidget *parent = 0);
 
    // private:
@@ -35,7 +30,6 @@ class GLWidget : public QGLWidget {
 
     public slots:
         void setOperacao(QAction* q);
-        void setForma(QAction* q);
 };
 
 #endif  /* _GLWIDGET_H */

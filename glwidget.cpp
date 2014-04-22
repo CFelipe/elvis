@@ -6,7 +6,6 @@ using namespace std;
 
 #define CONTROL 5 // largura, altura dos pontos de controle e da área de clip do mouse
 
-
 Operacao op;
 Objeto::Forma forma;
 
@@ -680,7 +679,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
     //}
 }
 
-void GLWidget::setForma(QAction* q) {
+void GLWidget::setOperacao(QAction* q) {
     // Encontrar maneira melhor
     // Depender do texto é péssimo
     if(q->text() == "Retângulo") {
@@ -695,12 +694,20 @@ void GLWidget::setForma(QAction* q) {
     } else if(q->text() == "Elipse") {
         forma = Objeto::ELIPSE;
         desenha = true;
-    } else if(q->text() == "Selecionar") {
+    } else if(q->text() == "Translação") {
+        op = TRANSLACAO;
         desenha = false;
-        onMouseClick = false;
+    } else if(q->text() == "Cópia") {
+        op = COPIA;
+        desenha = false;
+    } else if(q->text() == "Escala") {
+        op = ESCALA;
+        desenha = false;
+    } else if(q->text() == "Deslocar pontos") {
+        op = DESLOCARPONTOS;
+        desenha = false;
+    } else if(q->text() == "Rotação") {
+        op = ROTACAO;
+        desenha = false;
     }
-}
-
-void GLWidget::setOperacao(QAction* q) {
-    // pass
 }

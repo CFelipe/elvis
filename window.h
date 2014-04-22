@@ -31,11 +31,10 @@ private:
     QAction *addCirculoAct;
     QAction *addRetanguloAct;
 
-    QAction *duplicarAct;
+    QAction *copiarAct;
     QAction *transladarAct;
     QAction *rotacionarAct;
     QAction *escalarAct;
-    QAction *espelharAct;
     QAction *deslocarPtsAct;
 
     QAction *agruparAct;

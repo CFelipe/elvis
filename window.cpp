@@ -28,6 +28,8 @@ Window::Window() {
     mainLayout->setRowStretch(1, 1);
     mainLayout->setRowStretch(2, 0);
 
+    mostrarAcoesObjeto(true);
+
     setLayout(mainLayout);
 }
 
@@ -57,34 +59,32 @@ void Window::createActions() {
     // -------------------
     // Operações de objeto
     // -------------------
-    duplicarAct = new QAction("Duplicar", this);
-    duplicarAct->setVisible(false);
-    transladarAct = new QAction("Transladar", this);
-    transladarAct->setVisible(false);
-    rotacionarAct = new QAction("Rotacionar", this);
-    rotacionarAct->setVisible(false);
+    transladarAct = new QAction("Translação", this);
+    copiarAct = new QAction("Cópia", this);
     escalarAct = new QAction("Escalar", this);
-    escalarAct->setVisible(false);
-    espelharAct = new QAction("Espelhar", this);
-    espelharAct->setVisible(false);
     deslocarPtsAct = new QAction("Deslocar pontos", this);
-    deslocarPtsAct->setVisible(false);
+    rotacionarAct = new QAction("Rotacionar", this);
+
+    copiarAct->setCheckable(true);
+    transladarAct->setCheckable(true);
+    rotacionarAct->setCheckable(true);
+    escalarAct->setCheckable(true);
+    deslocarPtsAct->setCheckable(true);
+
 }
 
 void Window::mostrarAcoesObjeto(bool visivel) {
     if(visivel) {
-        duplicarAct->setVisible(true);
+        copiarAct->setVisible(true);
         transladarAct->setVisible(true);
         rotacionarAct->setVisible(true);
         escalarAct->setVisible(true);
-        espelharAct->setVisible(true);
         deslocarPtsAct->setVisible(true);
     } else {
-        duplicarAct->setVisible(false);
+        copiarAct->setVisible(false);
         transladarAct->setVisible(false);
         rotacionarAct->setVisible(false);
         escalarAct->setVisible(false);
-        espelharAct->setVisible(false);
         deslocarPtsAct->setVisible(false);
 
     }
@@ -102,7 +102,13 @@ void Window::createLeftBar() {
     toolGroup->addAction(addElipseAct);
     toolGroup->addAction(addCirculoAct);
     toolGroup->addAction(addRetanguloAct);
-    QObject::connect(toolGroup, SIGNAL(triggered(QAction*)), glArea, SLOT(setForma(QAction * )));
+
+    toolGroup->addAction(copiarAct);
+    toolGroup->addAction(transladarAct);
+    toolGroup->addAction(rotacionarAct);
+    toolGroup->addAction(escalarAct);
+    toolGroup->addAction(deslocarPtsAct);
+    QObject::connect(toolGroup, SIGNAL(triggered(QAction*)), glArea, SLOT(setOperacao(QAction * )));
 
     leftBar->addAction(addSelecionarAct);
     leftBar->addAction(addPolilinhaAct);
@@ -110,7 +116,7 @@ void Window::createLeftBar() {
     leftBar->addAction(addCirculoAct);
     leftBar->addAction(addRetanguloAct);
 
-    leftBar->addAction(duplicarAct);
+    leftBar->addAction(copiarAct);
     leftBar->addAction(transladarAct);
     leftBar->addAction(rotacionarAct);
     leftBar->addAction(escalarAct);
