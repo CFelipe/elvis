@@ -37,10 +37,15 @@ void Window::createActions() {
     // Ferramentas
     // -----------
     addSelecionarAct = new QAction("Selecionar", this);
+    addSelecionarAct->setShortcut(QKeySequence("S"));
     addPolilinhaAct = new QAction("Polilinha", this);
+    addPolilinhaAct->setDisabled(true);
     addElipseAct = new QAction("Elipse", this);
+    addElipseAct->setShortcut(QKeySequence("E"));
     addCirculoAct = new QAction("Círculo", this);
+    addCirculoAct->setShortcut(QKeySequence("C"));
     addRetanguloAct = new QAction("Retângulo", this);
+    addRetanguloAct->setShortcut(QKeySequence("R"));
 
     addSelecionarAct->setCheckable(true);
     addPolilinhaAct->setCheckable(true);
