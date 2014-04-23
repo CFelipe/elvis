@@ -66,7 +66,7 @@ GLfloat gfWrldSizeZ = 400.f;
 
 Ponto clickCanvas;
 GLdouble distanciaAB = 0; // guarda a distancia entre dois pontos quaisquer A e B
-GLdouble anguloDeRotacao = M_PI/2; // Valor do ângulo (em radianos) de rotação. Entrada do usuário (seletor)
+GLdouble anguloDeRotacao = M_PI/4; // Valor do ângulo (em radianos) de rotação. Entrada do usuário (seletor)
 
 /* A variável opBotaoDireito é usada somente para controlar a possibilidade de rotação de acordo como especificado no documento
  * opBotaoDireito=true <--> o botão direito foi pressionado em algum local do canvas
@@ -138,8 +138,19 @@ void GLWidget::rotacionaObjeto(Objeto *ob){
                 break;
         case Objeto::ELIPSE:
                 {
-
+                    Elipse *e = dynamic_cast <Elipse *>(ob); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
+                    GLint xc = e->getCentro().getX()-clickCanvas.getX();
+                    GLint yc = e->getCentro().getY()-clickCanvas.getY();
+                    GLint ax = e->getControl().getX()==e->getCentro().getX()+e->getRaioHorizontal()?(1):(-1), ay = e->getControl().getY()==e->getCentro().getY()+e->getRaioVertical()?(1):(-1);
+                    Ponto cen(xc*cos(anguloDeRotacao) - yc*sin(anguloDeRotacao) + clickCanvas.getX(), xc*sin(anguloDeRotacao) + yc*cos(anguloDeRotacao) + clickCanvas.getY() );
+                    GLint aux = e->getRaioHorizontal();
+                    e->setRaioHorizontal(e->getRaioVertical());
+                    e->setRaioVertical(aux);
+                    e->setCentro(cen);
+                    e->setControl(Ponto(e->getCentro().getX()+ax*(e->getRaioHorizontal()),e->getCentro().getY()+ay*(e->getRaioVertical())));
+                    cout<<"ROTACAO ELISPE "<<endl;
                 }
+                break;
             default:
                 cout<<"DEFAUT"<<endl;
                 break;
@@ -148,10 +159,36 @@ void GLWidget::rotacionaObjeto(Objeto *ob){
     }
 }
 
+void descelecionaALL(){
+    Lista *aux = init;
+    onMouseClick = false;
+
+    do{
+        if (aux!=NULL){
+            aux->objeto->setSelect(false);
+            // o código abaixo "deseleciona" os pontos de controle da forma, caso a operação realizada tenha sido um deslocamento de pontos
+            if (aux->objeto->getTipo() == Objeto::QUADRILATERO){
+                Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
+                q->getPA()->setSelect(false);
+                q->getPB()->setSelect(false);
+                q->getPC()->setSelect(false);
+                q->getPD()->setSelect(false);
+            } else if (aux->objeto->getTipo() == Objeto::ELIPSE){
+                Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
+                e->getPControl()->setSelect(false);
+            }
+            aux = aux->next;
+        }
+    } while (aux!=NULL);
+}
+
 void selecionaQuadrilatero(Lista *aux, Quadrilatero *q, Ponto click){
     aux->objeto->setSelect(true);
-    aux->objeto->setXClick(-q->getA().getX()+ click.getX());
-    aux->objeto->setYClick(-q->getA().getY()+click.getY() );
+   // aux->objeto->setXClick(-q->getA().getX()+ click.getX());
+   // aux->objeto->setYClick(-q->getA().getY()+click.getY() );
+    aux->objeto->setXClick(click.getX());
+    aux->objeto->setYClick(click.getY() );
+
     if (op== COPIA){
         GLfloat fill[4], line[4];
         q->getColorFill(fill);
@@ -160,8 +197,8 @@ void selecionaQuadrilatero(Lista *aux, Quadrilatero *q, Ponto click){
         insere(novo);
         aux->objeto->setSelect(false);
         fim->objeto->setSelect(true);
-        fim->objeto->setXClick(-q->getA().getX() + click.getX());
-        fim->objeto->setYClick(-q->getA().getY() + click.getY() );
+        fim->objeto->setXClick(click.getX());
+        fim->objeto->setYClick(click.getY() );
     }
 }
 
@@ -508,25 +545,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                 //updateGL();
 
             } else { // deseleciona
-                Lista *aux = init;
-                onMouseClick = false;
-                do{
-                    if (aux!=NULL){
-                        aux->objeto->setSelect(false);
-                        // o código abaixo "deseleciona" os pontos de controle da forma, caso a operação realizada tenha sido um deslocamento de pontos
-                        if (aux->objeto->getTipo() == Objeto::QUADRILATERO){
-                            Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
-                            q->getPA()->setSelect(false);
-                            q->getPB()->setSelect(false);
-                            q->getPC()->setSelect(false);
-                            q->getPD()->setSelect(false);
-                        } else if (aux->objeto->getTipo() == Objeto::ELIPSE){
-                            Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
-                            e->getPControl()->setSelect(false);
-                        }
-                    }
-                    aux = aux->next;
-                } while (aux!=NULL);
+                descelecionaALL();
             }
 
         }
@@ -590,16 +609,15 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                         c->setYc(gfWrldSizeY-event->y()-aux->objeto->getYClick());
                     } else if (aux->objeto->getTipo() == Objeto::QUADRILATERO){
                         Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
-                        GLint dx = + q->getD().getX() - q->getA().getX();
-                        GLint dy = - q->getA().getY() + q->getD().getY();
-                        Ponto A(event->x()-aux->objeto->getXClick(), gfWrldSizeY-event->y()-aux->objeto->getYClick()); // ponto de clik
-                        Ponto D(A.getX()+dx, A.getY()+dy);
-                        Ponto C(D.getX(), A.getY());
-                        Ponto B(A.getX(), D.getY());
-                        q->setA(A);
-                        q->setB(B);
-                        q->setC(C);
-                        q->setD(D);
+                        GLint dy = gfWrldSizeY-event->y() - q->getYClick();
+                        GLint dx = event->x() - q->getXClick();
+                        q->setA(Ponto(q->getA().getX()+dx, q->getA().getY()+dy));
+                        q->setB(Ponto(q->getB().getX()+dx, q->getB().getY()+dy));
+                        q->setC(Ponto(q->getC().getX()+dx, q->getC().getY()+dy));
+                        q->setD(Ponto(q->getD().getX()+dx, q->getD().getY()+dy));
+                        q->setXClick(event->x());
+                        q->setYClick(gfWrldSizeY-event->y());
+
                     } else if (aux->objeto->getTipo() == Objeto::ELIPSE){
                         Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
                         GLint ax = e->getControl().getX()==e->getCentro().getX()+e->getRaioHorizontal()?(1):(-1), ay = e->getControl().getY()==e->getCentro().getY()+e->getRaioVertical()?(1):(-1);
@@ -617,9 +635,9 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                         Ponto centro = q->getCentro();
                         GLdouble aux = distanciaAB;
                         distanciaAB = sqrt(pow(event->x()-centro.getX(), 2)+pow(gfWrldSizeY-event->y()-centro.getY(), 2));
-                        GLint fatorx = 3, fatory = 3;//abs(distanciaAB-(xclick-centro.getX())), fatory = abs(distanciaAB-(yclick -centro.getY()));
+                        GLdouble fatorx = 2, fatory = 2;//abs(distanciaAB-(xclick-centro.getX())), fatory = abs(distanciaAB-(yclick -centro.getY()));
                         if (aux-distanciaAB>0){ // setinha do mouse "entrando" na forma
-                            q->escala((-1)*fatorx, (-1)*fatory);
+                            q->escala(-1*fatorx, -1*fatory);
                         } else{ // "saindo"
                             q->escala(fatorx, fatory);
                         }
@@ -638,18 +656,22 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                     if (aux->objeto->getTipo() == Objeto::QUADRILATERO){
                         Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
                         if (q->getA().isSelect()){
+                            cout<<"<<A>>"<<endl;
                             q->setA(Ponto(event->x(), gfWrldSizeY-event->y())); //
                             q->setB(Ponto(q->getA().getX(), q->getB().getY()));
                             q->setC(Ponto(q->getC().getX(),q->getA().getY()));
                         } else if (q->getB().isSelect()){
+                            cout<<"<<B>>"<<endl;
                             q->setB(Ponto(event->x(), gfWrldSizeY-event->y()));
                             q->setA(Ponto(q->getB().getX(), q->getA().getY()));
                             q->setD(Ponto(q->getD().getX(), q->getB().getY()));
                         } else if (q->getC().isSelect()){
+                            cout<<"<<C>>"<<endl;
                             q->setC(Ponto(event->x(), gfWrldSizeY-event->y()));
                             q->setA(Ponto(q->getA().getX(), q->getC().getY()));
                             q->setD(Ponto(q->getC().getX(), q->getD().getY()));
                         } else if (q->getD().isSelect()){
+                            cout<<"<<D>>"<<endl;
                             q->setD(Ponto(event->x(), gfWrldSizeY-event->y()));
                             q->setB(Ponto(q->getB().getX(), q->getD().getY()));
                             q->setC(Ponto(q->getD().getX(), q->getC().getY()));
@@ -693,21 +715,29 @@ void GLWidget::setOperacao(QAction* q) {
         qDebug() << "Não implementado";
     } else if(q->text() == "Elipse") {
         forma = Objeto::ELIPSE;
+
         desenha = true;
     } else if(q->text() == "Translação") {
         op = TRANSLACAO;
+        cout<<"Translação"<<endl;
         desenha = false;
     } else if(q->text() == "Cópia") {
         op = COPIA;
+        cout<<"COPIA"<<endl;
         desenha = false;
-    } else if(q->text() == "Escala") {
+    } else if(q->text() == "Escalar") {
         op = ESCALA;
+        cout<<"Escala"<<endl;
         desenha = false;
     } else if(q->text() == "Deslocar pontos") {
         op = DESLOCARPONTOS;
+        cout<<"DeslocamentoDePontos"<<endl;
         desenha = false;
-    } else if(q->text() == "Rotação") {
+    } else if(q->text() == "Rotacionar") {
         op = ROTACAO;
+        cout<<"Rotacao"<<endl;
         desenha = false;
     }
+    opBotaoDireito = false;
+    descelecionaALL(); // sempre que uma opção (de desenho ou transformação) for escolhida, desselecione todos os objetos
 }

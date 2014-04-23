@@ -370,7 +370,7 @@ class Quadrilatero : public Objeto{
             GLfloat co[4];
             getColorLine(co);
             glColor4f( co[0],co[1],co[2], co[3]);
-            /*glPointSize(getEspessuraLinha()+10); //especifica o diâmetro do ponto
+            glPointSize(getEspessuraLinha()+10); //especifica o diâmetro do ponto
             glBegin(GL_POINTS);
                 glVertex2i(centro.getX(), centro.getY());
             glEnd();
@@ -385,7 +385,7 @@ class Quadrilatero : public Objeto{
             glBegin(GL_POINTS);
                 glVertex2i(D.getX(), D.getY());
             glEnd();
-            */
+
 
             glPointSize(getEspessuraLinha()); //especifica o diâmetro do ponto
 
@@ -678,8 +678,20 @@ class Quadrilatero : public Objeto{
        Ponto *getPD(){
             return &D;
        }
-       void atualizaMINMAX(Ponto A){
+       void atualizaMINMAX(){
 
+           Ponto v[4] = {A, B, C, D};
+           GLint maxx=A.getX(), maxy=A.getY(), minx = A.getX(), miny = A.getY();
+           for (int i=0; i<4; i++){
+             if (v[i].getX()>maxx) maxx = v[i].getX();
+             if (v[i].getY()>maxy) maxy = v[i].getY();
+             if (v[i].getX()<minx) minx = v[i].getX();
+             if (v[i].getY()<miny) miny = v[i].getY();
+           }
+           min.setX(minx);
+           min.setY(miny);
+           max.setX(maxx);
+           max.setY(maxy);
            Ponto c((max.getX()-min.getX())/2 + min.getX(), (max.getY()- min.getY())/2 + min.getY());
            this->centro = c;
        }
@@ -687,74 +699,27 @@ class Quadrilatero : public Objeto{
        Ponto setA(Ponto A){
            A.setSelect(this->A.isSelect());
            this->A = A;
-
-           if (A.getX()>D.getX()){
-               max.setX(A.getX());
-               min.setX(D.getX());
-           } else{
-               max.setX(D.getX());
-               min.setX(A.getX());
-           }
-           if (A.getY()>D.getY()){
-               max.setY(A.getY());
-               min.setY(D.getY());
-           } else{
-               max.setY(D.getY());
-               min.setY(A.getY());
-           }
-           Ponto c((max.getX()-min.getX())/2 + min.getX(), (max.getY()- min.getY())/2 + min.getY());
-           this->centro = c;
+            atualizaMINMAX();
        }
        Ponto setB(Ponto B){
            B.setSelect(this->B.isSelect());
            this->B = B;
-           //atualizaMINMAX(B);
+           atualizaMINMAX();
 
        }
        Ponto setC(Ponto C){
            C.setSelect(this->C.isSelect());
            this->C = C;
-           //atualizaMINMAX(C);
+           atualizaMINMAX();
 
        }
        Ponto setD(Ponto D){
            D.setSelect(this->D.isSelect());
            this->D = D;
-           //atualizaMINMAX(D);
-           if (A.getX()>D.getX()){
-               max.setX(A.getX());
-               min.setX(D.getX());
-           } else{
-               max.setX(D.getX());
-               min.setX(A.getX());
-           }
-           if (A.getY()>D.getY()){
-               max.setY(A.getY());
-               min.setY(D.getY());
-           } else{
-               max.setY(D.getY());
-               min.setY(A.getY());
-           }
-
-           Ponto c((max.getX()-min.getX())/2 + min.getX(), (max.getY()- min.getY())/2 + min.getY());
-           this->centro = c;
+           atualizaMINMAX();
        }
-       void escala(GLint fatorx, GLint fatory){
-           /*if (A.getX()==max.getX()){
-               A.setX(A.getX()+fatorx);
-               D.setX(D.getX()-fatorx);
-           } else{
-               A.setX(A.getX()-fatorx);
-               D.setX(D.getX()+fatorx);
-           }
-           if (A.getY()==max.getY()){
-               A.setY(A.getY()+fatory);
-               D.setY(D.getY()-fatory);
-           } else{
-               A.setY(A.getY()-fatory);
-               D.setY(D.getY()+fatory);
-           }*/
-           if (A.getX()>D.getX()){
+       void escala(GLdouble fatorx, GLdouble fatory){
+           /*if (A.getX()>D.getX()){
                A.setX(A.getX()+fatorx);
                D.setX(D.getX()-fatorx);
            } else{
@@ -772,6 +737,30 @@ class Quadrilatero : public Objeto{
            B.setY(D.getY());
            C.setX(D.getX());
            C.setY(A.getY());
+            */
+           Ponto *v[4] ={&A,&B, &C, &D};
+            for (int i=0; i<4; i++){
+                if (v[i]->getX()-max.getX()<1){
+                    v[i]->setX(v[i]->getX()+fatorx);
+                } else if (v[i]->getX()-min.getX()<1){
+                    v[i]->setX(v[i]->getX()-fatorx);
+                }
+                if (v[i]->getY()-max.getY()<1){
+                    v[i]->setY(v[i]->getY()+fatory);
+                } else if (v[i]->getY()-min.getY()<1){
+                    v[i]->setY(v[i]->getY()-fatory);
+                }
+            }
+         /* A.setX((A.getX()-centro.getX())*fatorx + centro.getX());
+          A.setY((A.getY()-centro.getY())*fatory + centro.getY());
+          B.setX((B.getX()-centro.getX())*fatorx + centro.getX());
+          B.setY((B.getY()-centro.getY())*fatory + centro.getY());
+          C.setX((C.getX()-centro.getX())*fatorx + centro.getX());
+          C.setY((C.getY()-centro.getY())*fatory + centro.getY());
+          D.setX((D.getX()-centro.getX())*fatorx + centro.getX());
+          D.setY((D.getY()-centro.getY())*fatory + centro.getY());*/
+    atualizaMINMAX();
+
 
        }
 };
