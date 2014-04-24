@@ -40,7 +40,7 @@ void Window::createActions() {
     addSelecionarAct = new QAction("Selecionar", this);
     addSelecionarAct->setShortcut(QKeySequence("S"));
     addPolilinhaAct = new QAction("Polilinha", this);
-    addPolilinhaAct->setDisabled(true);
+    addPolilinhaAct->setShortcut(QKeySequence("P"));
     addElipseAct = new QAction("Elipse", this);
     addElipseAct->setShortcut(QKeySequence("E"));
     addCirculoAct = new QAction("Círculo", this);

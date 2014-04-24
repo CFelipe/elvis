@@ -5,6 +5,10 @@
 #include <QtGui/QMouseEvent>
 #include <iostream>
 
+
+#define CONTROL 5 // largura, altura dos pontos de controle e da área de clip do mouse
+
+
 class Objeto {
     public:
         enum Forma {CIRCULO, QUADRILATERO, ELIPSE, LINHA, POLILINHA};
@@ -177,9 +181,7 @@ class Elipse : public Objeto{
             GLint x =0;
             GLint y = raioVertical;
             GLdouble d1 = raioVertical*raioVertical - (raioHorizontal*raioHorizontal*raioVertical) + (0.25*raioHorizontal*raioHorizontal);
-
             glPointSize(getEspessuraLinha());
-
             glBegin(GL_POINTS);
               //  glVertex2i(x+centro.getX(), y+centro.getY());
                 glVertex2i(  x+centro.getX(),  y+centro.getY() );
@@ -187,6 +189,8 @@ class Elipse : public Objeto{
                 glVertex2i( -x+centro.getX(),  y+centro.getY() );
                 glVertex2i( -x+centro.getX(), -y+centro.getY() );
             glEnd();
+
+
             while (raioHorizontal*raioHorizontal*(y-0.5) > raioVertical*raioVertical*(x+1)){
                 if (d1<0){
                     d1 += raioVertical*raioVertical*(2*x+3);
@@ -205,7 +209,7 @@ class Elipse : public Objeto{
             d2 = raioVertical*raioVertical*(x+0.5)*(x+0.5) + raioHorizontal*raioHorizontal*(y-1)*(y-1) - raioHorizontal*raioHorizontal*raioVertical*raioVertical;
             while (y>0){
                 if (d2<0){
-                    d2+=raioVertical*raioVertical*(2*x+2) + raioHorizontal*raioHorizontal*((-2)*y + 3);
+                    d2+=raioVertical*raioVertical*(2*x + 2) + raioHorizontal*raioHorizontal*((-2)*y + 3);
                     x++;
                 } else {
                     d2+=raioHorizontal*raioHorizontal*((-2)*y + 3);
@@ -370,7 +374,7 @@ class Quadrilatero : public Objeto{
             GLfloat co[4];
             getColorLine(co);
             glColor4f( co[0],co[1],co[2], co[3]);
-            glPointSize(getEspessuraLinha()+10); //especifica o diâmetro do ponto
+            /*glPointSize(getEspessuraLinha()+10); //especifica o diâmetro do ponto
             glBegin(GL_POINTS);
                 glVertex2i(centro.getX(), centro.getY());
             glEnd();
@@ -386,7 +390,7 @@ class Quadrilatero : public Objeto{
                 glVertex2i(D.getX(), D.getY());
             glEnd();
 
-
+            */
             glPointSize(getEspessuraLinha()); //especifica o diâmetro do ponto
 
             GLint x, y;
@@ -740,14 +744,14 @@ class Quadrilatero : public Objeto{
             */
            Ponto *v[4] ={&A,&B, &C, &D};
             for (int i=0; i<4; i++){
-                if (v[i]->getX()-max.getX()<1){
+                if (v[i]->getX()==max.getX()){
                     v[i]->setX(v[i]->getX()+fatorx);
-                } else if (v[i]->getX()-min.getX()<1){
+                } else if (v[i]->getX()==min.getX()){
                     v[i]->setX(v[i]->getX()-fatorx);
                 }
-                if (v[i]->getY()-max.getY()<1){
+                if (v[i]->getY()==max.getY()){
                     v[i]->setY(v[i]->getY()+fatory);
-                } else if (v[i]->getY()-min.getY()<1){
+                } else if (v[i]->getY()==min.getY()){
                     v[i]->setY(v[i]->getY()-fatory);
                 }
             }
@@ -763,6 +767,408 @@ class Quadrilatero : public Objeto{
 
 
        }
+};
+
+class Linha{
+    private:
+        Ponto p0, p1;
+        Linha *next, *previous;
+    public:
+        Linha(Ponto p0, Ponto p1){
+            this->p0 = p0;
+            this->p1 = p1;
+            next = NULL;
+            previous = NULL;
+        }
+        Ponto getP0(){
+            return p0;
+        }
+        Ponto getP1(){
+            return p1;
+        }
+        void setP1(Ponto p1){
+            this->p1 = p1;
+        }
+        void setP0(Ponto p0){
+            this->p0 = p0;
+        }
+        Linha * getNext() {
+            return next;
+        }
+        Linha *getPrevious(){
+            return previous;
+        }
+        void setNext(Linha *n){
+            next = n;
+        }
+        void setPrevious(Linha *p){
+            previous = p;
+        }
+};
+
+class Polilinha: public Objeto{ // é uma lista encadeada de linhas
+    private:
+        Linha *init, *fim;
+
+        //! Algortimo de rasterização da linha: Bresenham
+        void Bresenham(Ponto p1, Ponto p2){
+            GLfloat co[4];
+            getColorLine(co);
+            glColor4f( co[0],co[1],co[2], co[3]);
+
+            glPointSize(getEspessuraLinha()); //especifica o diâmetro do ponto
+
+            GLint x, y;
+            if (p2.getX()!=p1.getX() && p2.getY()!=p1.getY()){
+                GLfloat m = (GLfloat) (p2.getY()-p1.getY()) / (p2.getX()-p1.getX());
+                if (m>0  && m<1){
+
+                    GLint dx = p2.getX() - p1.getX();
+                    GLint dy = p2.getY() - p1.getY();
+                    GLint pk = 2*dy - dx;
+                    GLint dy_2 = 2*dy;
+                    GLint ddxy = dy_2 - 2*dx;
+                    x = p1.getX();
+                    y = p1.getY();
+                    glBegin( GL_POINTS );
+                        glVertex2i( (GLint)x, (GLint)y );
+                    glEnd( );
+                    if (p1.getX()<p2.getX()){
+                        while (x<p2.getX()){
+
+                            x++;
+                            if (pk<0) pk = pk+dy_2;
+                            else {
+                                y++;
+                                pk = pk + ddxy;
+                            }
+                            glBegin( GL_POINTS );
+                                glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    } else {
+                        while (x>p2.getX()){
+
+                            x--;
+                            if (pk<0) pk = pk-dy_2;
+                            else {
+                                y--;
+                                pk = pk - ddxy;
+                            }
+                            glBegin( GL_POINTS );
+                                glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    }
+                } else if (m>-1 && m<0){
+                    printf("%f\n", m);
+                    GLint dx = p2.getX() - p1.getX();
+                    GLint dy = - p2.getY() + p1.getY();
+                    GLint pk = 2*dy + dx;
+                    GLint dy_2 = 2*dy;
+                    GLint ddxy = dy_2 - 2*dx;
+
+                    x = p1.getX();
+                    y = p1.getY();
+                    glBegin( GL_POINTS );
+                        glVertex2i( (GLint)x, (GLint)y );
+                    glEnd( );
+                    if (p1.getX()<p2.getX()){
+                        while (x<p2.getX()){
+                            x++;
+                            if (pk<0) pk = pk+dy_2;
+                            else {
+                                y--;
+                                pk = pk + ddxy;
+                            }
+                            glBegin( GL_POINTS );
+                                glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    } else {
+                        while (x>p2.getX()){
+                            x--;
+                            if (pk<0) pk = pk-dy_2;
+                            else {
+                                y++;
+                                pk = pk - ddxy;
+                            }
+                            glBegin( GL_POINTS );
+                                glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    }
+                } else if (m>1){
+                    GLint dx = p2.getX() - p1.getX();
+                    GLint dy = p2.getY() - p1.getY();
+                    GLint pk = 2*dx + dy;
+                    GLint dx_2 = 2*dx;
+                    GLint ddxy = dx_2 - 2*dy;
+
+                    x = p1.getX();
+                    y = p1.getY();
+                    glBegin( GL_POINTS );
+                        glVertex2i( (GLint)x, (GLint)y );
+                    glEnd( );
+                    if (p1.getY()<p2.getY()){
+                        while (y<p2.getY()){
+                            y++;
+                            if (pk<0) pk = pk+dx_2;
+                            else {
+                                x++;
+                                pk = pk + ddxy;
+                            }
+                            glBegin( GL_POINTS );
+                                glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    } else {
+                        while (y>p2.getY()){
+                            y--;
+                            if (pk<0) pk = pk-dx_2;
+                            else {
+                                x--;
+                                pk = pk - ddxy;
+                            }
+                            glBegin( GL_POINTS );
+                                glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    }
+                } else if (m<-1){
+                    GLint dx = p2.getX() - p1.getX();
+                    GLint dy = -p2.getY() + p1.getY();
+                    GLint pk = 2*dx - dy;
+                    GLint dx_2 = 2*dx;
+                    GLint ddxy = dx_2 - 2*dy;
+
+                    x = p1.getX();
+                    y = p1.getY();
+                    glBegin( GL_POINTS );
+                        glVertex2i( (GLint)x, (GLint)y );
+                    glEnd( );
+                    if (p1.getY()>p2.getY()){
+                        while (y>p2.getY()){
+                            y--;
+                            if (pk<0) pk = pk+dx_2;
+                            else {
+                                x++;
+                                pk = pk + ddxy;
+                            }
+                            glBegin( GL_POINTS );
+                                glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    } else {
+                        while (y<p2.getY()){
+                            y++;
+                            if (pk<0) pk = pk-dx_2;
+                            else {
+                                x--;
+                                pk = pk - ddxy;
+                            }
+                            glBegin( GL_POINTS );
+                                glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    }
+
+                } else if (m==1){
+
+                    x = p1.getX();
+                    y = (GLfloat) p1.getY();
+                    glBegin( GL_POINTS );
+                            glVertex2i( (GLint)x, (GLint)y );
+                    glEnd( );
+                    if (p1.getY()<p2.getY()){
+                        while (y<p2.getY()){
+                            x++;
+                            y++;
+                            glBegin( GL_POINTS );
+                                    glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    } else {
+                        while (y>p2.getY()){
+                            x--;
+                            y--;
+                            glBegin( GL_POINTS );
+                                    glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    }
+                } else if (m==-1){
+                    x = p1.getX();
+                    y = (GLfloat) p1.getY();
+                    glBegin( GL_POINTS );
+                            glVertex2i( (GLint)x, (GLint)y );
+                    glEnd( );
+                    if (p1.getY()>p2.getY()){
+                        while (y>p2.getY()){
+                            x++;
+                            y--;
+                            glBegin( GL_POINTS );
+                                    glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    } else {
+                        while (y<p2.getY()){
+                            x--;
+                            y++;
+                            glBegin( GL_POINTS );
+                                    glVertex2i( (GLint)x, (GLint)y );
+                            glEnd( );
+                        }
+                    }
+                }
+            } else if (p2.getY()==p1.getY()){ //se a linha for horizontal:
+
+                x = p1.getX();
+                y = (GLfloat) p1.getY();
+                glBegin( GL_POINTS );
+                    glVertex2i( (GLint)x, (GLint)y );
+                glEnd( );
+                if (p1.getX()<p2.getX()){
+                    while (x<p2.getX()){
+                        x++;
+
+                        glBegin( GL_POINTS );
+                            glVertex2i( (GLint)x, (GLint)y );
+                        glEnd( );
+                    }
+                } else {
+                    while (x>p2.getX()){
+                        x--;
+
+                        glBegin( GL_POINTS );
+                            glVertex2i( (GLint)x, (GLint)y );
+                        glEnd( );
+                    }
+                }
+            } else { // se a linha for vertical:
+                x = p1.getX();
+                y = (GLfloat) p1.getY();
+                glBegin( GL_POINTS );
+                    glVertex2i( (GLint)x, (GLint)y );
+                glEnd( );
+                if (p1.getY()<p2.getY()){
+                    while (y<p2.getY()){
+                        y++;
+
+                        glBegin( GL_POINTS );
+                            glVertex2i( (GLint)x, (GLint)y );
+                        glEnd( );
+                    }
+                } else {
+                    while (y>p2.getY()){
+                        y--;
+
+                        glBegin( GL_POINTS );
+                            glVertex2i( (GLint)x, (GLint)y );
+                        glEnd( );
+                    }
+                }
+            }
+        }
+    public:
+        Polilinha(GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo) : Objeto(colorfill, colorLine, espessuraLinha, tipo){
+            init = NULL;
+            fim = NULL;
+        }
+        void remove(Linha *l){
+            if (l==init){
+                init = l->getNext();
+            } else { //l->getPrevious()!=NULL
+                l->getPrevious()->setNext(l->getNext());
+            }
+            if (l==fim){
+                fim = l->getPrevious();
+            } else { // l->getNext()!=NULL;
+                l->getNext()->setPrevious(l->getPrevious());
+            }
+            delete l;
+        }
+
+        void insert(Ponto p0, Ponto p1, Linha *depoisDe){
+            Linha *l = new Linha(p0, p1);
+            if (init==NULL && fim==NULL){
+                init = l;
+                fim = l;
+                l->setNext(NULL);
+                l->setPrevious(NULL);
+            } else { // init!=NULL sse fim!=NULL
+                if (depoisDe==NULL){ // inserimos uma nova linha inicial (init)
+                    l->setNext(init);
+                    init->setPrevious(l);
+                    l->setPrevious(NULL);
+                    init = l;
+                } else {
+                    l->setNext(depoisDe->getNext());
+                    if (depoisDe==fim){
+                        fim = l;
+                    } else {
+                        depoisDe->getNext()->setPrevious(l);
+                    }
+                    l->setPrevious(depoisDe);
+                    depoisDe->setNext(l);
+                }
+            }
+        }
+        void desenha(){
+            Linha *aux = init;
+
+            if (isSelect()){
+                glPointSize(8);
+                glBegin(GL_POINTS);
+                    glColor3f( 0,0.5 , 0 );
+                    glVertex2i(aux->getP0().getX(), aux->getP0().getY());
+                glEnd();
+            } else {
+                glPointSize(1);
+                glColor3f( 0,0, 0 );
+                glBegin(GL_LINE_LOOP);
+                    glVertex2i(aux->getP0().getX()+CONTROL, aux->getP0().getY()+CONTROL);
+                    glVertex2i(aux->getP0().getX()-CONTROL, aux->getP0().getY()+CONTROL);
+                    glVertex2i(aux->getP0().getX()-CONTROL, aux->getP0().getY()-CONTROL);
+                    glVertex2i(aux->getP0().getX()+CONTROL, aux->getP0().getY()-CONTROL);
+                glEnd();
+            }
+            while (aux!=NULL){
+                Bresenham(aux->getP0(), aux->getP1());
+                if (isSelect()){
+                    glPointSize(8);
+                    glBegin(GL_POINTS);
+                        glColor3f( 0,0.5 , 0 );
+                        glVertex2i(aux->getP1().getX(), aux->getP1().getY());
+                    glEnd();
+                } else {
+                    glPointSize(1);
+                    glColor3f( 0,0, 0 );
+                    glBegin(GL_LINE_LOOP);
+                        glVertex2i(aux->getP1().getX()+CONTROL, aux->getP1().getY()+CONTROL);
+                        glVertex2i(aux->getP1().getX()-CONTROL, aux->getP1().getY()+CONTROL);
+                        glVertex2i(aux->getP1().getX()-CONTROL, aux->getP1().getY()-CONTROL);
+                        glVertex2i(aux->getP1().getX()+CONTROL, aux->getP1().getY()-CONTROL);
+                    glEnd();
+                }
+                aux = aux->getNext();
+            }
+        }
+        void setFim(Ponto p0, Ponto p1){
+            fim->setP0(p0);
+            fim->setP1(p1);
+        }
+        void setInit(Ponto p0, Ponto p1){
+            init->setP0(p0);
+            init->setP1(p1);
+        }
+        Linha *getFim(){
+            return fim;
+        }
+        Linha *getInit(){
+            return init;
+        }
+
 };
 
 #endif // OBJETO_H
