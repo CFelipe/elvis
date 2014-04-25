@@ -786,10 +786,18 @@ class Linha{
         Ponto getP1(){
             return p1;
         }
+        Ponto *getPP0(){
+            return &p0;
+        }
+        Ponto *getPP1(){
+            return &p1;
+        }
         void setP1(Ponto p1){
+            p1.setSelect(this->p1.isSelect());
             this->p1 = p1;
         }
         void setP0(Ponto p0){
+            p0.setSelect(this->p0.isSelect());
             this->p0 = p0;
         }
         Linha * getNext() {
@@ -804,12 +812,22 @@ class Linha{
         void setPrevious(Linha *p){
             previous = p;
         }
+
 };
 
 class Polilinha: public Objeto{ // é uma lista encadeada de linhas
     private:
         Linha *init, *fim;
-
+        Linha *sel1, *sel2;
+        /*indica as linhs selecionadas no momento do click.
+         * É últil para deslocamento de pontos;
+         * Regra:
+         *        --> Se o usuário clicar na linha, apenas sel1 aponta para a linha selecionada. sel2=NULL
+         *        --> Se o usuário clicar num ponto de controle, ele seleciona as linhas unidas por este ponto
+         * É importante definir estes ponteiros. Se não o fizéssemos, então
+         * no evento de movimento do mouse, teríamos que varrer toda a lista de linhas
+         * para verificar qual(is) estava(m) selecionada(s)
+        */
         //! Algortimo de rasterização da linha: Bresenham
         void Bresenham(Ponto p1, Ponto p2){
             GLfloat co[4];
@@ -1076,15 +1094,20 @@ class Polilinha: public Objeto{ // é uma lista encadeada de linhas
             fim = NULL;
         }
         void remove(Linha *l){
-            if (l==init){
-                init = l->getNext();
-            } else { //l->getPrevious()!=NULL
-                l->getPrevious()->setNext(l->getNext());
-            }
-            if (l==fim){
-                fim = l->getPrevious();
-            } else { // l->getNext()!=NULL;
-                l->getNext()->setPrevious(l->getPrevious());
+            if (fim==init){
+                init=NULL;
+                fim = NULL;
+            } else {
+                if (l==init){
+                    init = l->getNext();
+                } else { //l->getPrevious()!=NULL
+                    l->getPrevious()->setNext(l->getNext());
+                }
+                if (l==fim){
+                    fim = l->getPrevious();
+                } else { // l->getNext()!=NULL;
+                    l->getNext()->setPrevious(l->getPrevious());
+                }
             }
             delete l;
         }
@@ -1114,6 +1137,19 @@ class Polilinha: public Objeto{ // é uma lista encadeada de linhas
                 }
             }
         }
+        void setLinhaSelecionada1(Linha *sel){
+            sel1 = sel;
+        }
+        void setLinhaSelecionada2(Linha *sel){
+            sel2 = sel;
+        }
+        Linha* getLinhaSelecionada1(){
+            return sel1;
+        }
+        Linha* getLinhaSelecionada2(){
+            return sel2;
+        }
+
         void desenha(){
             Linha *aux = init;
 
@@ -1167,6 +1203,17 @@ class Polilinha: public Objeto{ // é uma lista encadeada de linhas
         }
         Linha *getInit(){
             return init;
+        }
+        void deseleciona(){
+            Linha *linha = init;
+            sel1 = NULL;
+            sel2 = NULL;
+            setSelect(false);
+            while (linha!=NULL){
+                linha->getPP0()->setSelect(false);
+                linha->getPP1()->setSelect(false);
+                linha = linha->getNext();
+            }
         }
 
 };

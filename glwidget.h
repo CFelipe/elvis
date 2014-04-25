@@ -4,7 +4,7 @@
 #include "objeto.h"
 #include <QtOpenGL/QGLWidget>
 
-enum Operacao {TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO};
+enum Operacao {TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO, INSERT_REMOVE_PONTO};
 
 class GLWidget : public QGLWidget {
 

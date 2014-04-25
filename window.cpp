@@ -64,12 +64,14 @@ void Window::createActions() {
     escalarAct = new QAction("Escalar", this);
     deslocarPtsAct = new QAction("Deslocar pontos", this);
     rotacionarAct = new QAction("Rotacionar", this);
+    insertRemovePonto =new QAction("insertRemovePonto", this);
 
     copiarAct->setCheckable(true);
     transladarAct->setCheckable(true);
     rotacionarAct->setCheckable(true);
     escalarAct->setCheckable(true);
     deslocarPtsAct->setCheckable(true);
+    insertRemovePonto->setCheckable(true);
 
 }
 
@@ -80,13 +82,14 @@ void Window::mostrarAcoesObjeto(bool visivel) {
         rotacionarAct->setVisible(true);
         escalarAct->setVisible(true);
         deslocarPtsAct->setVisible(true);
+        insertRemovePonto->setVisible(true);
     } else {
         copiarAct->setVisible(false);
         transladarAct->setVisible(false);
         rotacionarAct->setVisible(false);
         escalarAct->setVisible(false);
         deslocarPtsAct->setVisible(false);
-
+        insertRemovePonto->setVisible(false);
     }
 }
 
@@ -108,6 +111,7 @@ void Window::createLeftBar() {
     toolGroup->addAction(rotacionarAct);
     toolGroup->addAction(escalarAct);
     toolGroup->addAction(deslocarPtsAct);
+    toolGroup->addAction(insertRemovePonto);
     QObject::connect(toolGroup, SIGNAL(triggered(QAction*)), glArea, SLOT(setOperacao(QAction * )));
 
     leftBar->addAction(addSelecionarAct);
@@ -116,11 +120,13 @@ void Window::createLeftBar() {
     leftBar->addAction(addCirculoAct);
     leftBar->addAction(addRetanguloAct);
 
+
     leftBar->addAction(copiarAct);
     leftBar->addAction(transladarAct);
     leftBar->addAction(rotacionarAct);
     leftBar->addAction(escalarAct);
     leftBar->addAction(deslocarPtsAct);
+    leftBar->addAction(insertRemovePonto);
 }
 
 void Window::createBottomBar() {
