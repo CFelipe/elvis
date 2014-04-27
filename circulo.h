@@ -1,9 +1,11 @@
+#include <QtOpenGL>
+
 #ifndef CIRCULO_H
 #define CIRCULO_H
 
 class Circulo: public Objeto {
     public:
-        Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo);
+        Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha);
 
         GLint getXc() {
             return xc;

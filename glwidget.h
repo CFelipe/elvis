@@ -2,9 +2,17 @@
 #define _GLWIDGET_H
 
 #include "objeto.h"
+#include "retangulo.h"
+#include "ponto.h"
 #include <QtOpenGL/QGLWidget>
 
 enum Operacao {TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO};
+
+typedef struct l {
+    Objeto *objeto;
+    l *next;
+    l *previous;
+} Lista;
 
 class GLWidget : public QGLWidget {
 
@@ -13,7 +21,6 @@ class GLWidget : public QGLWidget {
     public:
         GLWidget(QWidget *parent = 0);
 
-   // private:
         void initializeGL();
         void resizeGL(int w, int h);
         void paintGL();
@@ -22,11 +29,8 @@ class GLWidget : public QGLWidget {
         void mouseReleaseEvent(QMouseEvent *event);
 
         void rotacionaObjeto(Objeto* ob);
-
-        //void selecionaQuadrilatero(Lista *aux, Quadrilatero *q, Ponto click);
-
-        //Quadrilatero* getAreaClippingMouse(GLint xmouse, GLint ymouse);
-
+        Retangulo* getAreaClippingMouse(GLint xmouse, GLint ymouse);
+        void selecionaQuadrilatero(Lista *aux, Retangulo *q, Ponto click);
 
     public slots:
         void setOperacao(QAction* q);

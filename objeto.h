@@ -5,41 +5,26 @@
 #include <QtGui/QMouseEvent>
 #include <iostream>
 
-struct Ponto {
-    GLint x;
-    GLint y;
-};
-
 class Objeto {
     public:
         enum Forma {CIRCULO, RETANGULO, ELIPSE, LINHA, POLILINHA};
 
         Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo);
 
-        Objeto(){}
+        Forma tipo;
+        bool selecionado;
+        GLfloat colorfill[4];
+        GLfloat colorLine[4];
+        GLint xclick, yclick;
+        GLint espessuraLinha;
+        bool preenchido;
 
-        bool isPreenchido(){
-            return preenchido;
-        }
-
-        void setPreenchido(bool pr){
-           preenchido = pr;
-        }
-
-        GLint getEspessuraLinha(){
+         GLint getEspessuraLinha(){
             return espessuraLinha;
         }
 
         void setEspessuraLinha(GLint v){
             espessuraLinha = v;
-        }
-
-        bool isSelect(){
-              return selecionado;
-        }
-
-        void setSelect(bool op){
-               selecionado = op;
         }
 
         void setColorFill(GLfloat R, GLfloat G, GLfloat B, GLfloat A){
@@ -93,21 +78,6 @@ class Objeto {
         void virtual desenha() = 0;
 
     private:
-        Forma tipo;
-        bool selecionado;
-        GLfloat colorfill[4];
-        GLfloat colorLine[4];
-        GLint xclick, yclick;
-        GLint espessuraLinha;
-        bool preenchido;
 };
-
-/*
- * Criamos uma classe Circulo e outra Elipse.
- * Poderíamos tratar tudo como elipse, porém,
- * de fato, o usuário pode ter a necessidade de desenhar exatamente um circulo.
- * Esta forma, quando editada com o deslocamento de Vertices ou escala, continuará um circulo
- * A elipse, por sua vez, pode virar um circulo, caso o raio vertical seja igual ao do horizontal (deslocamento de Vertices)
-*/
 
 #endif // OBJETO_H

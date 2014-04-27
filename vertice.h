@@ -1,27 +1,14 @@
+#include "ponto.h"
+
 #ifndef VERTICE_H
 #define VERTICE_H
 
 class Vertice {
     public:
+        Vertice(Ponto p);
         Vertice(GLint x, GLint y);
-
-        GLint getX(){
-            return x;
-        }
-        GLint getY(){
-            return y;
-        }
-        void setY(GLint y) {
-            this->y = y;
-        }
-        void setX(GLint x){
-            this->x = x;
-        }
-
-    private:
-        GLint x, y;
-        bool select;
-
+        Ponto p;
+        bool selecionado;
 };
 
 #endif // VERTICE_H

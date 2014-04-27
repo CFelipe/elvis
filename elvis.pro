@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     retangulo.cpp \
     vertice.cpp \
     elipse.cpp \
-    circulo.cpp
+    circulo.cpp \
+    ponto.cpp
 
 HEADERS  += \
     window.h \
@@ -28,6 +29,7 @@ HEADERS  += \
     retangulo.h \
     vertice.h \
     elipse.h \
-    circulo.h
+    circulo.h \
+    ponto.h
 
 FORMS    += mainwindow.ui

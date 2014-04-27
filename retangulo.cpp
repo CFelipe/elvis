@@ -1,6 +1,7 @@
-#verticeinclude "retangulo.h"
+#include "vertice.h"
+#include "retangulo.h"
 
-Retangulo::Retangulo(Ponto A, Ponto B, Ponto C, Ponto D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo) : Objeto(colorfill, colorLine, espessuraLinha, tipo) {
+Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorfill, colorLine, espessuraLinha, tipo) {
     this->A = A;
     this->B = B;
     this->C = C;
@@ -10,9 +11,17 @@ Retangulo::Retangulo(Ponto A, Ponto B, Ponto C, Ponto D , GLfloat colorfill[4], 
     max = m;
     Vertice c((max.getX()-min.getX())/2 + min.getX(), (max.getY()- min.getY())/2 + min.getY());
     this->centro = c;
+    this->tipo = Objeto::RETANGULO;
 }
 
-void Retangulo::Bresenham(Vertice v1, Vertice v2) {
+void Retangulo::desenha() {
+    Bresenham(A, B);
+    Bresenham(B, D);
+    Bresenham(D, C);
+    Bresenham(C, A);
+}
+
+void Retangulo::Bresenham(Ponto p1, Ponto p2) {
     GLfloat co[4];
     getColorLine(co);
     glColor4f( co[0],co[1],co[2], co[3]);

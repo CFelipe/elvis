@@ -1,14 +1,17 @@
+#include "objeto.h"
+#include "vertice.h"
+
 #ifndef RETANGULO_H
 #define RETANGULO_H
 
-class Retangulo : Objeto {
+class Retangulo : public Objeto {
     public:
-        Retangulo(Ponto A, Ponto B, Ponto C, Ponto D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo);
+        Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha);
+        Vertice A, B, C, D, centro, max, min;
+        void desenha();
 
     private:
-        Vertice A, B, C, D, centro, max, min;
-
-        void Bresenham(Vertice v1, Vertice v2);
+        void Bresenham(Ponto p1, Ponto p2);
 };
 
 #endif // RETANGULO_H
