@@ -1,10 +1,12 @@
 #include "glwidget.h"
 #include "objeto.h"
+#include "vertice.h"
+#include "retangulo.h"
 #include <iostream>
 #include <cmath>
 using namespace std;
 
-#define CONTROL 5 // largura, altura dos pontos de controle e da área de clip do mouse
+#define CONTROL 5 // largura, altura dos Vertices de controle e da área de clip do mouse
 
 Operacao op;
 Objeto::Forma forma;
@@ -13,64 +15,17 @@ GLint espessuraLinha;
 bool preenchido; // true  -> a forma está preenchida com alguma cor
 bool desenha; // true = desenha. false = seleciona
 
-// ---------------
-// Lista encadeada
-typedef struct l {
-    Objeto *objeto;
-    l *next;
-    l *previous;
-} Lista;
-
-Lista *init=NULL, *fim=NULL;
-
-void insere(Objeto *ob) { // insere sempre no final da lista
-    Lista *novo = new Lista;
-    novo->objeto = ob;
-    novo->next = NULL;
-    novo->previous = fim;
-    if (init==NULL && fim==NULL){
-        init=novo;
-    } else {
-        fim->next = novo;
-    }
-    fim = novo;
-}
-
-void remove(Lista *re){
-    if (re==init && re==fim){
-        init=NULL;
-        fim=NULL;
-    } else if (re==init){
-        init = re->next;
-        (re->next)->previous = NULL; // re->next != NULL (certeza)
-
-    } else if (re==fim){
-        fim = re->previous;
-        re->previous->next = NULL; //re->previous != NULL (certeza)
-    } else {
-        (re->previous)->next = re->next;
-        (re->next)->previous = re->previous;
-    }
-}
-// ---------------
-
-
-/*
- * Lista encadeada de objetos (circulos, quadrilateros, elipes, polilinhas, e etc).
- * Não há necessidade de polimorfismo ou modelagem orientada a objeto. Por isso usamos struct
- */
-
 GLfloat gfWrldSizeX = 800.f;
 GLfloat gfWrldSizeY = 600.f;
 GLfloat gfWrldSizeZ = 400.f;
 
 Ponto clickCanvas;
-GLdouble distanciaAB = 0; // guarda a distancia entre dois pontos quaisquer A e B
+GLdouble distanciaAB = 0; // guarda a distancia entre dois Vertices quaisquer A e B
 GLdouble anguloDeRotacao = M_PI/2; // Valor do ângulo (em radianos) de rotação. Entrada do usuário (seletor)
 
 /* A variável opBotaoDireito é usada somente para controlar a possibilidade de rotação de acordo como especificado no documento
  * opBotaoDireito=true <--> o botão direito foi pressionado em algum local do canvas
- * opBotaoDireito=fase <--> o botão esquerdo foi pressionado sobre a região da figura ou sobre um ponto de controle
+ * opBotaoDireito=fase <--> o botão esquerdo foi pressionado sobre a região da figura ou sobre um Vertice de controle
 */
 bool opBotaoDireito = false;
 bool onMouseClick = false;
@@ -89,15 +44,14 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent) {
 void GLWidget::initializeGL() {}
 
 void GLWidget::rotacionaObjeto(Objeto *ob){
-    /* 1 Desloca os pontos para a origem
+    /* 1 Desloca os Vertices para a origem
      * 2 Rotaciona
      * 3 Devolve as cordenadas iniciais
      */
     if (ob->isSelect()){
         switch(ob->getTipo()){
-            case Objeto::QUADRILATERO :
-                {
-                Quadrilatero *q = dynamic_cast <Quadrilatero *>(ob); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
+            case Objeto::RETANGULO:
+                Retangulo *q = dynamic_cast <Retangulo *>(ob);
                 Ponto A = q->getA();
                 Ponto B = q->getB();
                 Ponto C = q->getC();
@@ -128,18 +82,13 @@ void GLWidget::rotacionaObjeto(Objeto *ob){
                 q->setD(D);}
                 break;
             case Objeto::CIRCULO:
-                {
                 Circulo *c = dynamic_cast <Circulo *>(ob); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
                 GLint xc = c->getXc()-clickCanvas.getX();
                 GLint yc = c->getYc()-clickCanvas.getY();
                 c->setXc(xc*cos(anguloDeRotacao) - yc*sin(anguloDeRotacao) + clickCanvas.getX());
                 c->setYc(xc*sin(anguloDeRotacao) + yc*cos(anguloDeRotacao) + clickCanvas.getY());
-                }
                 break;
-        case Objeto::ELIPSE:
-                {
-
-                }
+            case Objeto::ELIPSE:
             default:
                 cout<<"DEFAUT"<<endl;
                 break;
@@ -148,7 +97,7 @@ void GLWidget::rotacionaObjeto(Objeto *ob){
     }
 }
 
-void selecionaQuadrilatero(Lista *aux, Quadrilatero *q, Ponto click){
+void selecionaRetangulo(Lista *aux, Retangulo *q, Vertice click){
     aux->objeto->setSelect(true);
     aux->objeto->setXClick(-q->getA().getX()+ click.getX());
     aux->objeto->setYClick(-q->getA().getY()+click.getY() );
@@ -156,7 +105,7 @@ void selecionaQuadrilatero(Lista *aux, Quadrilatero *q, Ponto click){
         GLfloat fill[4], line[4];
         q->getColorFill(fill);
         q->getColorLine(line);
-        Quadrilatero *novo = new Quadrilatero(q->getA(), q->getB(), q->getC(), q->getD(), fill, line, espessuraLinha, Objeto::QUADRILATERO);
+        Retangulo *novo = new Retangulo(q->getA(), q->getB(), q->getC(), q->getD(), fill, line, espessuraLinha, Objeto::Retangulo);
         insere(novo);
         aux->objeto->setSelect(false);
         fim->objeto->setSelect(true);
@@ -172,24 +121,24 @@ void selecionaQuadrilatero(Lista *aux, Quadrilatero *q, Ponto click){
 //! \return
 //!
 //!
-Quadrilatero* GLWidget::getAreaClippingMouse(GLint xmouse, GLint ymouse){
-    Ponto A(xmouse-CONTROL, ymouse+CONTROL);
-    Ponto D(xmouse+CONTROL, ymouse-CONTROL);
-    Ponto B(xmouse-CONTROL, ymouse-CONTROL); // (xmin, ymin)
-    Ponto C(xmouse+CONTROL, ymouse+CONTROL); // (xmax, ymax)GLfloat colorFill[4] = {0, 0, 0, 0};
+Retangulo* GLWidget::getAreaClippingMouse(GLint xmouse, GLint ymouse){
+    Vertice A(xmouse-CONTROL, ymouse+CONTROL);
+    Vertice D(xmouse+CONTROL, ymouse-CONTROL);
+    Vertice B(xmouse-CONTROL, ymouse-CONTROL); // (xmin, ymin)
+    Vertice C(xmouse+CONTROL, ymouse+CONTROL); // (xmax, ymax)GLfloat colorFill[4] = {0, 0, 0, 0};
     GLfloat colorLine[4] = {0, 0, 0, 0};
     GLfloat colorFill[4] = {0, 0, 0, 0};
-    Quadrilatero *q = new Quadrilatero(A, B, C, D, colorFill, colorLine, espessuraLinha, Objeto::QUADRILATERO);
+    Retangulo *q = new Retangulo(A, B, C, D, colorFill, colorLine, espessuraLinha, Objeto::Retangulo);
     return q;
 }
 
 //!
-//! \brief clippingAreaVertice diz se um ponto está dentro ou fora de um região quadriculada em torno de um vértice
+//! \brief clippingAreaVertice diz se um Vertice está dentro ou fora de um região quadriculada em torno de um vértice
 //! \param vertice é o vertice entorno do qual teremos a região quadrada
-//! \param teste é o ponto de teste
-//! \return true se o ponto está dentro
+//! \param teste é o Vertice de teste
+//! \return true se o Vertice está dentro
 //!
-bool clippingAreaVertice(Ponto vertice, Ponto teste){
+bool clippingAreaVertice(Vertice vertice, Vertice teste){
     /*cout<<"Area.."<<endl;
     cout<<vertice.getX()+CONTROL<<", "<<vertice.getY()+CONTROL<<endl;
     cout<<vertice.getX()+CONTROL<<", "<<vertice.getY()-CONTROL<<endl;
@@ -256,8 +205,8 @@ void GLWidget::paintGL() {
                         glVertex2i(c->getXc(), c->getYc());
                         glVertex2i(c->getXc()+c->getRaio(), c->getYc());
                       glEnd();
-                } else if (aux->objeto->getTipo() == Objeto::QUADRILATERO){
-                    Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
+                } else if (aux->objeto->getTipo() == Objeto::Retangulo){
+                    Retangulo *q = dynamic_cast <Retangulo *>(aux->objeto); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
                     glPointSize(6);
                     glBegin(GL_POINTS);
                         glColor3f( 0,0.5 , 0 );
@@ -307,8 +256,8 @@ void GLWidget::paintGL() {
                         glVertex2i(c->getXc()+c->getRaio()-CONTROL, c->getYc()-CONTROL);
                         glVertex2i(c->getXc()+c->getRaio()+CONTROL, c->getYc()-CONTROL);
                     glEnd();
-                } else if (aux->objeto->getTipo() == Objeto::QUADRILATERO){
-                    Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
+                } else if (aux->objeto->getTipo() == Objeto::Retangulo){
+                    Retangulo *q = dynamic_cast <Retangulo *>(aux->objeto); // EIS O PROBLEMA COM O QUAL PASSAMOS UMA TARDE QUEBRANDO A CABEÇA!!!!!!!!!!!!!!
                     glPointSize(1);
                     glColor3f( 0,0, 0 );
                     glBegin(GL_LINE_LOOP);
@@ -387,20 +336,20 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                     GLfloat color[4] = {1, 0, 0, 0};
                     Circulo *c = new Circulo(0, xc, yc, color, color, espessuraLinha, Objeto::CIRCULO);
                     insere (c);
-                } else if (forma == Objeto::QUADRILATERO) {
-                    Ponto A(event->x(), gfWrldSizeY-event->y()); // ponto de clik
-                    Ponto D(event->x(), gfWrldSizeY-event->y());
-                    Ponto B(event->x(), gfWrldSizeY-event->y());
-                    Ponto C(event->x(), gfWrldSizeY-event->y());
+                } else if (forma == Objeto::Retangulo) {
+                    Vertice A(event->x(), gfWrldSizeY-event->y()); // Vertice de clik
+                    Vertice D(event->x(), gfWrldSizeY-event->y());
+                    Vertice B(event->x(), gfWrldSizeY-event->y());
+                    Vertice C(event->x(), gfWrldSizeY-event->y());
                     GLfloat colorFill[4] = {1, 0, 0, 0};
                     GLfloat colorLine[4] = {1, 0, 0, 0};
-                    Quadrilatero *q = new Quadrilatero(A, B, C, D, colorFill, colorLine, espessuraLinha, Objeto::QUADRILATERO);
+                    Retangulo *q = new Retangulo(A, B, C, D, colorFill, colorLine, espessuraLinha, Objeto::Retangulo);
                     insere(q);
                 } else if (forma == Objeto::ELIPSE){
                     GLint xc =event->x();
                     GLint yc = gfWrldSizeY-event->y();
                     GLfloat color[4] = {1, 0, 0, 0};
-                    Elipse *e = new Elipse(Ponto(xc, yc), 0, 0, color, color, espessuraLinha, Objeto::ELIPSE);
+                    Elipse *e = new Elipse(Vertice(xc, yc), 0, 0, color, color, espessuraLinha, Objeto::ELIPSE);
                     insere (e);
                 }
             }
@@ -435,10 +384,10 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                             Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
                             /* caso a elipse não esteja preenchicda,
                                  * então a única possibilidade de selecioná-la será
-                                 * através do ponto de controle ou clicando sobre seus limites
+                                 * através do Vertice de controle ou clicando sobre seus limites
                                  * que formam o desenho (e não as linhas potilhadas)
                              */
-                             Ponto click(event->x(),gfWrldSizeY-event->y());
+                             Vertice click(event->x(),gfWrldSizeY-event->y());
                              if (clippingAreaVertice(e->getControl(), click)){
                                  aux->objeto->setSelect(true);
                                  aux->objeto->setXClick(e->getControl().getX()-e->getCentro().getX());
@@ -468,11 +417,11 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                                  }
                              }
 
-                        }else if (aux->objeto->getTipo() == Objeto::QUADRILATERO){
-                             Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
-                             Ponto click(event->x(),gfWrldSizeY-event->y());
+                        }else if (aux->objeto->getTipo() == Objeto::Retangulo){
+                             Retangulo *q = dynamic_cast <Retangulo *>(aux->objeto);
+                             Vertice click(event->x(),gfWrldSizeY-event->y());
                              if (clippingAreaVertice(q->getA(), click) || clippingAreaVertice(q->getB(), click) || clippingAreaVertice(q->getC(), click) || clippingAreaVertice(q->getD(), click)){
-                                 selecionaQuadrilatero(aux, q, click);
+                                 selecionaRetangulo(aux, q, click);
                                  if(clippingAreaVertice(q->getA(), click)){
                                      q->getPA()->setSelect(true);
                                  } else if(clippingAreaVertice(q->getB(), click) ){
@@ -482,7 +431,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                                  } else q->getPD()->setSelect(true);
                              } else if (q->isPreenchido()){// se o quadrilátero estiver preenchido
                                  if (event->x()<=q->getD().getX() && event->x()>=q->getA().getX() && (gfWrldSizeY-event->y())<=q->getA().getY() && (gfWrldSizeY-event->y())>=q->getD().getY()){
-                                        selecionaQuadrilatero(aux, q, click);
+                                        selecionaRetangulo(aux, q, click);
                                 }
                                  /*
                                   * else {
@@ -497,7 +446,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                         if (op == ROTACAO){
                             if (opBotaoDireito==false) { // se o usuário não clicou com o botão direito fora da área do quadrado
                                 clickCanvas.setX(event->x());
-                                clickCanvas.setY(gfWrldSizeY-event->y());
+                                clickCanvas.setY(gfWrldSizeY - event->y());
                             }
                            rotacionaObjeto(aux->objeto);
                         }
@@ -513,9 +462,9 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                 do{
                     if (aux!=NULL){
                         aux->objeto->setSelect(false);
-                        // o código abaixo "deseleciona" os pontos de controle da forma, caso a operação realizada tenha sido um deslocamento de pontos
-                        if (aux->objeto->getTipo() == Objeto::QUADRILATERO){
-                            Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
+                        // o código abaixo "deseleciona" os Vertices de controle da forma, caso a operação realizada tenha sido um deslocamento de Vertices
+                        if (aux->objeto->getTipo() == Objeto::Retangulo){
+                            Retangulo *q = dynamic_cast <Retangulo *>(aux->objeto);
                             q->getPA()->setSelect(false);
                             q->getPB()->setSelect(false);
                             q->getPC()->setSelect(false);
@@ -567,16 +516,16 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
             if (fim->objeto->getTipo()== Objeto::CIRCULO){
                 Circulo *c = dynamic_cast <Circulo *>(fim->objeto);
                 c->redimensionar(event->x(), gfWrldSizeY - event->y());
-            } else if (fim->objeto->getTipo() == Objeto::QUADRILATERO){
-                Quadrilatero *q = dynamic_cast <Quadrilatero *>(fim->objeto);
-                q->setD(Ponto(event->x(), gfWrldSizeY-event->y()));
-                q->setC(Ponto(q->getD().getX(), q->getA().getY()));
-                q->setB(Ponto(q->getA().getX(), q->getD().getY()));
+            } else if (fim->objeto->getTipo() == Objeto::Retangulo){
+                Retangulo *q = dynamic_cast <Retangulo *>(fim->objeto);
+                q->setD(Vertice(event->x(), gfWrldSizeY-event->y()));
+                q->setC(Vertice(q->getD().getX(), q->getA().getY()));
+                q->setB(Vertice(q->getA().getX(), q->getD().getY()));
             } else if (fim->objeto->getTipo() == Objeto::ELIPSE){
                 Elipse *e = dynamic_cast <Elipse *>(fim->objeto);
                 e->setRaioHorizontal(abs(event->x()-e->getCentro().getX()));
                 e->setRaioVertical(abs(gfWrldSizeY-event->y()-e->getCentro().getY()));
-                e->setControl(Ponto(event->x(), gfWrldSizeY-event->y()));
+                e->setControl(Vertice(event->x(), gfWrldSizeY-event->y()));
             }
         }
     } else if (onMouseClick){
@@ -588,14 +537,14 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                         Circulo *c = dynamic_cast <Circulo *>(aux->objeto);
                         c->setXc(event->x()-aux->objeto->getXClick());
                         c->setYc(gfWrldSizeY-event->y()-aux->objeto->getYClick());
-                    } else if (aux->objeto->getTipo() == Objeto::QUADRILATERO){
-                        Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
+                    } else if (aux->objeto->getTipo() == Objeto::Retangulo){
+                        Retangulo *q = dynamic_cast <Retangulo *>(aux->objeto);
                         GLint dx = + q->getD().getX() - q->getA().getX();
                         GLint dy = - q->getA().getY() + q->getD().getY();
-                        Ponto A(event->x()-aux->objeto->getXClick(), gfWrldSizeY-event->y()-aux->objeto->getYClick()); // ponto de clik
-                        Ponto D(A.getX()+dx, A.getY()+dy);
-                        Ponto C(D.getX(), A.getY());
-                        Ponto B(A.getX(), D.getY());
+                        Vertice A(event->x()-aux->objeto->getXClick(), gfWrldSizeY-event->y()-aux->objeto->getYClick()); // Vertice de clik
+                        Vertice D(A.getX()+dx, A.getY()+dy);
+                        Vertice C(D.getX(), A.getY());
+                        Vertice B(A.getX(), D.getY());
                         q->setA(A);
                         q->setB(B);
                         q->setC(C);
@@ -603,18 +552,18 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                     } else if (aux->objeto->getTipo() == Objeto::ELIPSE){
                         Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
                         GLint ax = e->getControl().getX()==e->getCentro().getX()+e->getRaioHorizontal()?(1):(-1), ay = e->getControl().getY()==e->getCentro().getY()+e->getRaioVertical()?(1):(-1);
-                        e->setCentro(Ponto(event->x()-e->getXClick(), gfWrldSizeY-event->y()- e->getYClick()));
+                        e->setCentro(Vertice(event->x()-e->getXClick(), gfWrldSizeY-event->y()- e->getYClick()));
 
-                        e->setControl(Ponto(e->getCentro().getX()+ax*(e->getRaioHorizontal()),e->getCentro().getY()+ay*(e->getRaioVertical())));
+                        e->setControl(Vertice(e->getCentro().getX()+ax*(e->getRaioHorizontal()),e->getCentro().getY()+ay*(e->getRaioVertical())));
 
                     }
                 } else if (op==ESCALA){
                     if (aux->objeto->getTipo() == Objeto::CIRCULO){
                         Circulo *c = dynamic_cast <Circulo *>(aux->objeto);
                         c->redimensionar(event->x(), gfWrldSizeY-event->y());
-                    } else if (aux->objeto->getTipo() == Objeto::QUADRILATERO){
-                        Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
-                        Ponto centro = q->getCentro();
+                    } else if (aux->objeto->getTipo() == Objeto::Retangulo){
+                        Retangulo *q = dynamic_cast <Retangulo *>(aux->objeto);
+                        Vertice centro = q->getCentro();
                         GLdouble aux = distanciaAB;
                         distanciaAB = sqrt(pow(event->x()-centro.getX(), 2)+pow(gfWrldSizeY-event->y()-centro.getY(), 2));
                         GLint fatorx = 3, fatory = 3;//abs(distanciaAB-(xclick-centro.getX())), fatory = abs(distanciaAB-(yclick -centro.getY()));
@@ -623,46 +572,46 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                         } else{ // "saindo"
                             q->escala(fatorx, fatory);
                         }
-                    } else if (aux->objeto->getTipo() == Objeto::ELIPSE){  // de qualquer ponto selecionado
+                    } else if (aux->objeto->getTipo() == Objeto::ELIPSE){  // de qualquer Vertice selecionado
                         Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
                         GLint rh = abs(event->x()-e->getCentro().getX())+1;
                         GLint rv = abs(gfWrldSizeY-event->y()-e->getCentro().getY())+1;
                         GLint ax = e->getControl().getX()==e->getCentro().getX()+e->getRaioHorizontal()?(1):(-1), ay = e->getControl().getY()==e->getCentro().getY()+e->getRaioVertical()?(1):(-1);
 
-                        e->setControl(Ponto(e->getCentro().getX()+ax*(rh),e->getCentro().getY()+ay*(rv)));
+                        e->setControl(Vertice(e->getCentro().getX()+ax*(rh),e->getCentro().getY()+ay*(rv)));
                         e->setRaioHorizontal(rh);
                         e->setRaioVertical(rv);
                         //cout<<rh<<","<<rv<<endl;
                     }
-                } else if (op==DESLOCARPONTOS){
-                    if (aux->objeto->getTipo() == Objeto::QUADRILATERO){
-                        Quadrilatero *q = dynamic_cast <Quadrilatero *>(aux->objeto);
+                } else if (op==DESLOCARVerticeS){
+                    if (aux->objeto->getTipo() == Objeto::Retangulo){
+                        Retangulo *q = dynamic_cast <Retangulo *>(aux->objeto);
                         if (q->getA().isSelect()){
-                            q->setA(Ponto(event->x(), gfWrldSizeY-event->y())); //
-                            q->setB(Ponto(q->getA().getX(), q->getB().getY()));
-                            q->setC(Ponto(q->getC().getX(),q->getA().getY()));
+                            q->setA(Vertice(event->x(), gfWrldSizeY-event->y())); //
+                            q->setB(Vertice(q->getA().getX(), q->getB().getY()));
+                            q->setC(Vertice(q->getC().getX(),q->getA().getY()));
                         } else if (q->getB().isSelect()){
-                            q->setB(Ponto(event->x(), gfWrldSizeY-event->y()));
-                            q->setA(Ponto(q->getB().getX(), q->getA().getY()));
-                            q->setD(Ponto(q->getD().getX(), q->getB().getY()));
+                            q->setB(Vertice(event->x(), gfWrldSizeY-event->y()));
+                            q->setA(Vertice(q->getB().getX(), q->getA().getY()));
+                            q->setD(Vertice(q->getD().getX(), q->getB().getY()));
                         } else if (q->getC().isSelect()){
-                            q->setC(Ponto(event->x(), gfWrldSizeY-event->y()));
-                            q->setA(Ponto(q->getA().getX(), q->getC().getY()));
-                            q->setD(Ponto(q->getC().getX(), q->getD().getY()));
+                            q->setC(Vertice(event->x(), gfWrldSizeY-event->y()));
+                            q->setA(Vertice(q->getA().getX(), q->getC().getY()));
+                            q->setD(Vertice(q->getC().getX(), q->getD().getY()));
                         } else if (q->getD().isSelect()){
-                            q->setD(Ponto(event->x(), gfWrldSizeY-event->y()));
-                            q->setB(Ponto(q->getB().getX(), q->getD().getY()));
-                            q->setC(Ponto(q->getD().getX(), q->getC().getY()));
+                            q->setD(Vertice(event->x(), gfWrldSizeY-event->y()));
+                            q->setB(Vertice(q->getB().getX(), q->getD().getY()));
+                            q->setC(Vertice(q->getD().getX(), q->getC().getY()));
                         }
                     } else if (aux->objeto->getTipo() == Objeto::CIRCULO){
                         // fazer primeiro a elipse;
                     } else if (aux->objeto->getTipo() == Objeto::ELIPSE){
                         Elipse *e = dynamic_cast <Elipse *>(aux->objeto);
                         cout<<e->getControl().isSelect()<<endl;
-                        if (e->getControl().isSelect()){ // apenas por ponto de controle
+                        if (e->getControl().isSelect()){ // apenas por Vertice de controle
                             e->setRaioHorizontal(abs(event->x()-e->getCentro().getX()));
                             e->setRaioVertical(abs(gfWrldSizeY-event->y()-e->getCentro().getY()));
-                            e->setControl(Ponto(event->x(), gfWrldSizeY-event->y()));
+                            e->setControl(Vertice(event->x(), gfWrldSizeY-event->y()));
                         }
                     }
                 }
@@ -683,7 +632,7 @@ void GLWidget::setOperacao(QAction* q) {
     // Encontrar maneira melhor
     // Depender do texto é péssimo
     if(q->text() == "Retângulo") {
-        forma = Objeto::QUADRILATERO;
+        forma = Objeto::Retangulo;
         desenha = true;
     } else if(q->text() == "Círculo") {
         forma = Objeto::CIRCULO;
@@ -703,8 +652,8 @@ void GLWidget::setOperacao(QAction* q) {
     } else if(q->text() == "Escala") {
         op = ESCALA;
         desenha = false;
-    } else if(q->text() == "Deslocar pontos") {
-        op = DESLOCARPONTOS;
+    } else if(q->text() == "Deslocar Vertices") {
+        op = DESLOCARVerticeS;
         desenha = false;
     } else if(q->text() == "Rotação") {
         op = ROTACAO;

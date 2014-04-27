@@ -25,7 +25,7 @@ class GLWidget : public QGLWidget {
 
         //void selecionaQuadrilatero(Lista *aux, Quadrilatero *q, Ponto click);
 
-        Quadrilatero* getAreaClippingMouse(GLint xmouse, GLint ymouse);
+        //Quadrilatero* getAreaClippingMouse(GLint xmouse, GLint ymouse);
 
 
     public slots:
