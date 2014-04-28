@@ -1,6 +1,6 @@
 #include "elipse.h"
 
-Elipse::Elipse(Vertice centro, GLint raioHorizontal, GLint raioVertical, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo) : Objeto(colorfill, colorLine, espessuraLinha, tipo) {
+Elipse::Elipse(Ponto centro, GLint raioHorizontal, GLint raioVertical, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorfill, colorLine, espessuraLinha, Objeto::ELIPSE) {
     this->centro = centro;
     this->raioHorizontal = raioHorizontal;
     this->raioVertical = raioVertical;
@@ -20,10 +20,10 @@ void Elipse::desenha() {
     glPointSize(getEspessuraLinha());
 
     glBegin(GL_POINTS);
-        glVertex2i(  x+centro.getX(),  y+centro.getY() );
-        glVertex2i(  x+centro.getX(), -y+centro.getY() );
-        glVertex2i( -x+centro.getX(),  y+centro.getY() );
-        glVertex2i( -x+centro.getX(), -y+centro.getY() );
+        glVertex2i(  x+centro.x,  y+centro.y );
+        glVertex2i(  x+centro.x, -y+centro.y );
+        glVertex2i( -x+centro.x,  y+centro.y );
+        glVertex2i( -x+centro.x, -y+centro.y );
     glEnd();
     while (raioHorizontal*raioHorizontal*(y-0.5) > raioVertical*raioVertical*(x+1)) {
         if (d1<0){
@@ -34,10 +34,10 @@ void Elipse::desenha() {
         }
         x++;
         glBegin(GL_POINTS);
-            glVertex2i(  x+centro.getX(),  y+centro.getY() );
-            glVertex2i(  x+centro.getX(), -y+centro.getY() );
-            glVertex2i( -x+centro.getX(),  y+centro.getY() );
-            glVertex2i( -x+centro.getX(), -y+centro.getY() );
+            glVertex2i(  x+centro.x,  y+centro.y );
+            glVertex2i(  x+centro.x, -y+centro.y );
+            glVertex2i( -x+centro.x,  y+centro.y );
+            glVertex2i( -x+centro.x, -y+centro.y );
         glEnd();
     }
     d2 = raioVertical*raioVertical*(x+0.5)*(x+0.5) + raioHorizontal*raioHorizontal*(y-1)*(y-1) - raioHorizontal*raioHorizontal*raioVertical*raioVertical;
@@ -50,10 +50,10 @@ void Elipse::desenha() {
         }
         y--;
         glBegin(GL_POINTS);
-            glVertex2i(  x+centro.getX(),  y+centro.getY() );
-            glVertex2i(  x+centro.getX(), -y+centro.getY() );
-            glVertex2i( -x+centro.getX(),  y+centro.getY() );
-            glVertex2i( -x+centro.getX(), -y+centro.getY() );
+            glVertex2i(  x+centro.x,  y+centro.y );
+            glVertex2i(  x+centro.x, -y+centro.y );
+            glVertex2i( -x+centro.x,  y+centro.y );
+            glVertex2i( -x+centro.x, -y+centro.y );
         glEnd();
     }
 }

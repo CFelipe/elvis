@@ -1,13 +1,19 @@
 #ifndef ELIPSE_H
 #define ELIPSE_H
 
+#include "objeto.h"
+#include "vertice.h"
+#include "ponto.h"
+
 class Elipse : public Objeto {
     public:
-        Elipse(Vertice centro, GLint raioHorizontal, GLint raioVertical, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha);
+        Elipse(Ponto centro, GLint raioHorizontal, GLint raioVertical, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha);
 
         void desenha();
 
         Ponto centro;
+        Vertice control;
+        GLint raioHorizontal, raioVertical;
 
         Vertice getCentro(){
             return centro;
@@ -47,10 +53,6 @@ class Elipse : public Objeto {
             c.selecionado = this->control.selecionado;
             this->control = c;
         }
-
-    private:
-        Vertice control;
-        GLint raioHorizontal, raioVertical;
 
 };
 

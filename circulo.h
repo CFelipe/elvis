@@ -1,7 +1,8 @@
-#include <QtOpenGL>
-
 #ifndef CIRCULO_H
 #define CIRCULO_H
+
+#include <QtOpenGL>
+#include "objeto.h"
 
 class Circulo: public Objeto {
     public:

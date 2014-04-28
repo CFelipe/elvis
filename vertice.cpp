@@ -6,7 +6,6 @@ Vertice::Vertice(Ponto p) {
 }
 
 Vertice::Vertice(GLint x, GLint y) {
-    this->p.x = x;
-    this->p.y = y;
+    this->p = Ponto(x, y);
     selecionado = false;
 }

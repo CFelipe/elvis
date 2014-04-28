@@ -10,7 +10,6 @@ Objeto::Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha,
     this->colorLine[1] = colorLine[1];
     this->colorLine[2] = colorLine[2];
     this->colorLine[3] = colorLine[3];
-    this->tipo = tipo;
     this->espessuraLinha = espessuraLinha;
     preenchido = false;
 }

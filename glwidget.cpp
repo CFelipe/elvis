@@ -390,7 +390,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                     GLint xc =event->x();
                     GLint yc = gfWrldSizeY-event->y();
                     GLfloat color[4] = {1, 0, 0, 0};
-                    Elipse *e = new Elipse(Vertice(xc, yc), 0, 0, color, color, espessuraLinha);
+                    Elipse *e = new Elipse(Ponto(xc, yc), 0, 0, color, color, espessuraLinha);
                     insere (e);
                 }
             }
@@ -447,7 +447,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                                      GLfloat fill[4], line[4];
                                      e->getColorFill(fill);
                                      e->getColorLine(line);
-                                     Elipse *novo = new Elipse(e->getCentro(), e->getRaioHorizontal(), e->getRaioVertical(), fill, line, espessuraLinha);
+                                     Elipse *novo = new Elipse(e->getCentro().p, e->getRaioHorizontal(), e->getRaioVertical(), fill, line, espessuraLinha);
                                      novo->setControl(e->getControl());
                                      insere (novo);
                                      aux->objeto->selecionado = false;
@@ -494,7 +494,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                                 clickCanvas.x = (event->x());
                                 clickCanvas.y = (gfWrldSizeY - event->y());
                             }
-                           rotacionaObjeto(aux->objeto);
+                           //rotacionaObjeto(aux->objeto); ??????
                         }
                         aux = aux->next;
                     }

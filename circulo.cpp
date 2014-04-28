@@ -1,12 +1,12 @@
 #include "circulo.h"
 
-Circulo::Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo) : Objeto(colorfill, colorLine, espessuraLinha, tipo) {
+Circulo::Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorfill, colorLine, espessuraLinha, tipo) {
     this->raio = raio;
     this->xc = xc;
     this->yc = yc;
 }
 
-Circulo::desenha() {
+void Circulo::desenha() {
     glPointSize(getEspessuraLinha());
     GLfloat co[4];
     getColorLine(co);
