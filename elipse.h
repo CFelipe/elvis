@@ -37,16 +37,13 @@ class Elipse : public Objeto {
 
         void setCentro(Vertice c){
             centro = c.p;
-           // updateControl();
         }
         void setRaioHorizontal(GLint n){
             raioHorizontal = n;
-           // updateControl();
         }
 
         void setRaioVertical(GLint n){
             raioVertical = n;
-          //  updateControl();
         }
 
         void setControl(Vertice c){

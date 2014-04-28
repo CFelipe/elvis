@@ -6,7 +6,7 @@
 #include "ponto.h"
 #include <QtOpenGL/QGLWidget>
 
-enum Operacao {TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO};
+enum Operacao {TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO, INSERT_REMOVE_PONTO};
 
 typedef struct l {
     Objeto *objeto;
@@ -30,8 +30,6 @@ class GLWidget : public QGLWidget {
 
         void rotacionaObjeto(Objeto* ob);
         Retangulo* getAreaClippingMouse(GLint xmouse, GLint ymouse);
-        void selecionaQuadrilatero(Lista *aux, Retangulo *q, Ponto click);
-
     public slots:
         void setOperacao(QAction* q);
 };

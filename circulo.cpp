@@ -1,6 +1,6 @@
 #include "circulo.h"
 
-Circulo::Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorfill, colorLine, espessuraLinha, tipo) {
+Circulo::Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorfill, colorLine, espessuraLinha, Objeto::CIRCULO) {
     this->raio = raio;
     this->xc = xc;
     this->yc = yc;
@@ -52,4 +52,11 @@ void Circulo::desenha() {
             glVertex2i(-y+xc, -x+yc);
         glEnd( );
     }
+}
+
+void Circulo::redimensionar(GLint xmouse, GLint ymouse) {
+    raio =  sqrt(pow((xmouse - xc), 2)+ pow((ymouse - yc), 2));
+    this->raio = raio;
+    this->xc = xc;
+    this->yc = yc;
 }

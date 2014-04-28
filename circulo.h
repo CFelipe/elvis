@@ -24,8 +24,10 @@ class Circulo: public Objeto {
             yc = n;
         }
 
-        //! Algoritmo de rasterização do circulo
+        // Algoritmo de rasterização do circulo
         void desenha();
+
+        void redimensionar(GLint xmouse, GLint ymouse);
 
     private:
         GLint raio, xc, yc;

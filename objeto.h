@@ -18,6 +18,7 @@ class Objeto {
         GLint xclick, yclick;
         GLint espessuraLinha;
         bool preenchido;
+        int id;
 
          GLint getEspessuraLinha(){
             return espessuraLinha;
@@ -78,6 +79,7 @@ class Objeto {
         void virtual desenha() = 0;
 
     private:
+        static int nId;
 };
 
 #endif // OBJETO_H
