@@ -1,28 +1,136 @@
-#include "retangulo.h"
-#include "vertice.h"
-#include "objeto.h"
+#include "polilinha.h"
 
-Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorfill, colorLine, espessuraLinha, Objeto::RETANGULO) {
-    this->A = Vertice(A.p.x, A.p.y);
-    this->B = Vertice(B.p.x, B.p.y);
-    this->C = Vertice(C.p.x, C.p.y);
-    this->D = Vertice(D.p.x, D.p.y);
-    Vertice m(A.p.x, A.p.y);
-    min = m.p;
-    max = m.p;
-    Vertice c((max.x-min.x)/2 + min.x, (max.y- min.y)/2 + min.y);
-    this->centro = c;
-    this->tipo = Objeto::RETANGULO;
+#define CONTROL 5
+
+Polilinha::Polilinha(GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorfill, colorLine, espessuraLinha, Objeto::POLILINHA) {
+    init = NULL;
+    fim = NULL;
 }
 
-void Retangulo::desenha() {
-    Bresenham(A, B);
-    Bresenham(B, D);
-    Bresenham(D, C);
-    Bresenham(C, A);
+void Polilinha::remove(Linha *l) {
+    if (fim==init){
+        init=NULL;
+        fim = NULL;
+    } else {
+        if (l==init){
+            init = l->getNext();
+        } else { //l->getPrevious()!=NULL
+            l->getPrevious()->setNext(l->getNext());
+        }
+        if (l==fim){
+            fim = l->getPrevious();
+        } else { // l->getNext()!=NULL;
+            l->getNext()->setPrevious(l->getPrevious());
+        }
+    }
+    delete l;
 }
 
-void Retangulo::Bresenham(Vertice p1, Vertice p2) {
+void Polilinha::insert(Ponto p0, Ponto p1, Linha *depoisDe){
+    Linha *l = new Linha(p0, p1);
+    if (init==NULL && fim==NULL){
+        init = l;
+        fim = l;
+        l->setNext(NULL);
+        l->setPrevious(NULL);
+    } else { // init!=NULL sse fim!=NULL
+        if (depoisDe==NULL){ // inserimos uma nova linha inicial (init)
+            l->setNext(init);
+            init->setPrevious(l);
+            l->setPrevious(NULL);
+            init = l;
+        } else {
+            l->setNext(depoisDe->getNext());
+            if (depoisDe==fim){
+                fim = l;
+            } else {
+                depoisDe->getNext()->setPrevious(l);
+            }
+            l->setPrevious(depoisDe);
+            depoisDe->setNext(l);
+        }
+    }
+}
+
+void Polilinha::desenha() {
+    Linha *aux = init;
+
+    if (selecionado){
+        glPointSize(8);
+        glBegin(GL_POINTS);
+            glColor3f( 0,0.5 , 0 );
+            glVertex2i(aux->getP0().p.x, aux->getP0().p.y);
+        glEnd();
+    } else {
+        glPointSize(1);
+        glColor3f( 0,0, 0 );
+        glBegin(GL_LINE_LOOP);
+            glVertex2i(aux->getP0().p.x+CONTROL, aux->getP0().p.y+CONTROL);
+            glVertex2i(aux->getP0().p.x-CONTROL, aux->getP0().p.y+CONTROL);
+            glVertex2i(aux->getP0().p.x-CONTROL, aux->getP0().p.y-CONTROL);
+            glVertex2i(aux->getP0().p.x+CONTROL, aux->getP0().p.y-CONTROL);
+        glEnd();
+    }
+    while (aux!=NULL){
+        Bresenham(aux->getP0(), aux->getP1());
+        if (selecionado){
+            glPointSize(8);
+            glBegin(GL_POINTS);
+                glColor3f( 0,0.5 , 0 );
+                glVertex2i(aux->getP1().p.x, aux->getP1().p.y);
+            glEnd();
+        } else {
+            glPointSize(1);
+            glColor3f( 0,0, 0 );
+            glBegin(GL_LINE_LOOP);
+                glVertex2i(aux->getP1().p.x+CONTROL, aux->getP1().p.y+CONTROL);
+                glVertex2i(aux->getP1().p.x-CONTROL, aux->getP1().p.y+CONTROL);
+                glVertex2i(aux->getP1().p.x-CONTROL, aux->getP1().p.y-CONTROL);
+                glVertex2i(aux->getP1().p.x+CONTROL, aux->getP1().p.y-CONTROL);
+            glEnd();
+        }
+        aux = aux->getNext();
+    }
+}
+
+void Polilinha::setLinhaSelecionada1(Linha *sel){
+    sel1 = sel;
+}
+void Polilinha::setLinhaSelecionada2(Linha *sel){
+    sel2 = sel;
+}
+Linha* Polilinha::getLinhaSelecionada1() {
+    return sel1;
+}
+Linha* Polilinha::getLinhaSelecionada2() {
+    return sel2;
+}
+void Polilinha::setFim(Ponto p0, Ponto p1){
+    fim->setP0(p0);
+    fim->setP1(p1);
+}
+void Polilinha::setInit(Ponto p0, Ponto p1){
+    init->setP0(p0);
+    init->setP1(p1);
+}
+Linha* Polilinha::getFim(){
+    return fim;
+}
+Linha* Polilinha::getInit(){
+    return init;
+}
+void Polilinha::deseleciona(){
+    Linha *linha = init;
+    sel1 = NULL;
+    sel2 = NULL;
+    selecionado = (false);
+    while (linha!=NULL){
+        linha->getPP0()->selecionado = (false);
+        linha->getPP1()->selecionado = (false);
+        linha = linha->getNext();
+    }
+}
+void Polilinha::Bresenham(Vertice p1, Vertice p2) {
     GLfloat co[4];
     getColorLine(co);
     glColor4f( co[0],co[1],co[2], co[3]);
@@ -282,37 +390,3 @@ void Retangulo::Bresenham(Vertice p1, Vertice p2) {
     }
 }
 
-void Retangulo::escala(GLdouble fatorx, GLdouble fatory){
-   Vertice *v[4] = {&A,&B, &C, &D};
-    for (int i=0; i<4; i++){
-        if (v[i]->p.x==max.x){
-            v[i]->p.x = (v[i]->p.x+fatorx);
-        } else if (v[i]->p.x==min.x){
-            v[i]->p.x = (v[i]->p.x-fatorx);
-        }
-        if (v[i]->p.y == max.y){
-            v[i]->p.y = (v[i]->p.y + fatory);
-        } else if (v[i]->p.y == min.y){
-            v[i]->p.y = (v[i]->p.y - fatory);
-        }
-    }
-
-    atualizaMINMAX();
-};
-
-void Retangulo::atualizaMINMAX(){
-    Vertice v[4] = {A, B, C, D};
-    GLint maxx=A.p.x, maxy=A.p.y, minx = A.p.x, miny = A.p.y;
-    for (int i=0; i<4; i++){
-      if (v[i].p.x>maxx) maxx = v[i].p.x;
-      if (v[i].p.y>maxy) maxy = v[i].p.y;
-      if (v[i].p.x<minx) minx = v[i].p.x;
-      if (v[i].p.y<miny) miny = v[i].p.y;
-    }
-    min.x = (minx);
-    min.y = (miny);
-    max.x = (maxx);
-    max.y = (maxy);
-    Ponto c((max.x-min.x)/2 + min.x, (max.y- min.y)/2 + min.y);
-    this->centro = c;
-}

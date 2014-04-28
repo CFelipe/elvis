@@ -40,7 +40,6 @@ void Window::createActions() {
     addSelecionarAct = new QAction("Selecionar", this);
     addSelecionarAct->setShortcut(QKeySequence("S"));
     addPolilinhaAct = new QAction("Polilinha", this);
-    addPolilinhaAct->setDisabled(true);
     addElipseAct = new QAction("Elipse", this);
     addElipseAct->setShortcut(QKeySequence("E"));
     addCirculoAct = new QAction("Círculo", this);
@@ -64,12 +63,14 @@ void Window::createActions() {
     escalarAct = new QAction("Escalar", this);
     deslocarPtsAct = new QAction("Deslocar pontos", this);
     rotacionarAct = new QAction("Rotacionar", this);
+    insertRemovePontoAct = new QAction("insertRemovePonto", this);
 
     copiarAct->setCheckable(true);
     transladarAct->setCheckable(true);
     rotacionarAct->setCheckable(true);
     escalarAct->setCheckable(true);
     deslocarPtsAct->setCheckable(true);
+    insertRemovePontoAct->setCheckable(true);
 
 }
 
@@ -108,6 +109,7 @@ void Window::createLeftBar() {
     toolGroup->addAction(rotacionarAct);
     toolGroup->addAction(escalarAct);
     toolGroup->addAction(deslocarPtsAct);
+    toolGroup->addAction(insertRemovePontoAct);
     QObject::connect(toolGroup, SIGNAL(triggered(QAction*)), glArea, SLOT(setOperacao(QAction * )));
 
     leftBar->addAction(addSelecionarAct);
@@ -121,6 +123,8 @@ void Window::createLeftBar() {
     leftBar->addAction(rotacionarAct);
     leftBar->addAction(escalarAct);
     leftBar->addAction(deslocarPtsAct);
+    leftBar->addAction(insertRemovePontoAct);
+
 }
 
 void Window::createBottomBar() {

@@ -20,7 +20,9 @@ SOURCES += main.cpp\
     vertice.cpp \
     elipse.cpp \
     circulo.cpp \
-    ponto.cpp
+    ponto.cpp \
+    polilinha.cpp \
+    linha.cpp
 
 HEADERS  += \
     window.h \
@@ -30,6 +32,8 @@ HEADERS  += \
     vertice.h \
     elipse.h \
     circulo.h \
-    ponto.h
+    ponto.h \
+    polilinha.h \
+    linha.h
 
 FORMS    += mainwindow.ui

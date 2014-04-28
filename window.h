@@ -36,6 +36,7 @@ private:
     QAction *rotacionarAct;
     QAction *escalarAct;
     QAction *deslocarPtsAct;
+    QAction *insertRemovePontoAct;
 
     QAction *agruparAct;
     QAction *desagruparAct;

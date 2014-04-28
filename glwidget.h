@@ -5,6 +5,7 @@
 #include "retangulo.h"
 #include "ponto.h"
 #include <QtOpenGL/QGLWidget>
+#include <QList>
 
 enum Operacao {TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO, INSERT_REMOVE_PONTO};
 
@@ -28,8 +29,6 @@ class GLWidget : public QGLWidget {
         void mouseMoveEvent(QMouseEvent *event);
         void mouseReleaseEvent(QMouseEvent *event);
 
-        void rotacionaObjeto(Objeto* ob);
-        Retangulo* getAreaClippingMouse(GLint xmouse, GLint ymouse);
     public slots:
         void setOperacao(QAction* q);
 };

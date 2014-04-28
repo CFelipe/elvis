@@ -14,6 +14,29 @@ class Retangulo : public Objeto {
         void escala(GLdouble fatorx, GLdouble fatory);
         void Bresenham(Vertice p1, Vertice p2);
         void atualizaMINMAX();
+
+        Vertice setA(Vertice A){
+           A.selecionado = (this->A.selecionado);
+           this->A = A;
+           atualizaMINMAX();
+       }
+       Vertice setB(Vertice B){
+           B.selecionado = (this->B.selecionado);
+           this->B = B;
+           atualizaMINMAX();
+
+       }
+       Vertice setC(Vertice C){
+           C.selecionado = (this->C.selecionado);
+           this->C = C;
+           atualizaMINMAX();
+
+       }
+       Vertice setD(Vertice D){
+           D.selecionado = (this->D.selecionado);
+           this->D = D;
+           atualizaMINMAX();
+       }
 };
 
 #endif // RETANGULO_H
