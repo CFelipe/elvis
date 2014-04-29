@@ -15,11 +15,27 @@ TEMPLATE = app
 SOURCES += main.cpp\
     window.cpp \
     glwidget.cpp \
-    objeto.cpp
+    objeto.cpp \
+    retangulo.cpp \
+    vertice.cpp \
+    elipse.cpp \
+    circulo.cpp \
+    ponto.cpp \
+    polilinha.cpp \
+    linha.cpp \
+    camada.cpp
 
 HEADERS  += \
     window.h \
     glwidget.h \
-    objeto.h
+    objeto.h \
+    retangulo.h \
+    vertice.h \
+    elipse.h \
+    circulo.h \
+    ponto.h \
+    polilinha.h \
+    linha.h \
+    camada.h
 
 FORMS    += mainwindow.ui

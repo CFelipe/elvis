@@ -36,11 +36,10 @@ private:
     QAction *rotacionarAct;
     QAction *escalarAct;
     QAction *deslocarPtsAct;
-    QAction *insertRemovePonto;
+    QAction *insertRemovePontoAct;
 
     QAction *agruparAct;
     QAction *desagruparAct;
-
 
     //TODO: diversos tipos de alinhamento
 
