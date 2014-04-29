@@ -582,7 +582,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                 Objeto* aux;
                 int i, j;
                 for(i = 0; i < camadas.size(); i++) {
-                    GLint sizeJ = camadas.at(i)->objetos->size();
+                    GLint sizeJ  = camadas.at(i)->objetos->size();
                     for(j = 0; j < sizeJ; j++) {
                         aux = camadas.at(i)->objetos->at(j);
 
