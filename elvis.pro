@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     circulo.cpp \
     ponto.cpp \
     polilinha.cpp \
-    linha.cpp
+    linha.cpp \
+    camada.cpp
 
 HEADERS  += \
     window.h \
@@ -34,6 +35,7 @@ HEADERS  += \
     circulo.h \
     ponto.h \
     polilinha.h \
-    linha.h
+    linha.h \
+    camada.h
 
 FORMS    += mainwindow.ui

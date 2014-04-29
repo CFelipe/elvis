@@ -14,7 +14,6 @@ Objeto::Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha,
     this->colorLine[3] = colorLine[3];
     this->espessuraLinha = espessuraLinha;
     this->id = nId++;
-    std::cout << id << std::endl;
     this->tipo = tipo;
     preenchido = false;
 }
