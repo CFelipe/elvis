@@ -30,6 +30,7 @@ class GLWidget : public QGLWidget {
         QList<Camada*> camadas;
         Camada* camadaSelecionada;
         GLfloat linhaColorSelecionada[4];
+        GLfloat fillColorSelecionada[4];
         GLint espessuraLinha;
         bool desenha; // true = desenha. false = seleciona
 

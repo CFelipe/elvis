@@ -20,6 +20,7 @@ private:
 
     QToolBar* bottomBar;
     QToolButton* linhaColorButton;
+    QToolButton* fillColorButton;
 
     void createActions();
     void createLeftBar();
@@ -51,6 +52,7 @@ public slots:
     void openFile(const QString &path = QString());
     void setOperacao(QAction* q);
     void setLinhaColor();
+    void setFillColor();
 };
 
 #endif // WINDOW_H

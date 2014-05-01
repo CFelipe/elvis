@@ -29,10 +29,15 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent) {
     camadaSelecionada = camada1;
     camadas.append(camada1);
 
-    linhaColorSelecionada[0] = 1;
+    linhaColorSelecionada[0] = 0;
     linhaColorSelecionada[1] = 0;
     linhaColorSelecionada[2] = 0;
     linhaColorSelecionada[3] = 0;
+
+    fillColorSelecionada[0] = 1;
+    fillColorSelecionada[1] = 0;
+    fillColorSelecionada[2] = 0;
+    fillColorSelecionada[3] = 0;
 
     opBotaoDireito = false;
     onMouseClick = false;
@@ -532,22 +537,19 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                 if (forma == Objeto::CIRCULO){
                     GLint xc =event->x();
                     GLint yc = gfWrldSizeY-event->y();
-                    GLfloat colorFill[4] = {1, 0, 0, 0};
-                    Circulo *c = new Circulo(0, xc, yc, colorFill, linhaColorSelecionada, espessuraLinha);
+                    Circulo *c = new Circulo(0, xc, yc, fillColorSelecionada, linhaColorSelecionada, espessuraLinha);
                     camadaSelecionada->objetos->append(c);
                 } else if (forma == Objeto::RETANGULO) {
                     Ponto A(event->x(), gfWrldSizeY-event->y()); // ponto de clik
                     Ponto D(event->x(), gfWrldSizeY-event->y());
                     Ponto B(event->x(), gfWrldSizeY-event->y());
                     Ponto C(event->x(), gfWrldSizeY-event->y());
-                    GLfloat colorFill[4] = {1, 0, 0, 0};
-                    Retangulo *q = new Retangulo(A, B, C, D, colorFill, linhaColorSelecionada, espessuraLinha);
+                    Retangulo *q = new Retangulo(A, B, C, D, fillColorSelecionada, linhaColorSelecionada, espessuraLinha);
                     camadaSelecionada->objetos->append(q);
                 } else if (forma == Objeto::ELIPSE){
                     GLint xc =event->x();
                     GLint yc = gfWrldSizeY-event->y();
-                    GLfloat colorFill[4] = {1, 0, 0, 0};
-                    Elipse *e = new Elipse(Ponto(xc, yc), 0, 0, colorFill, linhaColorSelecionada, espessuraLinha);
+                    Elipse *e = new Elipse(Ponto(xc, yc), 0, 0, fillColorSelecionada, linhaColorSelecionada, espessuraLinha);
                     camadaSelecionada->objetos->append(e);
                 } else if (forma == Objeto::POLILINHA){
                     Ponto click(event->x(),gfWrldSizeY-event->y());

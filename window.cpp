@@ -131,14 +131,27 @@ void Window::createBottomBar() {
     bottomBar->setFloatable(false);
     bottomBar->setMovable(false);
 
+    QLabel* linhaColorLabel = new QLabel("Linha");
     linhaColorButton = new QToolButton();
-    QColor* linhaColor = new QColor(Qt::red);
-    QPixmap px(20, 20);
-    px.fill(*linhaColor);
-    linhaColorButton->setIcon(px);
+    QColor* linhaColor = new QColor(Qt::black);
+    QPixmap pxLinha(20, 20);
+    pxLinha.fill(*linhaColor);
+    linhaColorButton->setIcon(pxLinha);
     linhaColorButton->setAutoRaise(true);
+    bottomBar->insertWidget(0, linhaColorLabel);
     bottomBar->insertWidget(0, linhaColorButton);
     QObject::connect(linhaColorButton, SIGNAL(clicked()), this, SLOT(setLinhaColor()));
+
+    QLabel* fillColorLabel = new QLabel("Fill");
+    fillColorButton = new QToolButton();
+    QColor* fillColor = new QColor(Qt::red);
+    QPixmap pxFill(20, 20);
+    pxFill.fill(*fillColor);
+    fillColorButton->setIcon(pxFill);
+    fillColorButton->setAutoRaise(true);
+    bottomBar->insertWidget(0, fillColorLabel);
+    bottomBar->insertWidget(0, fillColorButton);
+    QObject::connect(fillColorButton, SIGNAL(clicked()), this, SLOT(setFillColor()));
 
     QSpinBox* zoomSpinBox = new QSpinBox();
     zoomSpinBox->setSuffix("%");
@@ -239,10 +252,11 @@ void Window::setOperacao(QAction* q) {
 }
 
 void Window::setLinhaColor() {
-    const QColor color = QColorDialog::getColor(QColor::fromRgbF(glArea->linhaColorSelecionada[0],
-                                                                 glArea->linhaColorSelecionada[1],
-                                                                 glArea->linhaColorSelecionada[2]),
-                                                                 this, "Selecionar cor");
+    const QColor color =
+            QColorDialog::getColor(QColor::fromRgbF(glArea->linhaColorSelecionada[0],
+                                                    glArea->linhaColorSelecionada[1],
+                                                    glArea->linhaColorSelecionada[2]),
+                                                    this, "Selecionar cor");
 
     if (color.isValid()) {
         glArea->linhaColorSelecionada[0] = color.redF();
@@ -253,4 +267,22 @@ void Window::setLinhaColor() {
     QPixmap px(20, 20);
     px.fill(color);
     linhaColorButton->setIcon(px);
+}
+
+void Window::setFillColor() {
+    const QColor color =
+            QColorDialog::getColor(QColor::fromRgbF(glArea->fillColorSelecionada[0],
+                                                    glArea->fillColorSelecionada[1],
+                                                    glArea->fillColorSelecionada[2]),
+                                                    this, "Selecionar cor de fill");
+
+    if (color.isValid()) {
+        glArea->fillColorSelecionada[0] = color.redF();
+        glArea->fillColorSelecionada[1] = color.greenF();
+        glArea->fillColorSelecionada[2] = color.blueF();
+    }
+
+    QPixmap px(20, 20);
+    px.fill(color);
+    fillColorButton->setIcon(px);
 }

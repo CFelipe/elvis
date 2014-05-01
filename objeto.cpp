@@ -9,7 +9,7 @@ Objeto::Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha,
     this->tipo = tipo;
 
     this->preenchido = true;
-    this->estiloLinha = "--  ";
+    this->estiloLinha = "---   ";
 
     this->colorfill[0] = colorFill[0];
     this->colorfill[1] = colorFill[1];
@@ -24,18 +24,16 @@ Objeto::Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha,
 
 void Objeto::linhaFill(Ponto p1, Ponto p2) {
     // Sempre da esquerda pra direita ou
-    // de baixo pra cima
-    GLfloat co[4];
-    getColorFill(co);
-    // Mudar!
-    //glColor4f(co[0],co[1],co[2], co[3]);
-    glColor4f(0, 0, 0, 1);
+    // de cima pra baixo
+    GLfloat coFill[4];
+    getColorFill(coFill);
+    glColor4f(coFill[0],coFill[1],coFill[2], coFill[3]);
 
     int x, y;
     if(p1.y == p2.y) {
         qDebug() << "Entrou aqui";
         y = p1.y;
-        for(x = p1.x; x < p2.x; x++) {
+        for(x = p1.x; x <= p2.x; x++) {
             glBegin( GL_POINTS );
                 glVertex2i((GLint) x, (GLint) y);
             glEnd( );
