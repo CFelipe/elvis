@@ -8,7 +8,7 @@
 
 class Polilinha: public Objeto { // é uma lista encadeada de linhas
     public:
-        Polilinha(GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha);
+        Polilinha(GLfloat colorLine[4], GLint espessuraLinha);
         void remove(Linha *l);
         void insert(Ponto p0, Ponto p1, Linha *depoisDe);
         void desenha();
@@ -35,8 +35,6 @@ class Polilinha: public Objeto { // é uma lista encadeada de linhas
          * para verificar qual(is) estava(m) selecionada(s)
         */
         //! Algortimo de rasterização da linha: Bresenham
-        void Bresenham(Vertice p1, Vertice p2);
-
 };
 
 #endif // POLILINHA_H

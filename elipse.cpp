@@ -13,18 +13,14 @@ void Elipse::desenha() {
     glColor4f( co[0],co[1],co[2], co[3]);
 
     GLdouble d2;
-    GLint x =0;
+    GLint x = 0;
     GLint y = raioVertical;
-    GLdouble d1 = raioVertical*raioVertical - (raioHorizontal*raioHorizontal*raioVertical) + (0.25*raioHorizontal*raioHorizontal);
+    GLdouble d1 = raioVertical * raioVertical - (raioHorizontal*raioHorizontal*raioVertical) + (0.25*raioHorizontal*raioHorizontal);
+
+    int linha_i = 0;
 
     glPointSize(getEspessuraLinha());
 
-    glBegin(GL_POINTS);
-        glVertex2i(  x+centro.x,  y+centro.y );
-        glVertex2i(  x+centro.x, -y+centro.y );
-        glVertex2i( -x+centro.x,  y+centro.y );
-        glVertex2i( -x+centro.x, -y+centro.y );
-    glEnd();
     while (raioHorizontal*raioHorizontal*(y-0.5) > raioVertical*raioVertical*(x+1)) {
         if (d1<0){
             d1 += raioVertical*raioVertical*(2*x+3);
@@ -33,13 +29,19 @@ void Elipse::desenha() {
             y--;
         }
         x++;
-        glBegin(GL_POINTS);
-            glVertex2i(  x+centro.x,  y+centro.y );
-            glVertex2i(  x+centro.x, -y+centro.y );
-            glVertex2i( -x+centro.x,  y+centro.y );
-            glVertex2i( -x+centro.x, -y+centro.y );
-        glEnd();
+        if(estiloLinha[linha_i] == '-') {
+            glBegin(GL_POINTS);
+                glVertex2i(  x+centro.x,  y+centro.y );
+                glVertex2i(  x+centro.x, -y+centro.y );
+                glVertex2i( -x+centro.x,  y+centro.y );
+                glVertex2i( -x+centro.x, -y+centro.y );
+            glEnd();
+        }
+
+        linha_i = (linha_i + 1) % estiloLinha.size();
     }
+
+    // Tem algo de errado aqui (quando a elipse fica muito grande)
     d2 = raioVertical*raioVertical*(x+0.5)*(x+0.5) + raioHorizontal*raioHorizontal*(y-1)*(y-1) - raioHorizontal*raioHorizontal*raioVertical*raioVertical;
     while (y>0){
         if (d2<0){
@@ -49,11 +51,16 @@ void Elipse::desenha() {
             d2+=raioHorizontal*raioHorizontal*((-2)*y + 3);
         }
         y--;
-        glBegin(GL_POINTS);
-            glVertex2i(  x+centro.x,  y+centro.y );
-            glVertex2i(  x+centro.x, -y+centro.y );
-            glVertex2i( -x+centro.x,  y+centro.y );
-            glVertex2i( -x+centro.x, -y+centro.y );
-        glEnd();
+
+        if(estiloLinha[linha_i] == '-') {
+            glBegin(GL_POINTS);
+                glVertex2i(  x+centro.x,  y+centro.y );
+                glVertex2i(  x+centro.x, -y+centro.y );
+                glVertex2i( -x+centro.x,  y+centro.y );
+                glVertex2i( -x+centro.x, -y+centro.y );
+            glEnd();
+        }
+
+        linha_i = (linha_i + 1) % estiloLinha.size();
     }
 }

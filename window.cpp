@@ -71,7 +71,6 @@ void Window::createActions() {
     escalarAct->setCheckable(true);
     deslocarPtsAct->setCheckable(true);
     insertRemovePontoAct->setCheckable(true);
-
 }
 
 void Window::mostrarAcoesObjeto(bool visivel) {
@@ -87,7 +86,6 @@ void Window::mostrarAcoesObjeto(bool visivel) {
         rotacionarAct->setVisible(false);
         escalarAct->setVisible(false);
         deslocarPtsAct->setVisible(false);
-
     }
 }
 
@@ -110,7 +108,7 @@ void Window::createLeftBar() {
     toolGroup->addAction(escalarAct);
     toolGroup->addAction(deslocarPtsAct);
     toolGroup->addAction(insertRemovePontoAct);
-    QObject::connect(toolGroup, SIGNAL(triggered(QAction*)), glArea, SLOT(setOperacao(QAction * )));
+    QObject::connect(toolGroup, SIGNAL(triggered(QAction*)), this, SLOT(setOperacao(QAction * )));
 
     leftBar->addAction(addSelecionarAct);
     leftBar->addAction(addPolilinhaAct);
@@ -133,13 +131,14 @@ void Window::createBottomBar() {
     bottomBar->setFloatable(false);
     bottomBar->setMovable(false);
 
-    QToolButton* fillButton = new QToolButton();
-    QColor* fillColor = new QColor(0, 128, 0);
+    linhaColorButton = new QToolButton();
+    QColor* linhaColor = new QColor(Qt::red);
     QPixmap px(20, 20);
-    px.fill(*fillColor);
-    fillButton->setIcon(px);
-    fillButton->setAutoRaise(true);
-    bottomBar->insertWidget(0, fillButton);
+    px.fill(*linhaColor);
+    linhaColorButton->setIcon(px);
+    linhaColorButton->setAutoRaise(true);
+    bottomBar->insertWidget(0, linhaColorButton);
+    QObject::connect(linhaColorButton, SIGNAL(clicked()), this, SLOT(setLinhaColor()));
 
     QSpinBox* zoomSpinBox = new QSpinBox();
     zoomSpinBox->setSuffix("%");
@@ -189,4 +188,69 @@ void Window::about() {
 
 void Window::newFile() {
     // Tratar criação de arquivo aqui
+}
+
+void Window::setOperacao(QAction* q) {
+    // Encontrar maneira melhor
+    // Depender do texto é péssimo
+    if(q->text() == "Retângulo") {
+        glArea->forma = Objeto::RETANGULO;
+        qDebug() << "RETANGULO";
+        glArea->desenha = true;
+    } else if(q->text() == "Círculo") {
+        glArea->forma = Objeto::CIRCULO;
+        qDebug() << "CIRCULO";
+        glArea->desenha = true;
+    } else if(q->text() == "Polilinha") {
+        glArea->forma = Objeto::POLILINHA;
+        qDebug() << "POLILINHA";
+        glArea->desenha = true;
+    } else if(q->text() == "Elipse") {
+        glArea->forma = Objeto::ELIPSE;
+        qDebug() << "ELIPSE";
+        glArea->desenha = true;
+    } else if(q->text() == "Translação") {
+        glArea->op = TRANSLACAO;
+        qDebug() << "TRANSLACAO";
+        glArea->desenha = false;
+    } else if(q->text() == "Cópia") {
+        glArea->op = COPIA;
+        qDebug() << "COPIA";
+        glArea->desenha = false;
+    } else if(q->text() == "Escalar") {
+        glArea->op = ESCALA;
+        qDebug() << "ESCALA";
+        glArea->desenha = false;
+    } else if(q->text() == "Deslocar pontos") {
+        glArea->op = DESLOCARPONTOS;
+        qDebug() << "DESLOCAMENTO DE PONTOS";
+        glArea->desenha = false;
+    } else if(q->text() == "Rotacionar") {
+        glArea->op = ROTACAO;
+        qDebug() << "ROTACAO";
+        glArea->desenha = false;
+    } else if (q->text() == "insertRemovePonto"){
+        glArea->op = INSERT_REMOVE_PONTO;
+        qDebug() << "INSERT REMOVE PONTO";
+        glArea->desenha = false;
+    }
+    glArea->opBotaoDireito = false;
+    glArea->descelecionaALL(); // sempre que uma opção (de desenho ou transformação) for escolhida, desselecione todos os objetos
+}
+
+void Window::setLinhaColor() {
+    const QColor color = QColorDialog::getColor(QColor::fromRgbF(glArea->linhaColorSelecionada[0],
+                                                                 glArea->linhaColorSelecionada[1],
+                                                                 glArea->linhaColorSelecionada[2]),
+                                                                 this, "Selecionar cor");
+
+    if (color.isValid()) {
+        glArea->linhaColorSelecionada[0] = color.redF();
+        glArea->linhaColorSelecionada[1] = color.greenF();
+        glArea->linhaColorSelecionada[2] = color.blueF();
+    }
+
+    QPixmap px(20, 20);
+    px.fill(color);
+    linhaColorButton->setIcon(px);
 }

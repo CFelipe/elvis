@@ -4,6 +4,7 @@
 #include <QtOpenGL>
 #include <QtGui/QMouseEvent>
 #include <iostream>
+#include "vertice.h"
 
 class Objeto {
     public:
@@ -17,8 +18,12 @@ class Objeto {
         GLfloat colorLine[4];
         GLint xclick, yclick;
         GLint espessuraLinha;
+        QString estiloLinha;
         bool preenchido;
         int id;
+
+        void Bresenham(Ponto p1, Ponto p2);
+        void linhaFill(Ponto p1, Ponto p2);
 
          GLint getEspessuraLinha(){
             return espessuraLinha;

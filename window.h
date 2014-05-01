@@ -12,10 +12,14 @@ public:
     Window();
 
 private:
-    QGLWidget* glArea;
+    GLWidget* glArea;
+
     QMenuBar* menuBar;
+
     QToolBar* leftBar;
+
     QToolBar* bottomBar;
+    QToolButton* linhaColorButton;
 
     void createActions();
     void createLeftBar();
@@ -41,12 +45,12 @@ private:
     QAction *agruparAct;
     QAction *desagruparAct;
 
-    //TODO: diversos tipos de alinhamento
-
 public slots:
     void about();
     void newFile();
     void openFile(const QString &path = QString());
+    void setOperacao(QAction* q);
+    void setLinhaColor();
 };
 
 #endif // WINDOW_H

@@ -19,9 +19,11 @@ class Circulo: public Objeto {
         }
         GLint setXc(GLint n) {
             xc = n;
+            return xc;
         }
         GLint setYc(GLint n) {
             yc = n;
+            return yc;
         }
 
         // Algoritmo de rasterização do circulo
