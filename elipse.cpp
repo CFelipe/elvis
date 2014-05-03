@@ -7,7 +7,7 @@ Elipse::Elipse(Ponto centro, GLint raioHorizontal, GLint raioVertical, GLfloat c
     this->control = centro;
 }
 
-void Elipse::desenha() {
+void Elipse::desenhaLinha() {
     GLfloat co[4];
     getColorLine(co);
     glColor4f( co[0],co[1],co[2], co[3]);
@@ -63,4 +63,8 @@ void Elipse::desenha() {
 
         linha_i = (linha_i + 1) % estiloLinha.size();
     }
+}
+
+void Elipse::desenhaFill() {
+
 }

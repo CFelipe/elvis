@@ -15,11 +15,14 @@ Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorf
     this->tipo = Objeto::RETANGULO;
 }
 
-void Retangulo::desenha() {
+void Retangulo::desenhaLinha() {
     Objeto::Bresenham(A.p, B.p);
     Objeto::Bresenham(B.p, D.p);
     Objeto::Bresenham(D.p, C.p);
     Objeto::Bresenham(C.p, A.p);
+}
+
+void Retangulo::desenhaFill() {
 }
 
 void Retangulo::escala(GLdouble fatorx, GLdouble fatory){

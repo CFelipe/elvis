@@ -10,7 +10,8 @@ class Retangulo : public Objeto {
         Retangulo(Vertice A, Vertice B, Vertice C, Vertice D, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha);
         Vertice A, B, C, D, centro;
         Ponto max, min;
-        void desenha();
+        void desenhaLinha();
+        void desenhaFill();
         void escala(GLdouble fatorx, GLdouble fatory);
         void Bresenham(Vertice p1, Vertice p2);
         void atualizaMINMAX();

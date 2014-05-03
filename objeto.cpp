@@ -22,6 +22,13 @@ Objeto::Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha,
     this->colorLine[3] = colorLine[3];
 }
 
+void Objeto::desenha() {
+    if(preenchido) {
+        desenhaFill();
+    }
+    desenhaLinha();
+}
+
 void Objeto::linhaFill(Ponto p1, Ponto p2) {
     // Sempre da esquerda pra direita ou
     // de cima pra baixo

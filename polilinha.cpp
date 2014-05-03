@@ -52,7 +52,7 @@ void Polilinha::insert(Ponto p0, Ponto p1, Linha *depoisDe){
     }
 }
 
-void Polilinha::desenha() {
+void Polilinha::desenhaLinha() {
     Linha *aux = init;
 
     if (selecionado){
@@ -91,6 +91,10 @@ void Polilinha::desenha() {
         }
         aux = aux->getNext();
     }
+}
+
+void Polilinha::desenhaFill() {
+    // Não tem fill aqui
 }
 
 void Polilinha::setLinhaSelecionada1(Linha *sel){

@@ -81,13 +81,10 @@ class Objeto {
               return tipo;
         }
 
-        void virtual desenha() = 0;
-        /*
         void desenha();
         void virtual desenhaLinha() = 0;
         void virtual desenhaFill() = 0;
-        void virtual desenhaControles() = 0;
-        */
+        //void virtual desenhaControles() = 0;
 
     private:
         static int nId;

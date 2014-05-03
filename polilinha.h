@@ -9,9 +9,10 @@
 class Polilinha: public Objeto { // é uma lista encadeada de linhas
     public:
         Polilinha(GLfloat colorLine[4], GLint espessuraLinha);
+        void desenhaLinha();
+        void desenhaFill();
         void remove(Linha *l);
         void insert(Ponto p0, Ponto p1, Linha *depoisDe);
-        void desenha();
         void setFim(Ponto p0, Ponto p1);
         void setInit(Ponto p0, Ponto p1);
         Linha *getFim();

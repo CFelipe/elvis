@@ -6,13 +6,6 @@ Circulo::Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat c
     this->yc = yc;
 }
 
-void Circulo::desenha() {
-    if(preenchido) {
-        desenhaFill();
-    }
-    desenhaLinha();
-}
-
 void Circulo::desenhaLinha() {
     glPointSize(getEspessuraLinha());
     GLfloat corL[4];
