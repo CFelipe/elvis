@@ -28,7 +28,8 @@ class Circulo: public Objeto {
 
         // Algoritmo de rasterização do circulo
         void desenha();
-
+        void desenhaFill();
+        void desenhaLinha();
         void redimensionar(GLint xmouse, GLint ymouse);
 
     private:

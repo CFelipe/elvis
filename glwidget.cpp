@@ -254,6 +254,7 @@ void GLWidget::selecionaCirculo(Objeto *aux, Circulo *c, Ponto click){
     aux->selecionado = (true);
     aux->setXClick(click.x -c->getXc());
     aux->setYClick(click.y - c->getYc());
+
     if (op==COPIA){
         GLfloat fill[4], line[4];
         c->getColorFill(fill);
@@ -266,8 +267,6 @@ void GLWidget::selecionaCirculo(Objeto *aux, Circulo *c, Ponto click){
         camadaSelecionada->objetos->last()->selecionado = true;
         camadaSelecionada->objetos->last()->setXClick(click.x -c->getXc() );
         camadaSelecionada->objetos->last()->setYClick(click.y- c->getYc());
-
-        std::cout << "CopiadoCirc" << std::endl;
     }
 }
 

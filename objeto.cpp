@@ -28,6 +28,7 @@ void Objeto::linhaFill(Ponto p1, Ponto p2) {
     GLfloat coFill[4];
     getColorFill(coFill);
     glColor4f(coFill[0],coFill[1],coFill[2], coFill[3]);
+    glPointSize(1);
 
     int x, y;
     if(p1.y == p2.y) {

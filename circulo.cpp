@@ -7,53 +7,18 @@ Circulo::Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat c
 }
 
 void Circulo::desenha() {
+    if(preenchido) {
+        desenhaFill();
+    }
+    desenhaLinha();
+}
+
+void Circulo::desenhaLinha() {
     glPointSize(getEspessuraLinha());
     GLfloat corL[4];
-    GLfloat corF[4];
     getColorLine(corL);
-    getColorFill(corF);
 
     GLint x, y, d, dL, dse;
-
-    // Desenha fill
-    if(preenchido) {
-        glColor4f(corF[0],corF[1],corF[2], corF[3]);
-
-        x = 0;
-        y = raio;
-        d = 1 - raio;
-        dL = 3;
-        dse = -2*raio + 5;
-
-        while (y>x) {
-            if (d<0) {
-               d+=dL;
-               dL+=2;
-               dse+=2;
-            } else {
-               d+=dse;
-               dL+=2;
-               dse+=4;
-               y--;
-            }
-
-            x++;
-
-            // De cima pra baixo
-            Objeto::linhaFill(Ponto(-x+xc,  y+yc),
-                              Ponto( x+xc,  y+yc));
-            Objeto::linhaFill(Ponto(-y+xc,  x+yc),
-                              Ponto( y+xc,  x+yc));
-            Objeto::linhaFill(Ponto(-y+xc, -x+yc),
-                              Ponto( y+xc, -x+yc));
-            Objeto::linhaFill(Ponto(-x+xc, -y+yc),
-                              Ponto( x+xc, -y+yc));
-        }
-
-        Objeto::linhaFill(Ponto(xc - raio, yc),
-                          Ponto(xc + raio, yc));
-    }
-
 
     // Desenha linha
     glColor4f(corL[0],corL[1],corL[2], corL[3]);
@@ -98,10 +63,53 @@ void Circulo::desenha() {
     glBegin(GL_POINTS);
         glVertex2i(xc - raio, yc);
         glVertex2i(xc + raio, yc);
-        glVertex2i(xc,        yc - raio);
-        glVertex2i(xc,        yc + raio);
+        glVertex2i(xc, yc - raio);
+        glVertex2i(xc, yc + raio);
     glEnd();
 
+}
+
+void Circulo::desenhaFill() {
+    GLfloat corF[4];
+    getColorFill(corF);
+
+    GLint x, y, d, dL, dse;
+
+    glColor4f(corF[0],corF[1],corF[2], corF[3]);
+
+    x = 0;
+    y = raio;
+    d = 1 - raio;
+    dL = 3;
+    dse = -2*raio + 5;
+
+    while (y>x) {
+        if (d<0) {
+           d+=dL;
+           dL+=2;
+           dse+=2;
+        } else {
+           d+=dse;
+           dL+=2;
+           dse+=4;
+           y--;
+        }
+
+        x++;
+
+        // De cima pra baixo
+        Objeto::linhaFill(Ponto(-x+xc,  y+yc),
+                          Ponto( x+xc,  y+yc));
+        Objeto::linhaFill(Ponto(-y+xc,  x+yc),
+                          Ponto( y+xc,  x+yc));
+        Objeto::linhaFill(Ponto(-y+xc, -x+yc),
+                          Ponto( y+xc, -x+yc));
+        Objeto::linhaFill(Ponto(-x+xc, -y+yc),
+                          Ponto( x+xc, -y+yc));
+    }
+
+    Objeto::linhaFill(Ponto(xc - raio, yc),
+                      Ponto(xc + raio, yc));
 }
 
 void Circulo::redimensionar(GLint xmouse, GLint ymouse) {
