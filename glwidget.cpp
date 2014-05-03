@@ -48,7 +48,7 @@ GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent) {
     forma = Objeto::ELIPSE;
 
     desenha = true;
-    espessuraLinha = 2;
+    espessuraLinha = 1;
 }
 
 void GLWidget::initializeGL() {}

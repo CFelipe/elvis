@@ -9,7 +9,7 @@ Objeto::Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha,
     this->tipo = tipo;
 
     this->preenchido = true;
-    this->estiloLinha = "---   ";
+    this->estiloLinha = "-";
 
     this->colorfill[0] = colorFill[0];
     this->colorfill[1] = colorFill[1];
@@ -31,7 +31,6 @@ void Objeto::linhaFill(Ponto p1, Ponto p2) {
 
     int x, y;
     if(p1.y == p2.y) {
-        qDebug() << "Entrou aqui";
         y = p1.y;
         for(x = p1.x; x <= p2.x; x++) {
             glBegin( GL_POINTS );

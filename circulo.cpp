@@ -40,16 +40,20 @@ void Circulo::desenha() {
             x++;
 
             // De cima pra baixo
-            Objeto::linhaFill(Ponto(-x+xc + 1,  y+yc - 1),
-                              Ponto( x+xc - 1,  y+yc - 1));
-            Objeto::linhaFill(Ponto(-y+xc + 1,  x+yc - 1),
-                              Ponto( y+xc - 1,  x+yc - 1));
-            Objeto::linhaFill(Ponto(-y+xc + 1, -x+yc + 1),
-                              Ponto( y+xc - 1, -x+yc + 1));
-            Objeto::linhaFill(Ponto(-x+xc + 1, -y+yc + 1),
-                              Ponto( x+xc - 1, -y+yc + 1));
+            Objeto::linhaFill(Ponto(-x+xc,  y+yc),
+                              Ponto( x+xc,  y+yc));
+            Objeto::linhaFill(Ponto(-y+xc,  x+yc),
+                              Ponto( y+xc,  x+yc));
+            Objeto::linhaFill(Ponto(-y+xc, -x+yc),
+                              Ponto( y+xc, -x+yc));
+            Objeto::linhaFill(Ponto(-x+xc, -y+yc),
+                              Ponto( x+xc, -y+yc));
         }
+
+        Objeto::linhaFill(Ponto(xc - raio, yc),
+                          Ponto(xc + raio, yc));
     }
+
 
     // Desenha linha
     glColor4f(corL[0],corL[1],corL[2], corL[3]);
@@ -71,7 +75,7 @@ void Circulo::desenha() {
            d+=dse;
            dL+=2;
            dse+=4;
-               y--;
+           y--;
         }
         x++;
 
@@ -90,6 +94,13 @@ void Circulo::desenha() {
 
         linha_i = (linha_i + 1) % estiloLinha.size();
     }
+
+    glBegin(GL_POINTS);
+        glVertex2i(xc - raio, yc);
+        glVertex2i(xc + raio, yc);
+        glVertex2i(xc,        yc - raio);
+        glVertex2i(xc,        yc + raio);
+    glEnd();
 
 }
 

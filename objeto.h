@@ -83,14 +83,11 @@ class Objeto {
 
         void virtual desenha() = 0;
         /*
-         * Idealmente:
-         * void virtual desenhaLinha()
-         * void virtual desenhaFill()
-         * void virtual desenhaControles()
-         * Assim é possível ter uma sub-rotina desenha()
-         * não virtual que depende das variáveis
-         * "preenchido", "selecionado", etc.
-         */
+        void desenha();
+        void virtual desenhaLinha() = 0;
+        void virtual desenhaFill() = 0;
+        void virtual desenhaControles() = 0;
+        */
 
     private:
         static int nId;

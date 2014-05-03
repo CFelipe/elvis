@@ -10,7 +10,6 @@ Window::Window() {
     menuBar = new QMenuBar();
 
     glArea = new GLWidget();
-    glArea->setFocus();
 
     // -------------------------------------
     // Substituir por uma só função (ou não)
@@ -24,7 +23,7 @@ Window::Window() {
     mainLayout->setMenuBar(menuBar);
     mainLayout->addWidget(leftBar, 1, 0);
     mainLayout->addWidget(glArea, 1, 1);
-    mainLayout->addWidget(bottomBar, 2, 0, 2, 1);
+    mainLayout->addWidget(bottomBar, 2, 0, 1, 2);
     mainLayout->setRowStretch(1, 1);
     mainLayout->setRowStretch(2, 0);
 
@@ -138,8 +137,8 @@ void Window::createBottomBar() {
     pxLinha.fill(*linhaColor);
     linhaColorButton->setIcon(pxLinha);
     linhaColorButton->setAutoRaise(true);
-    bottomBar->insertWidget(0, linhaColorLabel);
-    bottomBar->insertWidget(0, linhaColorButton);
+    bottomBar->addWidget(linhaColorLabel);
+    bottomBar->addWidget(linhaColorButton);
     QObject::connect(linhaColorButton, SIGNAL(clicked()), this, SLOT(setLinhaColor()));
 
     QLabel* fillColorLabel = new QLabel("Fill");
@@ -149,9 +148,13 @@ void Window::createBottomBar() {
     pxFill.fill(*fillColor);
     fillColorButton->setIcon(pxFill);
     fillColorButton->setAutoRaise(true);
-    bottomBar->insertWidget(0, fillColorLabel);
-    bottomBar->insertWidget(0, fillColorButton);
+    bottomBar->addWidget(fillColorLabel);
+    bottomBar->addWidget(fillColorButton);
     QObject::connect(fillColorButton, SIGNAL(clicked()), this, SLOT(setFillColor()));
+
+    QWidget* spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    bottomBar->addWidget(spacer);
 
     QSpinBox* zoomSpinBox = new QSpinBox();
     zoomSpinBox->setSuffix("%");
@@ -159,7 +162,7 @@ void Window::createBottomBar() {
     zoomSpinBox->setValue(100);
     zoomSpinBox->setMinimum(25);
     zoomSpinBox->setSingleStep(5);
-    bottomBar->insertWidget(0, zoomSpinBox);
+    bottomBar->addWidget(zoomSpinBox);
 }
 
 void Window::setupFileMenu() {
@@ -204,47 +207,35 @@ void Window::newFile() {
 }
 
 void Window::setOperacao(QAction* q) {
-    // Encontrar maneira melhor
-    // Depender do texto é péssimo
-    if(q->text() == "Retângulo") {
+    if(q == addRetanguloAct) {
         glArea->forma = Objeto::RETANGULO;
-        qDebug() << "RETANGULO";
         glArea->desenha = true;
-    } else if(q->text() == "Círculo") {
+    } else if(q == addCirculoAct) {
         glArea->forma = Objeto::CIRCULO;
-        qDebug() << "CIRCULO";
         glArea->desenha = true;
     } else if(q->text() == "Polilinha") {
         glArea->forma = Objeto::POLILINHA;
-        qDebug() << "POLILINHA";
         glArea->desenha = true;
     } else if(q->text() == "Elipse") {
         glArea->forma = Objeto::ELIPSE;
-        qDebug() << "ELIPSE";
         glArea->desenha = true;
     } else if(q->text() == "Translação") {
         glArea->op = TRANSLACAO;
-        qDebug() << "TRANSLACAO";
         glArea->desenha = false;
     } else if(q->text() == "Cópia") {
         glArea->op = COPIA;
-        qDebug() << "COPIA";
         glArea->desenha = false;
     } else if(q->text() == "Escalar") {
         glArea->op = ESCALA;
-        qDebug() << "ESCALA";
         glArea->desenha = false;
     } else if(q->text() == "Deslocar pontos") {
         glArea->op = DESLOCARPONTOS;
-        qDebug() << "DESLOCAMENTO DE PONTOS";
         glArea->desenha = false;
     } else if(q->text() == "Rotacionar") {
         glArea->op = ROTACAO;
-        qDebug() << "ROTACAO";
         glArea->desenha = false;
     } else if (q->text() == "insertRemovePonto"){
         glArea->op = INSERT_REMOVE_PONTO;
-        qDebug() << "INSERT REMOVE PONTO";
         glArea->desenha = false;
     }
     glArea->opBotaoDireito = false;
@@ -252,37 +243,60 @@ void Window::setOperacao(QAction* q) {
 }
 
 void Window::setLinhaColor() {
-    const QColor color =
-            QColorDialog::getColor(QColor::fromRgbF(glArea->linhaColorSelecionada[0],
-                                                    glArea->linhaColorSelecionada[1],
-                                                    glArea->linhaColorSelecionada[2]),
-                                                    this, "Selecionar cor");
+    if(QApplication::keyboardModifiers() == Qt::ControlModifier) {
+        QPixmap px(20, 20);
+        QPainter *p = new QPainter(&px);
+        px.fill(Qt::white);
+        p->setBrush(Qt::red);
+        p->setPen(QPen(Qt::red, 2));
+        p->drawLine(QPoint(0, 20), QPoint(20, 0));
+        delete p;
+        linhaColorButton->setIcon(px);
+        // linha pra false!
+    } else {
+        const QColor color =
+                QColorDialog::getColor(QColor::fromRgbF(glArea->linhaColorSelecionada[0],
+                                                        glArea->linhaColorSelecionada[1],
+                                                        glArea->linhaColorSelecionada[2]),
+                                                        this, "Selecionar cor");
 
-    if (color.isValid()) {
-        glArea->linhaColorSelecionada[0] = color.redF();
-        glArea->linhaColorSelecionada[1] = color.greenF();
-        glArea->linhaColorSelecionada[2] = color.blueF();
+        if (color.isValid()) {
+            glArea->linhaColorSelecionada[0] = color.redF();
+            glArea->linhaColorSelecionada[1] = color.greenF();
+            glArea->linhaColorSelecionada[2] = color.blueF();
+
+            QPixmap px(20, 20);
+            px.fill(color);
+            linhaColorButton->setIcon(px);
+        }
     }
-
-    QPixmap px(20, 20);
-    px.fill(color);
-    linhaColorButton->setIcon(px);
 }
 
 void Window::setFillColor() {
-    const QColor color =
-            QColorDialog::getColor(QColor::fromRgbF(glArea->fillColorSelecionada[0],
-                                                    glArea->fillColorSelecionada[1],
-                                                    glArea->fillColorSelecionada[2]),
-                                                    this, "Selecionar cor de fill");
+    if(QApplication::keyboardModifiers() == Qt::ControlModifier) {
+        QPixmap px(20, 20);
+        QPainter *p = new QPainter(&px);
+        px.fill(Qt::white);
+        p->setBrush(Qt::red);
+        p->setPen(QPen(Qt::red, 2));
+        p->drawLine(QPoint(0, 20), QPoint(20, 0));
+        delete p;
+        fillColorButton->setIcon(px);
+        // preenchido pra false!
+    } else {
+        const QColor color =
+                QColorDialog::getColor(QColor::fromRgbF(glArea->fillColorSelecionada[0],
+                                                        glArea->fillColorSelecionada[1],
+                                                        glArea->fillColorSelecionada[2]),
+                                                        this, "Selecionar cor de fill");
+        if (color.isValid()) {
+            glArea->fillColorSelecionada[0] = color.redF();
+            glArea->fillColorSelecionada[1] = color.greenF();
+            glArea->fillColorSelecionada[2] = color.blueF();
 
-    if (color.isValid()) {
-        glArea->fillColorSelecionada[0] = color.redF();
-        glArea->fillColorSelecionada[1] = color.greenF();
-        glArea->fillColorSelecionada[2] = color.blueF();
+            QPixmap px(20, 20);
+            px.fill(color);
+            fillColorButton->setIcon(px);
+        }
     }
-
-    QPixmap px(20, 20);
-    px.fill(color);
-    fillColorButton->setIcon(px);
 }
