@@ -53,6 +53,7 @@ public slots:
     void setOperacao(QAction* q);
     void setLinhaColor();
     void setFillColor();
+    void setEspessuraLinha(int espessura);
 };
 
 #endif // WINDOW_H

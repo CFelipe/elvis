@@ -152,15 +152,27 @@ void Window::createBottomBar() {
     bottomBar->addWidget(fillColorButton);
     QObject::connect(fillColorButton, SIGNAL(clicked()), this, SLOT(setFillColor()));
 
+    bottomBar->addSeparator();
+
+    QLabel* espessuraLinhaLabel = new QLabel("Espessura");
+    QSpinBox* espessuraLinhaSpinBox = new QSpinBox();
+    espessuraLinhaSpinBox->setSuffix(" px");
+    espessuraLinhaSpinBox->setMinimum(1);
+    espessuraLinhaSpinBox->setMaximum(50);
+    espessuraLinhaSpinBox->setSingleStep(1);
+    bottomBar->addWidget(espessuraLinhaLabel);
+    bottomBar->addWidget(espessuraLinhaSpinBox);
+    QObject::connect(espessuraLinhaSpinBox, SIGNAL(valueChanged(int)), this, SLOT(setEspessuraLinha(int)));
+
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     bottomBar->addWidget(spacer);
 
     QSpinBox* zoomSpinBox = new QSpinBox();
     zoomSpinBox->setSuffix("%");
+    zoomSpinBox->setMinimum(25);
     zoomSpinBox->setMaximum(1000);
     zoomSpinBox->setValue(100);
-    zoomSpinBox->setMinimum(25);
     zoomSpinBox->setSingleStep(5);
     bottomBar->addWidget(zoomSpinBox);
 }
@@ -299,4 +311,8 @@ void Window::setFillColor() {
             fillColorButton->setIcon(px);
         }
     }
+}
+
+void Window::setEspessuraLinha(int espessura) {
+    glArea->espessuraLinha = espessura;
 }
