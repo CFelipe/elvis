@@ -12,7 +12,7 @@
 #include <QtOpenGL/QGLWidget>
 #include <QList>
 
-enum Operacao {TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO, INSERT_REMOVE_PONTO};
+enum Operacao {SELECIONAR, TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO, INSERT_REMOVE_PONTO, AGRUPAMENTO};
 
 typedef struct l {
     Objeto *objeto;

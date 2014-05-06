@@ -16,13 +16,29 @@ class Polilinha: public Objeto { // é uma lista encadeada de linhas
         void setInit(Ponto p0, Ponto p1);
         Linha *getFim();
         Linha *getInit();
+        Ponto getMax();
+        Ponto getMin();
+        Ponto getCentro();
+        void setMax(Ponto max);
+        void setMin(Ponto min);
+        void setCentro(Ponto centro);
         void deseleciona();
         void setLinhaSelecionada1(Linha *sel);
         void setLinhaSelecionada2(Linha *sel);
         Linha* getLinhaSelecionada1();
         Linha* getLinhaSelecionada2();
+        void atualizaMINMAX();
+        Ponto *getPMax();
+        Ponto *getPMin();
+        void escala(Ponto mouse);
+
 
     private:
+        Ponto centro;
+        Ponto max, min;
+        /*
+         * As variáveis max e min ajudam a construir um boundbox em torno da polilinha
+        */
         Linha *init, *fim;
         Linha *sel1, *sel2;
         /*indica as linhas selecionadas no momento do click.
@@ -36,6 +52,7 @@ class Polilinha: public Objeto { // é uma lista encadeada de linhas
         */
         //! Algortimo de rasterização da linha: Bresenham
         void Bresenham(Vertice p1, Vertice p2);
+
 
 };
 

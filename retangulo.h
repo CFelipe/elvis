@@ -10,6 +10,12 @@ class Retangulo : public Objeto {
         Retangulo(Vertice A, Vertice B, Vertice C, Vertice D, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha);
         Vertice A, B, C, D, centro;
         Ponto max, min;
+        bool isSeletor;
+        bool isVisible;
+        /* A variável is visible serve ao agrupamento de formas. Na verdade,
+         * quando agrupamos as formas, devemos ter um Retângulo imaginário o tamanho necessário e suficiente para acomodar as formas
+         * Tal retângulo será um objeto do tipo Retangulo invisível (ou melhor, apenasos vértices de controle aparecem);
+         */
         void desenha();
         void escala(GLdouble fatorx, GLdouble fatory);
         void Bresenham(Vertice p1, Vertice p2);

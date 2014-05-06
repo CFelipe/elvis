@@ -13,13 +13,17 @@ Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorf
     Vertice c((max.x-min.x)/2 + min.x, (max.y- min.y)/2 + min.y);
     this->centro = c;
     this->tipo = Objeto::RETANGULO;
+    this->isVisible = true;
+    this->isSeletor = false;
 }
 
 void Retangulo::desenha() {
-    Bresenham(A, B);
-    Bresenham(B, D);
-    Bresenham(D, C);
-    Bresenham(C, A);
+    if(isVisible==true){
+        Bresenham(A, B);
+        Bresenham(B, D);
+        Bresenham(D, C);
+        Bresenham(C, A);
+    }
 }
 
 void Retangulo::Bresenham(Vertice p1, Vertice p2) {
@@ -27,8 +31,21 @@ void Retangulo::Bresenham(Vertice p1, Vertice p2) {
     getColorLine(co);
     glColor4f( co[0],co[1],co[2], co[3]);
 
+
+    glPointSize(getEspessuraLinha()+10);
+    glBegin(GL_POINTS);
+        glVertex2i(max.x, max.y);
+    glEnd();
+    glPointSize(getEspessuraLinha()+5);
+    glBegin(GL_POINTS);
+        glVertex2i(min.x, min.y);
+    glEnd();
+
+
     // Especifica o diâmetro do Vertice
     glPointSize(getEspessuraLinha());
+
+
 
     GLint x, y;
     if (p2.p.x!=p1.p.x && p2.p.y!=p1.p.y){
