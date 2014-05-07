@@ -2,7 +2,16 @@
 #include "vertice.h"
 #include "objeto.h"
 
-Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorfill, colorLine, espessuraLinha, Objeto::RETANGULO) {
+/*
+ * O retângulo é definido por quatro vértices no sentido anti-horário:
+ *
+ * A-----------D
+ * |           |
+ * |           |
+ * B-----------C
+ */
+
+Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha = true, bool preenchido = true) : Objeto(colorfill, colorLine, espessuraLinha, linha, preenchido, Objeto::RETANGULO) {
     this->A = Vertice(A.p.x, A.p.y);
     this->B = Vertice(B.p.x, B.p.y);
     this->C = Vertice(C.p.x, C.p.y);
@@ -23,6 +32,27 @@ void Retangulo::desenhaLinha() {
 }
 
 void Retangulo::desenhaFill() {
+    GLint y, x_max, x_min, y_max, y_min;
+
+    if(A.p.y < B.p.y) {
+        y_min = A.p.y;
+        y_max = B.p.y;
+    } else {
+        y_min = B.p.y;
+        y_max = A.p.y;
+    }
+
+    if(A.p.x < D.p.x) {
+        x_min = A.p.x;
+        x_max = D.p.x;
+    } else {
+        x_min = D.p.x;
+        x_max = A.p.x;
+    }
+
+    for(y = y_min; y <= y_max; y++) {
+        Objeto::linhaFill(Ponto(x_min, y), Ponto(x_max, y));
+    }
 }
 
 void Retangulo::escala(GLdouble fatorx, GLdouble fatory){

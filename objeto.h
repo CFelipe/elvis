@@ -10,7 +10,12 @@ class Objeto {
     public:
         enum Forma {CIRCULO, RETANGULO, ELIPSE, LINHA, POLILINHA};
 
-        Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo);
+        Objeto(GLfloat colorFill[4],
+               GLfloat colorLine[4],
+               GLint espessuraLinha,
+               bool linha,
+               bool preenchido,
+               Forma tipo);
 
         Forma tipo;
         bool selecionado;
@@ -20,6 +25,7 @@ class Objeto {
         GLint espessuraLinha;
         QString estiloLinha;
         bool preenchido;
+        bool linha;
         int id;
 
         void Bresenham(Ponto p1, Ponto p2);

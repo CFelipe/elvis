@@ -2,14 +2,15 @@
 
 int Objeto::nId = 0;
 
-Objeto::Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo) {
+Objeto::Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha, bool preenchido, Forma tipo) {
     this->id = nId++;
     this->selecionado = false;
     this->espessuraLinha = espessuraLinha;
     this->tipo = tipo;
 
-    this->preenchido = true;
-    this->estiloLinha = "-";
+    this->preenchido = preenchido;
+    this->linha = linha;
+    this->estiloLinha = "----    ";
 
     this->colorfill[0] = colorFill[0];
     this->colorfill[1] = colorFill[1];
@@ -26,7 +27,9 @@ void Objeto::desenha() {
     if(preenchido) {
         desenhaFill();
     }
-    desenhaLinha();
+    if(linha) {
+        desenhaLinha();
+    }
 }
 
 void Objeto::linhaFill(Ponto p1, Ponto p2) {

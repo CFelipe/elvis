@@ -41,3 +41,6 @@ HEADERS  += \
     documento.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    resources.qrc

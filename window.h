@@ -21,20 +21,15 @@ private:
     QToolBar* bottomBar;
     QToolButton* linhaColorButton;
     QToolButton* fillColorButton;
-
-    void createActions();
-    void createLeftBar();
-    void createBottomBar();
-    void createStatusBar();
-    void setupFileMenu();
-    void setupHelpMenu();
-    void mostrarAcoesObjeto(bool visivel);
+    QToolButton *toggleGradeButton;
 
     QAction *addSelecionarAct;
     QAction *addPolilinhaAct;
     QAction *addElipseAct;
     QAction *addCirculoAct;
     QAction *addRetanguloAct;
+
+    QAction *panAct;
 
     QAction *copiarAct;
     QAction *transladarAct;
@@ -46,6 +41,19 @@ private:
     QAction *agruparAct;
     QAction *desagruparAct;
 
+
+
+    void createActions();
+    void createLeftBar();
+    void createBottomBar();
+    void createStatusBar();
+    void setupFileMenu();
+    void setupHelpMenu();
+    void mostrarAcoesObjeto(bool visivel);
+
+    void updateFillButton();
+    void updateLinhaButton();
+
 public slots:
     void about();
     void newFile();
@@ -54,6 +62,7 @@ public slots:
     void setLinhaColor();
     void setFillColor();
     void setEspessuraLinha(int espessura);
+    void toggleGrade();
 };
 
 #endif // WINDOW_H

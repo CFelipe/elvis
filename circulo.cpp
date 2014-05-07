@@ -1,6 +1,6 @@
 #include "circulo.h"
 
-Circulo::Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorfill, colorLine, espessuraLinha, Objeto::CIRCULO) {
+Circulo::Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha, bool preenchido) : Objeto(colorfill, colorLine, espessuraLinha, linha, preenchido, Objeto::CIRCULO) {
     this->raio = raio;
     this->xc = xc;
     this->yc = yc;

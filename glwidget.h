@@ -14,12 +14,6 @@
 
 enum Operacao {TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO, INSERT_REMOVE_PONTO};
 
-typedef struct l {
-    Objeto *objeto;
-    l *next;
-    l *previous;
-} Lista;
-
 class GLWidget : public QGLWidget {
 
     Q_OBJECT
@@ -33,6 +27,10 @@ class GLWidget : public QGLWidget {
         GLfloat fillColorSelecionada[4];
         GLint espessuraLinha;
         bool desenha; // true = desenha. false = seleciona
+        bool preenchimento;
+        bool linha;
+        bool grade;
+        Ponto viewport;
 
         /* Esta variável diz se uma polilinha está sendo desenhada;
          * É importante para diferenciar quando uma nova polilinha é criada,
@@ -56,12 +54,15 @@ class GLWidget : public QGLWidget {
         void mousePressEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
         void mouseReleaseEvent(QMouseEvent *event);
+        void keyPressEvent(QKeyEvent *event);
+        void keyReleaseEvent(QKeyEvent *event);
         void descelecionaALL();
 
     private:
         void selecionaCirculo(Objeto *aux, Circulo *c, Ponto click);
         void selecionaQuadrilatero(Objeto *aux, Retangulo *q, Ponto click);
         Retangulo* getAreaClippingMouse(GLint xmouse, GLint ymouse);
+        void desenhaGrade(GLint sep);
 
 };
 

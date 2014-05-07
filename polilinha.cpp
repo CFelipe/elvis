@@ -2,7 +2,7 @@
 
 #define CONTROL 5
 
-Polilinha::Polilinha(GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorLine, colorLine, espessuraLinha, Objeto::POLILINHA) {
+Polilinha::Polilinha(GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorLine, colorLine, espessuraLinha, true, false, Objeto::POLILINHA) {
     init = NULL;
     fim = NULL;
 }

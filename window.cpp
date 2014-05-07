@@ -10,6 +10,7 @@ Window::Window() {
     menuBar = new QMenuBar();
 
     glArea = new GLWidget();
+    glArea->setFocusPolicy(Qt::StrongFocus);
 
     // -------------------------------------
     // Substituir por uma só função (ou não)
@@ -38,21 +39,38 @@ void Window::createActions() {
     // -----------
     addSelecionarAct = new QAction("Selecionar", this);
     addSelecionarAct->setShortcut(QKeySequence("S"));
-    addPolilinhaAct = new QAction("Polilinha", this);
-    addElipseAct = new QAction("Elipse", this);
+
+    addPolilinhaAct = new QAction("Desenhar polilinha", this);
+    addPolilinhaAct->setIcon(QIcon(":/images/polilinha.png"));
+    addPolilinhaAct->setShortcut(QKeySequence("P"));
+
+    addElipseAct = new QAction("Desenhar elipse", this);
+    addElipseAct->setIcon(QIcon(":/images/elipse.png"));
     addElipseAct->setShortcut(QKeySequence("E"));
-    addCirculoAct = new QAction("Círculo", this);
+
+    addCirculoAct = new QAction("Desenhar círculo", this);
+    addCirculoAct->setIcon(QIcon(":/images/circulo.png"));
     addCirculoAct->setShortcut(QKeySequence("C"));
-    addRetanguloAct = new QAction("Retângulo", this);
+
+    addRetanguloAct = new QAction("Desenhar retângulo", this);
+    addRetanguloAct->setIcon(QIcon(":/images/retangulo.png"));
     addRetanguloAct->setShortcut(QKeySequence("R"));
+
+    addRetanguloAct = new QAction("Desenhar retângulo", this);
+    addRetanguloAct->setIcon(QIcon(":/images/retangulo.png"));
+    addRetanguloAct->setShortcut(QKeySequence("R"));
+
+    panAct = new QAction("Mover viewport", this);
+    panAct->setIcon(QIcon(":/images/pan.png"));
 
     addSelecionarAct->setCheckable(true);
     addPolilinhaAct->setCheckable(true);
     addElipseAct->setCheckable(true);
     addCirculoAct->setCheckable(true);
     addRetanguloAct->setCheckable(true);
-
     addElipseAct->setChecked(true);
+
+    panAct->setCheckable(true);
 
     // -------------------
     // Operações de objeto
@@ -101,6 +119,8 @@ void Window::createLeftBar() {
     toolGroup->addAction(addCirculoAct);
     toolGroup->addAction(addRetanguloAct);
 
+    toolGroup->addAction(panAct);
+
     toolGroup->addAction(copiarAct);
     toolGroup->addAction(transladarAct);
     toolGroup->addAction(rotacionarAct);
@@ -115,13 +135,14 @@ void Window::createLeftBar() {
     leftBar->addAction(addCirculoAct);
     leftBar->addAction(addRetanguloAct);
 
+    leftBar->addAction(panAct);
+
     leftBar->addAction(copiarAct);
     leftBar->addAction(transladarAct);
     leftBar->addAction(rotacionarAct);
     leftBar->addAction(escalarAct);
     leftBar->addAction(deslocarPtsAct);
     leftBar->addAction(insertRemovePontoAct);
-
 }
 
 void Window::createBottomBar() {
@@ -130,25 +151,22 @@ void Window::createBottomBar() {
     bottomBar->setFloatable(false);
     bottomBar->setMovable(false);
 
-    QLabel* linhaColorLabel = new QLabel("Linha");
+    //QLabel* linhaColorLabel = new QLabel("Linha");
+    //bottomBar->addWidget(linhaColorLabel);
     linhaColorButton = new QToolButton();
-    QColor* linhaColor = new QColor(Qt::black);
-    QPixmap pxLinha(20, 20);
-    pxLinha.fill(*linhaColor);
-    linhaColorButton->setIcon(pxLinha);
+    linhaColorButton->setToolTip("Cor de linha");
     linhaColorButton->setAutoRaise(true);
-    bottomBar->addWidget(linhaColorLabel);
+    updateLinhaButton();
     bottomBar->addWidget(linhaColorButton);
     QObject::connect(linhaColorButton, SIGNAL(clicked()), this, SLOT(setLinhaColor()));
 
-    QLabel* fillColorLabel = new QLabel("Fill");
+    //QLabel* fillColorLabel = new QLabel("Fill");
+    //bottomBar->addWidget(fillColorLabel);
     fillColorButton = new QToolButton();
-    QColor* fillColor = new QColor(Qt::red);
-    QPixmap pxFill(20, 20);
-    pxFill.fill(*fillColor);
-    fillColorButton->setIcon(pxFill);
+    updateFillButton();
     fillColorButton->setAutoRaise(true);
-    bottomBar->addWidget(fillColorLabel);
+    fillColorButton->setToolTip("Cor de preenchimento");
+    fillColorButton->setAutoRaise(true);
     bottomBar->addWidget(fillColorButton);
     QObject::connect(fillColorButton, SIGNAL(clicked()), this, SLOT(setFillColor()));
 
@@ -160,6 +178,7 @@ void Window::createBottomBar() {
     espessuraLinhaSpinBox->setMinimum(1);
     espessuraLinhaSpinBox->setMaximum(50);
     espessuraLinhaSpinBox->setSingleStep(1);
+    espessuraLinhaSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
     bottomBar->addWidget(espessuraLinhaLabel);
     bottomBar->addWidget(espessuraLinhaSpinBox);
     QObject::connect(espessuraLinhaSpinBox, SIGNAL(valueChanged(int)), this, SLOT(setEspessuraLinha(int)));
@@ -168,6 +187,13 @@ void Window::createBottomBar() {
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     bottomBar->addWidget(spacer);
 
+    toggleGradeButton = new QToolButton();
+    toggleGradeButton->setIcon(QIcon(":/images/grade.png"));
+    toggleGradeButton->setCheckable(true);
+    toggleGradeButton->setToolTip("Mostrar/ocultar grade");
+    bottomBar->addWidget(toggleGradeButton);
+    QObject::connect(toggleGradeButton, SIGNAL(clicked()), this, SLOT(toggleGrade()));
+
     QSpinBox* zoomSpinBox = new QSpinBox();
     zoomSpinBox->setSuffix("%");
     zoomSpinBox->setMinimum(25);
@@ -175,6 +201,7 @@ void Window::createBottomBar() {
     zoomSpinBox->setValue(100);
     zoomSpinBox->setSingleStep(5);
     bottomBar->addWidget(zoomSpinBox);
+
 }
 
 void Window::setupFileMenu() {
@@ -225,10 +252,12 @@ void Window::setOperacao(QAction* q) {
     } else if(q == addCirculoAct) {
         glArea->forma = Objeto::CIRCULO;
         glArea->desenha = true;
-    } else if(q->text() == "Polilinha") {
+    } else if(q == addPolilinhaAct) {
         glArea->forma = Objeto::POLILINHA;
         glArea->desenha = true;
-    } else if(q->text() == "Elipse") {
+        glArea->linha = true;
+        updateLinhaButton();
+    } else if(q == addElipseAct) {
         glArea->forma = Objeto::ELIPSE;
         glArea->desenha = true;
     } else if(q->text() == "Translação") {
@@ -254,8 +283,8 @@ void Window::setOperacao(QAction* q) {
     glArea->descelecionaALL(); // sempre que uma opção (de desenho ou transformação) for escolhida, desselecione todos os objetos
 }
 
-void Window::setLinhaColor() {
-    if(QApplication::keyboardModifiers() == Qt::ControlModifier) {
+void Window::updateLinhaButton() {
+    if(!glArea->linha) {
         QPixmap px(20, 20);
         QPainter *p = new QPainter(&px);
         px.fill(Qt::white);
@@ -264,7 +293,37 @@ void Window::setLinhaColor() {
         p->drawLine(QPoint(0, 20), QPoint(20, 0));
         delete p;
         linhaColorButton->setIcon(px);
-        // linha pra false!
+    } else {
+        QColor color = QColor::fromRgbF(glArea->linhaColorSelecionada[0],
+                                        glArea->linhaColorSelecionada[1],
+                                        glArea->linhaColorSelecionada[2]);
+
+        QPixmap px(20, 20);
+        QPainter *p = new QPainter(&px);
+        px.fill(Qt::white);
+        p->setPen(QPen(color, 6));
+        p->drawLine(QPoint( 3,  3), QPoint(17,  3));
+        p->drawLine(QPoint(17,  3), QPoint(17, 17));
+        p->drawLine(QPoint(17, 17), QPoint( 3, 17));
+        p->drawLine(QPoint( 3, 17), QPoint( 3,  3));
+        p->setPen(QPen(Qt::black, 1));
+        p->drawLine(QPoint( 7,  7), QPoint(12,  7));
+        p->drawLine(QPoint(12,  7), QPoint(12, 12));
+        p->drawLine(QPoint(12, 12), QPoint( 7, 12));
+        p->drawLine(QPoint( 7, 12), QPoint( 7,  7));
+        delete p;
+        linhaColorButton->setIcon(px);
+    }
+}
+
+void Window::setLinhaColor() {
+    if(QApplication::keyboardModifiers() == Qt::ControlModifier) {
+        if(glArea->linha) {
+            glArea->linha = false;
+        } else {
+            glArea->linha = true;
+        }
+        updateLinhaButton();
     } else {
         const QColor color =
                 QColorDialog::getColor(QColor::fromRgbF(glArea->linhaColorSelecionada[0],
@@ -277,16 +336,15 @@ void Window::setLinhaColor() {
             glArea->linhaColorSelecionada[1] = color.greenF();
             glArea->linhaColorSelecionada[2] = color.blueF();
 
-            QPixmap px(20, 20);
-            px.fill(color);
-            linhaColorButton->setIcon(px);
+            updateLinhaButton();
         }
     }
 }
 
-void Window::setFillColor() {
-    if(QApplication::keyboardModifiers() == Qt::ControlModifier) {
-        QPixmap px(20, 20);
+void Window::updateFillButton() {
+    QPixmap px(20, 20);
+
+    if(!glArea->preenchimento) {
         QPainter *p = new QPainter(&px);
         px.fill(Qt::white);
         p->setBrush(Qt::red);
@@ -294,7 +352,21 @@ void Window::setFillColor() {
         p->drawLine(QPoint(0, 20), QPoint(20, 0));
         delete p;
         fillColorButton->setIcon(px);
-        // preenchido pra false!
+    } else {
+        QColor color = QColor::fromRgbF(glArea->fillColorSelecionada[0],
+                                        glArea->fillColorSelecionada[1],
+                                        glArea->fillColorSelecionada[2]);
+
+        px.fill(color);
+        fillColorButton->setIcon(px);
+    }
+}
+
+void Window::setFillColor() {
+    if(QApplication::keyboardModifiers() == Qt::ControlModifier) {
+        glArea->preenchimento = !glArea->preenchimento;
+
+        updateFillButton();
     } else {
         const QColor color =
                 QColorDialog::getColor(QColor::fromRgbF(glArea->fillColorSelecionada[0],
@@ -306,11 +378,15 @@ void Window::setFillColor() {
             glArea->fillColorSelecionada[1] = color.greenF();
             glArea->fillColorSelecionada[2] = color.blueF();
 
-            QPixmap px(20, 20);
-            px.fill(color);
-            fillColorButton->setIcon(px);
+            updateFillButton();
         }
     }
+}
+
+void Window::toggleGrade() {
+    toggleGradeButton->setChecked(toggleGradeButton->isChecked());
+    glArea->grade = !glArea->grade;
+    glArea->updateGL();
 }
 
 void Window::setEspessuraLinha(int espessura) {
