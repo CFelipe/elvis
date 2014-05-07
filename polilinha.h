@@ -32,7 +32,6 @@ class Polilinha: public Objeto { // é uma lista encadeada de linhas
         Ponto *getPMin();
         void escala(Ponto mouse);
 
-
     private:
         Ponto centro;
         Ponto max, min;

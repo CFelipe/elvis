@@ -203,22 +203,14 @@ void Polilinha::setMin(Ponto min){
 void Polilinha::escala(Ponto mouse) {
     Linha *linha = init;
     Vertice p_at;
-    GLfloat fator_x, fator_y, dx, dy;
+    GLfloat fator_x, fator_y;
     GLint bound_delta_x, bound_delta_y, bound_rel_x, bound_rel_y, bound_largura, bound_altura;
 
     bound_delta_x = mouse.x - getMax().x;
     bound_delta_y = mouse.y - getMax().y;
 
-    dx = getMax().x / (getMax().x + bound_delta_x);
-    dy = getMax().y;
-
-    qDebug() << dx;
-    qDebug() << dy;
-
     bound_largura = (getMax().x - getMin().x);
     bound_altura = (getMax().y - getMin().y);
-
-    qDebug() << "antes";
 
     while (linha!=NULL){
         p_at = linha->getP0();
@@ -229,8 +221,8 @@ void Polilinha::escala(Ponto mouse) {
         fator_y = (GLfloat) bound_rel_y / bound_altura;
         qDebug() << "dentro";
 
-        p_at.p.x = (fator_x * (bound_largura * dx)) + getMin().x;
-        p_at.p.y = (fator_y * (bound_altura * dy)) + getMin().y;
+        p_at.p.x = (fator_x * (bound_largura + bound_delta_x)) + getMin().x;
+        p_at.p.y = (fator_y * (bound_altura + bound_delta_y)) + getMin().y;
         linha->setP0(p_at);
 
         p_at = linha->getP1();
@@ -239,11 +231,12 @@ void Polilinha::escala(Ponto mouse) {
 
         fator_x = (GLfloat) bound_rel_x / bound_largura;
         fator_y = (GLfloat) bound_rel_y / bound_altura;
-        p_at.p.x = (fator_x * (bound_largura * dx)) + getMin().x;
-        p_at.p.y = (fator_y * (bound_altura * dy)) + getMin().y;
+        qDebug() << fator_x;
+        qDebug() << fator_y;
+        qDebug() << "dentro";
 
-
-
+        p_at.p.x = (fator_x * (bound_largura + bound_delta_x)) + getMin().x;
+        p_at.p.y = (fator_y * (bound_altura + bound_delta_y)) + getMin().y;
         linha->setP1(p_at);
 
         linha = linha->getNext();
