@@ -53,9 +53,6 @@ class GLWidget : public QGLWidget {
         void paintGL();
         void mousePressEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
-        void mouseReleaseEvent(QMouseEvent *event);
-        void keyPressEvent(QKeyEvent *event);
-        void keyReleaseEvent(QKeyEvent *event);
         void descelecionaALL();
 
     private:

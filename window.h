@@ -41,8 +41,6 @@ private:
     QAction *agruparAct;
     QAction *desagruparAct;
 
-
-
     void createActions();
     void createLeftBar();
     void createBottomBar();

@@ -374,7 +374,6 @@ void excluirPontoControlePolilinha(Polilinha *pol, int x, int y){
 }
 
 void GLWidget::resizeGL(int w, int h) {
-        float vfAspect = 0.f;
         float viewDepth = gfWrldSizeZ/2.f;
 
         // Usar toda a janela.
@@ -382,11 +381,10 @@ void GLWidget::resizeGL(int w, int h) {
 
         h = (h==0) ? 1 : h;
         w = (w==0) ? 1 : w;
-        vfAspect = ( h < w ) ? (float)w/(float)h : (float)h/(float)w ;
         glMatrixMode( GL_PROJECTION );
         glLoadIdentity( );
-        glOrtho( 0, w, // * vfAspect,
-                 0, h, // * vfAspect,
+        glOrtho( 0, w,
+                 0, h,
                 -viewDepth, viewDepth );
 
         gfWrldSizeX = w;
@@ -555,13 +553,6 @@ void GLWidget::paintGL() {
     glPopMatrix( );
     // Flush the pipeline, swap the buffers
     glFlush();
-
-}
-
-void GLWidget::keyPressEvent(QKeyEvent *event) {
-}
-
-void GLWidget::keyReleaseEvent(QKeyEvent *event) {
 
 }
 
@@ -740,7 +731,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                             }
                             if (pol->selecionado){
                                 if (op==COPIA){
-                                    GLfloat fill[4], line[4];
+                                    GLfloat line[4];
                                     pol->getColorLine(line);
                                     Polilinha *novo = new Polilinha(line, espessuraLinha);
                                     camadaSelecionada->objetos->append(novo);
@@ -822,14 +813,6 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
         cout<<"MEIO"<<endl;
         onMouseClick = false;
     }
-}
-
-void GLWidget::mouseReleaseEvent(QMouseEvent *event){
-    /*
-    if (desenha==false){
-       onMouseClik = false;
-    }
-    */
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event) {
