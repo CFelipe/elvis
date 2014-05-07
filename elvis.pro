@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     ponto.cpp \
     polilinha.cpp \
     linha.cpp \
-    camada.cpp
+    camada.cpp \
+    documento.cpp
 
 HEADERS  += \
     window.h \
@@ -36,6 +37,10 @@ HEADERS  += \
     ponto.h \
     polilinha.h \
     linha.h \
-    camada.h
+    camada.h \
+    documento.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    resources.qrc

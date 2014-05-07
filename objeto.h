@@ -4,12 +4,18 @@
 #include <QtOpenGL>
 #include <QtGui/QMouseEvent>
 #include <iostream>
+#include "vertice.h"
 
 class Objeto {
     public:
         enum Forma {CIRCULO, RETANGULO, ELIPSE, LINHA, POLILINHA};
 
-        Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha, Forma tipo);
+        Objeto(GLfloat colorFill[4],
+               GLfloat colorLine[4],
+               GLint espessuraLinha,
+               bool linha,
+               bool preenchido,
+               Forma tipo);
 
         Forma tipo;
         bool selecionado;
@@ -17,8 +23,13 @@ class Objeto {
         GLfloat colorLine[4];
         GLint xclick, yclick;
         GLint espessuraLinha;
+        QString estiloLinha;
         bool preenchido;
+        bool linha;
         int id;
+
+        void Bresenham(Ponto p1, Ponto p2);
+        void linhaFill(Ponto p1, Ponto p2);
 
          GLint getEspessuraLinha(){
             return espessuraLinha;
@@ -76,7 +87,10 @@ class Objeto {
               return tipo;
         }
 
-        void virtual desenha() = 0;
+        void desenha();
+        void virtual desenhaLinha() = 0;
+        void virtual desenhaFill() = 0;
+        //void virtual desenhaControles() = 0;
 
     private:
         static int nId;

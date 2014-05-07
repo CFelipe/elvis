@@ -81,6 +81,7 @@ void Window::createActions() {
     deslocarPtsAct = new QAction("Deslocar pontos", this);
     rotacionarAct = new QAction("Rotacionar", this);
     insertRemovePontoAct = new QAction("insertRemovePonto", this);
+    agruparAct = new QAction("Agrupar", this);
 
     copiarAct->setCheckable(true);
     transladarAct->setCheckable(true);
@@ -88,7 +89,14 @@ void Window::createActions() {
     escalarAct->setCheckable(true);
     deslocarPtsAct->setCheckable(true);
     insertRemovePontoAct->setCheckable(true);
+<<<<<<< HEAD
+    agruparAct->setCheckable(true);
+
+=======
+>>>>>>> cor
 }
+
+
 
 void Window::mostrarAcoesObjeto(bool visivel) {
     if(visivel) {
@@ -97,12 +105,17 @@ void Window::mostrarAcoesObjeto(bool visivel) {
         rotacionarAct->setVisible(true);
         escalarAct->setVisible(true);
         deslocarPtsAct->setVisible(true);
+        agruparAct->setVisible(true);
     } else {
         copiarAct->setVisible(false);
         transladarAct->setVisible(false);
         rotacionarAct->setVisible(false);
         escalarAct->setVisible(false);
         deslocarPtsAct->setVisible(false);
+<<<<<<< HEAD
+        agruparAct->setVisible(false);
+=======
+>>>>>>> cor
     }
 }
 
@@ -127,7 +140,12 @@ void Window::createLeftBar() {
     toolGroup->addAction(escalarAct);
     toolGroup->addAction(deslocarPtsAct);
     toolGroup->addAction(insertRemovePontoAct);
+<<<<<<< HEAD
+    toolGroup->addAction(agruparAct);
+    QObject::connect(toolGroup, SIGNAL(triggered(QAction*)), glArea, SLOT(setOperacao(QAction * )));
+=======
     QObject::connect(toolGroup, SIGNAL(triggered(QAction*)), this, SLOT(setOperacao(QAction * )));
+>>>>>>> cor
 
     leftBar->addAction(addSelecionarAct);
     leftBar->addAction(addPolilinhaAct);
@@ -143,6 +161,11 @@ void Window::createLeftBar() {
     leftBar->addAction(escalarAct);
     leftBar->addAction(deslocarPtsAct);
     leftBar->addAction(insertRemovePontoAct);
+<<<<<<< HEAD
+    leftBar->addAction(agruparAct);
+
+=======
+>>>>>>> cor
 }
 
 void Window::createBottomBar() {

@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/circulo.png</file>
+        <file>images/elipse.png</file>
+        <file>images/grade.png</file>
+        <file>images/pan.png</file>
+        <file>images/polilinha.png</file>
+        <file>images/retangulo.png</file>
+        <file>images/zoom.png</file>
+    </qresource>
+</RCC>

@@ -105,6 +105,8 @@ void Polilinha::atualizaMINMAX(){
 void Polilinha::desenhaLinha() {
     Linha *aux = init;
 
+<<<<<<< HEAD
+=======
     if (selecionado){
         glPointSize(8);
         glBegin(GL_POINTS);
@@ -123,24 +125,54 @@ void Polilinha::desenhaLinha() {
     }
     while (aux!=NULL){
         Objeto::Bresenham(aux->getV0().p, aux->getV1().p);
+>>>>>>> cor
         if (selecionado){
             glPointSize(8);
             glBegin(GL_POINTS);
                 glColor3f( 0,0.5 , 0 );
+<<<<<<< HEAD
+                glVertex2i(aux->getP0().p.x, aux->getP0().p.y);
+=======
                 glVertex2i(aux->getV1().p.x, aux->getV1().p.y);
+>>>>>>> cor
             glEnd();
         } else {
             glPointSize(1);
             glColor3f( 0,0, 0 );
             glBegin(GL_LINE_LOOP);
+<<<<<<< HEAD
+                glVertex2i(aux->getP0().p.x+CONTROL, aux->getP0().p.y+CONTROL);
+                glVertex2i(aux->getP0().p.x-CONTROL, aux->getP0().p.y+CONTROL);
+                glVertex2i(aux->getP0().p.x-CONTROL, aux->getP0().p.y-CONTROL);
+                glVertex2i(aux->getP0().p.x+CONTROL, aux->getP0().p.y-CONTROL);
+=======
                 glVertex2i(aux->getV1().p.x+CONTROL, aux->getV1().p.y+CONTROL);
                 glVertex2i(aux->getV1().p.x-CONTROL, aux->getV1().p.y+CONTROL);
                 glVertex2i(aux->getV1().p.x-CONTROL, aux->getV1().p.y-CONTROL);
                 glVertex2i(aux->getV1().p.x+CONTROL, aux->getV1().p.y-CONTROL);
+>>>>>>> cor
             glEnd();
         }
-        aux = aux->getNext();
-    }
+        while (aux!=NULL){
+            Bresenham(aux->getP0(), aux->getP1());
+            if (selecionado){
+                glPointSize(8);
+                glBegin(GL_POINTS);
+                    glColor3f( 0,0.5 , 0 );
+                    glVertex2i(aux->getP1().p.x, aux->getP1().p.y);
+                glEnd();
+            } else {
+                glPointSize(1);
+                glColor3f( 0,0, 0 );
+                glBegin(GL_LINE_LOOP);
+                    glVertex2i(aux->getP1().p.x+CONTROL, aux->getP1().p.y+CONTROL);
+                    glVertex2i(aux->getP1().p.x-CONTROL, aux->getP1().p.y+CONTROL);
+                    glVertex2i(aux->getP1().p.x-CONTROL, aux->getP1().p.y-CONTROL);
+                    glVertex2i(aux->getP1().p.x+CONTROL, aux->getP1().p.y-CONTROL);
+                glEnd();
+            }
+            aux = aux->getNext();
+        }
 }
 
 void Polilinha::desenhaFill() {
@@ -160,14 +192,23 @@ Linha* Polilinha::getLinhaSelecionada2() {
     return sel2;
 }
 void Polilinha::setFim(Ponto p0, Ponto p1){
+<<<<<<< HEAD
+    fim->setP0(p0);
+    fim->setP1(p1);
+    atualizaMINMAX();
+}
+void Polilinha::setInit(Ponto p0, Ponto p1){
+    init->setP0(p0);
+    init->setP1(p1);
+    atualizaMINMAX();
+=======
     fim->setV0(p0);
     fim->setV1(p1);
-    atualizaMINMAX();
 }
 void Polilinha::setInit(Ponto p0, Ponto p1){
     init->setV0(p0);
     init->setV1(p1);
-    atualizaMINMAX();
+>>>>>>> cor
 }
 Linha* Polilinha::getFim(){
     return fim;
@@ -186,6 +227,7 @@ void Polilinha::deseleciona(){
         linha = linha->getNext();
     }
 }
+<<<<<<< HEAD
 Ponto Polilinha::getMax(){
     return max;
 }
@@ -527,3 +569,5 @@ void Polilinha::Bresenham(Vertice p1, Vertice p2) {
     }
 }
 
+=======
+>>>>>>> cor

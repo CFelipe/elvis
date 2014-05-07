@@ -5,18 +5,18 @@
 
 class Linha{
     private:
-        Vertice p0, p1;
+        Vertice v0, v1;
         Linha *next, *previous;
     public:
-        Linha(Vertice p0, Vertice p1);
-        Linha(Ponto p0, Ponto p1);
+        Linha(Vertice v0, Vertice v1);
+        Linha(Ponto v0, Ponto v1);
 
-        Vertice getP0();
-        Vertice getP1();
-        Vertice *getPP0();
-        Vertice *getPP1();
-        void setP1(Vertice p1);
-        void setP0(Vertice p0);
+        Vertice getV0();
+        Vertice getV1();
+        Vertice *getVV0();
+        Vertice *getVV1();
+        void setV1(Vertice v1);
+        void setV0(Vertice v0);
         Linha * getNext();
         Linha *getPrevious();
         void setNext(Linha *n);

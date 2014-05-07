@@ -14,12 +14,6 @@
 
 enum Operacao {SELECIONAR, TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO, INSERT_REMOVE_PONTO, AGRUPAMENTO};
 
-typedef struct l {
-    Objeto *objeto;
-    l *next;
-    l *previous;
-} Lista;
-
 class GLWidget : public QGLWidget {
 
     Q_OBJECT
@@ -29,21 +23,44 @@ class GLWidget : public QGLWidget {
 
         QList<Camada*> camadas;
         Camada* camadaSelecionada;
+        GLfloat linhaColorSelecionada[4];
+        GLfloat fillColorSelecionada[4];
+        GLint espessuraLinha;
+        bool desenha; // true = desenha. false = seleciona
+        bool preenchimento;
+        bool linha;
+        bool grade;
+        Ponto viewport;
+
+        /* Esta variável diz se uma polilinha está sendo desenhada;
+         * É importante para diferenciar quando uma nova polilinha é criada,
+         * e quando uma nova linha é adicionada à polilinha que está sendo desenhada
+         */
+        bool desenhandoPolilinha;
+
+        Operacao op;
+        Objeto::Forma forma;
+
+        /* A variável opBotaoDireito é usada somente para controlar a possibilidade de rotação de acordo como especificado no documento
+         * opBotaoDireito=true <--> o botão direito foi pressionado em algum local do canvas
+         * opBotaoDireito=false <--> o botão esquerdo foi pressionado sobre a região da figura ou sobre um ponto de controle
+        */
+        bool opBotaoDireito;
+        bool onMouseClick;
 
         void initializeGL();
         void resizeGL(int w, int h);
         void paintGL();
         void mousePressEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
-        void mouseReleaseEvent(QMouseEvent *event);
+        void descelecionaALL();
 
     private:
-        void descelecionaALL();
         void selecionaCirculo(Objeto *aux, Circulo *c, Ponto click);
         void selecionaQuadrilatero(Objeto *aux, Retangulo *q, Ponto click);
+        Retangulo* getAreaClippingMouse(GLint xmouse, GLint ymouse);
+        void desenhaGrade(GLint sep);
 
-    public slots:
-        void setOperacao(QAction* q);
 };
 
 #endif  /* _GLWIDGET_H */

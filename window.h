@@ -12,24 +12,24 @@ public:
     Window();
 
 private:
-    QGLWidget* glArea;
-    QMenuBar* menuBar;
-    QToolBar* leftBar;
-    QToolBar* bottomBar;
+    GLWidget* glArea;
 
-    void createActions();
-    void createLeftBar();
-    void createBottomBar();
-    void createStatusBar();
-    void setupFileMenu();
-    void setupHelpMenu();
-    void mostrarAcoesObjeto(bool visivel);
+    QMenuBar* menuBar;
+
+    QToolBar* leftBar;
+
+    QToolBar* bottomBar;
+    QToolButton* linhaColorButton;
+    QToolButton* fillColorButton;
+    QToolButton *toggleGradeButton;
 
     QAction *addSelecionarAct;
     QAction *addPolilinhaAct;
     QAction *addElipseAct;
     QAction *addCirculoAct;
     QAction *addRetanguloAct;
+
+    QAction *panAct;
 
     QAction *copiarAct;
     QAction *transladarAct;
@@ -41,12 +41,26 @@ private:
     QAction *agruparAct;
     QAction *desagruparAct;
 
-    //TODO: diversos tipos de alinhamento
+    void createActions();
+    void createLeftBar();
+    void createBottomBar();
+    void createStatusBar();
+    void setupFileMenu();
+    void setupHelpMenu();
+    void mostrarAcoesObjeto(bool visivel);
+
+    void updateFillButton();
+    void updateLinhaButton();
 
 public slots:
     void about();
     void newFile();
     void openFile(const QString &path = QString());
+    void setOperacao(QAction* q);
+    void setLinhaColor();
+    void setFillColor();
+    void setEspessuraLinha(int espessura);
+    void toggleGrade();
 };
 
 #endif // WINDOW_H

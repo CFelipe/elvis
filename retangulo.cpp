@@ -2,7 +2,16 @@
 #include "vertice.h"
 #include "objeto.h"
 
-Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha) : Objeto(colorfill, colorLine, espessuraLinha, Objeto::RETANGULO) {
+/*
+ * O retângulo é definido por quatro vértices no sentido anti-horário:
+ *
+ * A-----------D
+ * |           |
+ * |           |
+ * B-----------C
+ */
+
+Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha = true, bool preenchido = true) : Objeto(colorfill, colorLine, espessuraLinha, linha, preenchido, Objeto::RETANGULO) {
     this->A = Vertice(A.p.x, A.p.y);
     this->B = Vertice(B.p.x, B.p.y);
     this->C = Vertice(C.p.x, C.p.y);
@@ -17,285 +26,34 @@ Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorf
     this->isSeletor = false;
 }
 
-void Retangulo::desenha() {
-    if(isVisible==true){
-        Bresenham(A, B);
-        Bresenham(B, D);
-        Bresenham(D, C);
-        Bresenham(C, A);
-    }
+void Retangulo::desenhaLinha() {
+    Objeto::Bresenham(A.p, B.p);
+    Objeto::Bresenham(B.p, D.p);
+    Objeto::Bresenham(D.p, C.p);
+    Objeto::Bresenham(C.p, A.p);
 }
 
-void Retangulo::Bresenham(Vertice p1, Vertice p2) {
-    GLfloat co[4];
-    getColorLine(co);
-    glColor4f( co[0],co[1],co[2], co[3]);
+void Retangulo::desenhaFill() {
+    GLint y, x_max, x_min, y_max, y_min;
 
+    if(A.p.y < B.p.y) {
+        y_min = A.p.y;
+        y_max = B.p.y;
+    } else {
+        y_min = B.p.y;
+        y_max = A.p.y;
+    }
 
-    glPointSize(getEspessuraLinha()+10);
-    glBegin(GL_POINTS);
-        glVertex2i(max.x, max.y);
-    glEnd();
-    glPointSize(getEspessuraLinha()+5);
-    glBegin(GL_POINTS);
-        glVertex2i(min.x, min.y);
-    glEnd();
+    if(A.p.x < D.p.x) {
+        x_min = A.p.x;
+        x_max = D.p.x;
+    } else {
+        x_min = D.p.x;
+        x_max = A.p.x;
+    }
 
-
-    // Especifica o diâmetro do Vertice
-    glPointSize(getEspessuraLinha());
-
-
-
-    GLint x, y;
-    if (p2.p.x!=p1.p.x && p2.p.y!=p1.p.y){
-        GLfloat m = (GLfloat) (p2.p.y-p1.p.y) / (p2.p.x-p1.p.x);
-        if (m>0  && m<1){
-
-            GLint dx = p2.p.x - p1.p.x;
-            GLint dy = p2.p.y - p1.p.y;
-            GLint pk = 2*dy - dx;
-            GLint dy_2 = 2*dy;
-            GLint ddxy = dy_2 - 2*dx;
-            x = p1.p.x;
-            y = p1.p.y;
-            glBegin( GL_POINTS );
-                glVertex2i( (GLint)x, (GLint)y );
-            glEnd( );
-            if (p1.p.x<p2.p.x){
-                while (x<p2.p.x){
-
-                    x++;
-                    if (pk<0) pk = pk+dy_2;
-                    else {
-                        y++;
-                        pk = pk + ddxy;
-                    }
-                    glBegin( GL_POINTS );
-                        glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            } else {
-                while (x>p2.p.x){
-
-                    x--;
-                    if (pk<0) pk = pk-dy_2;
-                    else {
-                        y--;
-                        pk = pk - ddxy;
-                    }
-                    glBegin( GL_POINTS );
-                        glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            }
-        } else if (m>-1 && m<0){
-            printf("%f\n", m);
-            GLint dx = p2.p.x - p1.p.x;
-            GLint dy = - p2.p.y + p1.p.y;
-            GLint pk = 2*dy + dx;
-            GLint dy_2 = 2*dy;
-            GLint ddxy = dy_2 - 2*dx;
-
-            x = p1.p.x;
-            y = p1.p.y;
-            glBegin( GL_POINTS );
-                glVertex2i( (GLint)x, (GLint)y );
-            glEnd( );
-            if (p1.p.x<p2.p.x){
-                while (x<p2.p.x){
-                    x++;
-                    if (pk<0) pk = pk+dy_2;
-                    else {
-                        y--;
-                        pk = pk + ddxy;
-                    }
-                    glBegin( GL_POINTS );
-                        glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            } else {
-                while (x>p2.p.x){
-                    x--;
-                    if (pk<0) pk = pk-dy_2;
-                    else {
-                        y++;
-                        pk = pk - ddxy;
-                    }
-                    glBegin( GL_POINTS );
-                        glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            }
-        } else if (m>1){
-            GLint dx = p2.p.x - p1.p.x;
-            GLint dy = p2.p.y - p1.p.y;
-            GLint pk = 2*dx + dy;
-            GLint dx_2 = 2*dx;
-            GLint ddxy = dx_2 - 2*dy;
-
-            x = p1.p.x;
-            y = p1.p.y;
-            glBegin( GL_POINTS );
-                glVertex2i( (GLint)x, (GLint)y );
-            glEnd( );
-            if (p1.p.y<p2.p.y){
-                while (y<p2.p.y){
-                    y++;
-                    if (pk<0) pk = pk+dx_2;
-                    else {
-                        x++;
-                        pk = pk + ddxy;
-                    }
-                    glBegin( GL_POINTS );
-                        glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            } else {
-                while (y>p2.p.y){
-                    y--;
-                    if (pk<0) pk = pk-dx_2;
-                    else {
-                        x--;
-                        pk = pk - ddxy;
-                    }
-                    glBegin( GL_POINTS );
-                        glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            }
-        } else if (m<-1){
-            GLint dx = p2.p.x - p1.p.x;
-            GLint dy = -p2.p.y + p1.p.y;
-            GLint pk = 2*dx - dy;
-            GLint dx_2 = 2*dx;
-            GLint ddxy = dx_2 - 2*dy;
-
-            x = p1.p.x;
-            y = p1.p.y;
-            glBegin( GL_POINTS );
-                glVertex2i( (GLint)x, (GLint)y );
-            glEnd( );
-            if (p1.p.y>p2.p.y){
-                while (y>p2.p.y){
-                    y--;
-                    if (pk<0) pk = pk+dx_2;
-                    else {
-                        x++;
-                        pk = pk + ddxy;
-                    }
-                    glBegin( GL_POINTS );
-                        glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            } else {
-                while (y<p2.p.y){
-                    y++;
-                    if (pk<0) pk = pk-dx_2;
-                    else {
-                        x--;
-                        pk = pk - ddxy;
-                    }
-                    glBegin( GL_POINTS );
-                        glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            }
-
-        } else if (m==1){
-            x = p1.p.x;
-            y = (GLfloat) p1.p.y;
-            glBegin( GL_POINTS );
-                    glVertex2i( (GLint)x, (GLint)y );
-            glEnd( );
-            if (p1.p.y<p2.p.y){
-                while (y<p2.p.y){
-                    x++;
-                    y++;
-                    glBegin( GL_POINTS );
-                            glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            } else {
-                while (y>p2.p.y){
-                    x--;
-                    y--;
-                    glBegin( GL_POINTS );
-                            glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            }
-        } else if (m==-1){
-            x = p1.p.x;
-            y = (GLfloat) p1.p.y;
-            glBegin( GL_POINTS );
-                    glVertex2i( (GLint)x, (GLint)y );
-            glEnd( );
-            if (p1.p.y>p2.p.y){
-                while (y>p2.p.y){
-                    x++;
-                    y--;
-                    glBegin( GL_POINTS );
-                            glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            } else {
-                while (y<p2.p.y){
-                    x--;
-                    y++;
-                    glBegin( GL_POINTS );
-                            glVertex2i( (GLint)x, (GLint)y );
-                    glEnd( );
-                }
-            }
-        }
-    } else if (p2.p.y==p1.p.y){ //se a linha for horizontal:
-
-        x = p1.p.x;
-        y = (GLfloat) p1.p.y;
-        glBegin( GL_POINTS );
-            glVertex2i( (GLint)x, (GLint)y );
-        glEnd( );
-        if (p1.p.x<p2.p.x){
-            while (x<p2.p.x){
-                x++;
-
-                glBegin( GL_POINTS );
-                    glVertex2i( (GLint)x, (GLint)y );
-                glEnd( );
-            }
-        } else {
-            while (x>p2.p.x){
-                x--;
-
-                glBegin( GL_POINTS );
-                    glVertex2i( (GLint)x, (GLint)y );
-                glEnd( );
-            }
-        }
-    } else { // se a linha for vertical:
-        x = p1.p.x;
-        y = (GLfloat) p1.p.y;
-        glBegin( GL_POINTS );
-            glVertex2i( (GLint)x, (GLint)y );
-        glEnd( );
-        if (p1.p.y<p2.p.y){
-            while (y<p2.p.y){
-                y++;
-
-                glBegin( GL_POINTS );
-                    glVertex2i( (GLint)x, (GLint)y );
-                glEnd( );
-            }
-        } else {
-            while (y>p2.p.y){
-                y--;
-
-                glBegin( GL_POINTS );
-                    glVertex2i( (GLint)x, (GLint)y );
-                glEnd( );
-            }
-        }
+    for(y = y_min; y <= y_max; y++) {
+        Objeto::linhaFill(Ponto(x_min, y), Ponto(x_max, y));
     }
 }
 
@@ -315,7 +73,7 @@ void Retangulo::escala(GLdouble fatorx, GLdouble fatory){
     }
 
     atualizaMINMAX();
-};
+}
 
 void Retangulo::atualizaMINMAX(){
     Vertice v[4] = {A, B, C, D};
