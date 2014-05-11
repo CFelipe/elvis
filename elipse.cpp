@@ -5,6 +5,27 @@ Elipse::Elipse(Ponto centro, GLint raioHorizontal, GLint raioVertical, GLfloat c
     this->raioHorizontal = raioHorizontal;
     this->raioVertical = raioVertical;
     this->control = centro;
+    this->selecionado = true;
+}
+
+void Elipse::translada(GLint xmouse, GLint ymouse) {
+    GLint ax = getControl().p.x == getCentro().p.x + getRaioHorizontal() ? (1):(-1);
+    GLint ay = getControl().p.y == getCentro().p.y + getRaioVertical() ? (1):(-1);
+    setCentro(Ponto(xmouse - xclick, ymouse - yclick));
+    setControl(Ponto(getCentro().p.x + ax * (getRaioHorizontal()), getCentro().p.y + ay * (getRaioVertical())));
+}
+
+void Elipse::desseleciona() {
+    this->selecionado = false;
+    this->control.selecionado = false;
+}
+
+Ponto Elipse::boundsMax() {
+    return Ponto(centro.x + raioHorizontal, centro.y + raioVertical);
+}
+
+Ponto Elipse::boundsMin() {
+    return Ponto(centro.x - raioHorizontal, centro.y - raioVertical);
 }
 
 void Elipse::desenhaLinha() {
@@ -19,7 +40,7 @@ void Elipse::desenhaLinha() {
 
     int linha_i = 0;
 
-    glPointSize(getEspessuraLinha());
+    glPointSize(espessuraLinha);
 
     while (raioHorizontal*raioHorizontal*(y-0.5) > raioVertical*raioVertical*(x+1)) {
         if (d1<0){
@@ -69,6 +90,7 @@ void Elipse::desenhaFill() {
     GLfloat co[4];
     getColorFill(co);
     glColor4f( co[0],co[1],co[2], co[3]);
+    glPointSize(1);
 
     GLdouble d2;
     GLint x = 0;
@@ -109,4 +131,59 @@ void Elipse::desenhaFill() {
         Objeto::linhaFill(Ponto(-x + centro.x, -y + centro.y),
                           Ponto( x + centro.x, -y + centro.y));
     }
+}
+
+void Elipse::desenhaControles() {
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(1, 0xAAAA);
+    glColor3f(0,0.5, 0);
+    glBegin(GL_LINES);
+         glVertex2i(-getRaioHorizontal()+getCentro().p.x,  getRaioVertical()+getCentro().p.y);
+         glVertex2i(-getRaioHorizontal()+getCentro().p.x, -getRaioVertical()+getCentro().p.y);
+         glVertex2i( getRaioHorizontal()+getCentro().p.x,  getRaioVertical()+getCentro().p.y);
+         glVertex2i( getRaioHorizontal()+getCentro().p.x, -getRaioVertical()+getCentro().p.y);
+         glVertex2i(-getRaioHorizontal()+getCentro().p.x,  getRaioVertical()+getCentro().p.y);
+         glVertex2i( getRaioHorizontal()+getCentro().p.x,  getRaioVertical()+getCentro().p.y);
+         glVertex2i( getRaioHorizontal()+getCentro().p.x, -getRaioVertical()+getCentro().p.y);
+         glVertex2i(-getRaioHorizontal()+getCentro().p.x, -getRaioVertical()+getCentro().p.y);
+    glEnd();
+
+    glDisable(GL_LINE_STIPPLE);
+    glPointSize(8);
+    glBegin(GL_POINTS);
+        glVertex2i(getCentro().p.x,  getCentro().p.y);
+        glVertex2i(getControl().p.x, getControl().p.y);
+    glEnd();
+
+    /*
+    glPointSize(1);
+    glColor3f( 0,0, 0 );
+    glBegin(GL_LINE_LOOP);
+        glVertex2i(e->getControl().p.x+CONTROL, e->getControl().p.y+CONTROL);
+        glVertex2i(e->getControl().p.x-CONTROL, e->getControl().p.y+CONTROL);
+        glVertex2i(e->getControl().p.x-CONTROL, e->getControl().p.y-CONTROL);
+        glVertex2i(e->getControl().p.x+CONTROL, e->getControl().p.y-CONTROL);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+        glVertex2i(e->getCentro().p.x+CONTROL, e->getCentro().p.y+CONTROL);
+        glVertex2i(e->getCentro().p.x-CONTROL, e->getCentro().p.y+CONTROL);
+        glVertex2i(e->getCentro().p.x-CONTROL, e->getCentro().p.y-CONTROL);
+        glVertex2i(e->getCentro().p.x+CONTROL, e->getCentro().p.y-CONTROL);
+
+   glEnd();
+   glEnable(GL_LINE_STIPPLE);
+   glLineStipple(1, 0xAAAA);
+   glBegin(GL_LINES);
+        glVertex2i(-e->getRaioHorizontal()+e->getCentro().p.x, e->getRaioVertical()+e->getCentro().p.y);
+        glVertex2i(-e->getRaioHorizontal()+e->getCentro().p.x, -e->getRaioVertical()+e->getCentro().p.y);
+        glVertex2i(e->getRaioHorizontal()+e->getCentro().p.x, e->getRaioVertical()+e->getCentro().p.y);
+        glVertex2i(e->getRaioHorizontal()+e->getCentro().p.x, -e->getRaioVertical()+e->getCentro().p.y);
+        glVertex2i(-e->getRaioHorizontal()+e->getCentro().p.x,e->getRaioVertical()+e->getCentro().p.y);
+        glVertex2i(e->getRaioHorizontal()+e->getCentro().p.x, e->getRaioVertical()+e->getCentro().p.y);
+        glVertex2i(e->getRaioHorizontal()+e->getCentro().p.x, -e->getRaioVertical()+e->getCentro().p.y);
+        glVertex2i(-e->getRaioHorizontal()+e->getCentro().p.x, -e->getRaioVertical()+e->getCentro().p.y);
+
+   glEnd();
+   glDisable(GL_LINE_STIPPLE);
+   */
 }

@@ -4,10 +4,28 @@ Circulo::Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat c
     this->raio = raio;
     this->xc = xc;
     this->yc = yc;
+    this->selecionado = true;
+}
+
+void Circulo::translada(GLint xmouse, GLint ymouse) {
+    xc = xmouse - xclick;
+    yc = ymouse - yclick;
+}
+
+void Circulo::desseleciona() {
+    this->selecionado = false;
+}
+
+Ponto Circulo::boundsMax() {
+    return Ponto(raio + xc, raio + yc);
+}
+
+Ponto Circulo::boundsMin() {
+    return Ponto(raio - xc, raio - yc);
 }
 
 void Circulo::desenhaLinha() {
-    glPointSize(getEspessuraLinha());
+    glPointSize(espessuraLinha);
     GLfloat corL[4];
     getColorLine(corL);
 
@@ -103,6 +121,33 @@ void Circulo::desenhaFill() {
 
     Objeto::linhaFill(Ponto(xc - raio, yc),
                       Ponto(xc + raio, yc));
+}
+
+void Circulo::desenhaControles() {
+    glPointSize(8);
+    glBegin(GL_POINTS);
+        glColor3f( 0,0.5 , 0 );
+        glVertex2i(getXc(), getYc());
+        glVertex2i(getXc() + getRaio(), getYc());
+    glEnd();
+
+
+    /*
+    glPointSize(1);
+    glColor3f( 0,0, 0 );
+    glBegin(GL_LINE_LOOP);
+        glVertex2i(c->getXc()+CONTROL, c->getYc()+CONTROL);
+        glVertex2i(c->getXc()-CONTROL, c->getYc()+CONTROL);
+        glVertex2i(c->getXc()-CONTROL, c->getYc()-CONTROL);
+        glVertex2i(c->getXc()+CONTROL, c->getYc()-CONTROL);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+        glVertex2i(c->getXc()+c->getRaio()+CONTROL, c->getYc()+CONTROL);
+        glVertex2i(c->getXc()+c->getRaio()-CONTROL, c->getYc()+CONTROL);
+        glVertex2i(c->getXc()+c->getRaio()-CONTROL, c->getYc()-CONTROL);
+        glVertex2i(c->getXc()+c->getRaio()+CONTROL, c->getYc()-CONTROL);
+    glEnd();
+    */
 }
 
 void Circulo::redimensionar(GLint xmouse, GLint ymouse) {

@@ -10,7 +10,7 @@ Objeto::Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha,
 
     this->preenchido = preenchido;
     this->linha = linha;
-    this->estiloLinha = "----    ";
+    this->estiloLinha = "-";
 
     this->colorfill[0] = colorFill[0];
     this->colorfill[1] = colorFill[1];
@@ -29,6 +29,9 @@ void Objeto::desenha() {
     }
     if(linha) {
         desenhaLinha();
+    }
+    if(selecionado) {
+        desenhaControles();
     }
 }
 
@@ -59,7 +62,7 @@ void Objeto::Bresenham(Ponto p1, Ponto p2) {
     glColor4f( co[0],co[1],co[2], co[3]);
 
     // Especifica o diâmetro do Vertice
-    glPointSize(getEspessuraLinha());
+    glPointSize(espessuraLinha);
 
     GLint x, y;
     if (p2.x!=p1.x && p2.y!=p1.y){

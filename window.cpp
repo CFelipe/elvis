@@ -12,11 +12,8 @@ Window::Window() {
     glArea = new GLWidget();
     glArea->setFocusPolicy(Qt::StrongFocus);
 
-    // -------------------------------------
-    // Substituir por uma só função (ou não)
-    setupFileMenu();
-    setupHelpMenu();
-    // -------------------------------------
+    setupMenus();
+
     createActions();
     createLeftBar();
     createBottomBar();
@@ -37,8 +34,8 @@ void Window::createActions() {
     // -----------
     // Ferramentas
     // -----------
-    addSelecionarAct = new QAction("Selecionar", this);
-    addSelecionarAct->setShortcut(QKeySequence("S"));
+    selecionarAct = new QAction("Selecionar", this);
+    selecionarAct->setShortcut(QKeySequence("S"));
 
     addPolilinhaAct = new QAction("Desenhar polilinha", this);
     addPolilinhaAct->setIcon(QIcon(":/images/polilinha.png"));
@@ -63,7 +60,7 @@ void Window::createActions() {
     panAct = new QAction("Mover viewport", this);
     panAct->setIcon(QIcon(":/images/pan.png"));
 
-    addSelecionarAct->setCheckable(true);
+    selecionarAct->setCheckable(true);
     addPolilinhaAct->setCheckable(true);
     addElipseAct->setCheckable(true);
     addCirculoAct->setCheckable(true);
@@ -113,7 +110,7 @@ void Window::createLeftBar() {
     leftBar->setMovable(false);
 
     QActionGroup* toolGroup = new QActionGroup(this);
-    toolGroup->addAction(addSelecionarAct);
+    toolGroup->addAction(selecionarAct);
     toolGroup->addAction(addPolilinhaAct);
     toolGroup->addAction(addElipseAct);
     toolGroup->addAction(addCirculoAct);
@@ -129,7 +126,7 @@ void Window::createLeftBar() {
     toolGroup->addAction(insertRemovePontoAct);
     QObject::connect(toolGroup, SIGNAL(triggered(QAction*)), this, SLOT(setOperacao(QAction * )));
 
-    leftBar->addAction(addSelecionarAct);
+    leftBar->addAction(selecionarAct);
     leftBar->addAction(addPolilinhaAct);
     leftBar->addAction(addElipseAct);
     leftBar->addAction(addCirculoAct);
@@ -143,6 +140,8 @@ void Window::createLeftBar() {
     leftBar->addAction(escalarAct);
     leftBar->addAction(deslocarPtsAct);
     leftBar->addAction(insertRemovePontoAct);
+
+    //leftBar->addWidget(listaCamadas);
 }
 
 void Window::createBottomBar() {
@@ -204,35 +203,53 @@ void Window::createBottomBar() {
 
 }
 
-void Window::setupFileMenu() {
+void Window::setupMenus() {
     QMenu *fileMenu = new QMenu(tr("&Arquivo"), this);
     menuBar->addMenu(fileMenu);
 
-    fileMenu->addAction(tr("&Novo"), this, SLOT(newFile()), QKeySequence::New);
-    fileMenu->addAction(tr("&Abrir..."), this, SLOT(openFile()), QKeySequence::Open);
+    //fileMenu->addAction(tr("&Novo"), this, SLOT(novo()), QKeySequence::New);
+    fileMenu->addAction(tr("&Abrir..."), this, SLOT(abrirElv()), QKeySequence::Open);
+    fileMenu->addAction(tr("&Salvar"), this, SLOT(salvarElv()), QKeySequence::Save);
+    fileMenu->addAction(tr("&Salvar como..."), this, SLOT(abrirElv()), QKeySequence::SaveAs);
+    fileMenu->addAction(tr("&Exportar para SVG"), this, SLOT(exportarSVG()), QKeySequence("Ctrl+E"));
     fileMenu->addAction(tr("&Sair"), qApp, SLOT(quit()), QKeySequence::Quit);
-}
 
-void Window::setupHelpMenu()
-{
     QMenu *helpMenu = new QMenu(tr("&Ajuda"), this);
     menuBar->addMenu(helpMenu);
 
     helpMenu->addAction(tr("&Sobre"), this, SLOT(about()));
 }
 
-void Window::openFile(const QString &path) {
+void Window::abrirElv(const QString &path) {
     QString fileName = path;
 
-    if (fileName.isNull())
+    if(fileName.isNull())
         fileName = QFileDialog::getOpenFileName(this, tr("Abrir arquivo"), "", ".elv");
 
-    if (!fileName.isEmpty()) {
+    if(!fileName.isEmpty()) {
         QFile file(fileName);
         if (file.open(QFile::ReadOnly | QFile::Text)) {
-            // Abre arquivo
+            // TODO
         }
     }
+}
+
+bool Window::salvarElv() {
+    /*
+    if(documentoAtual.arqAberto.isEmpty()) {
+        return salvarElvComo();
+    } else {
+        return
+    }
+    */
+}
+
+bool Window::salvarElvComo() {
+    //TODO
+}
+
+bool Window::exportarSVG() {
+    //TODO
 }
 
 void Window::about() {
@@ -241,46 +258,51 @@ void Window::about() {
                        tr("Elvis é uma aplicação desenvolvida por Felipe Fernandes e Felipe Cortez para disciplina de Computação Gráfica na UFRN"));
 }
 
-void Window::newFile() {
-    // Tratar criação de arquivo aqui
-}
-
 void Window::setOperacao(QAction* q) {
-    if(q == addRetanguloAct) {
+    if(q == selecionarAct) {
+        glArea->op = SELECIONAR;
+        glArea->desenha = false;
+    } else if(q == addRetanguloAct) {
         glArea->forma = Objeto::RETANGULO;
+        glArea->op = CRIACAO;
         glArea->desenha = true;
     } else if(q == addCirculoAct) {
         glArea->forma = Objeto::CIRCULO;
+        glArea->op = CRIACAO;
         glArea->desenha = true;
     } else if(q == addPolilinhaAct) {
         glArea->forma = Objeto::POLILINHA;
+        glArea->op = CRIACAO;
         glArea->desenha = true;
         glArea->linha = true;
         updateLinhaButton();
     } else if(q == addElipseAct) {
         glArea->forma = Objeto::ELIPSE;
+        glArea->op = CRIACAO;
         glArea->desenha = true;
-    } else if(q->text() == "Translação") {
+    } else if(q == transladarAct) {
         glArea->op = TRANSLACAO;
         glArea->desenha = false;
-    } else if(q->text() == "Cópia") {
+    } else if(q == copiarAct) {
         glArea->op = COPIA;
         glArea->desenha = false;
-    } else if(q->text() == "Escalar") {
+    } else if(q == escalarAct) {
         glArea->op = ESCALA;
         glArea->desenha = false;
-    } else if(q->text() == "Deslocar pontos") {
+    } else if(q == deslocarPtsAct) {
         glArea->op = DESLOCARPONTOS;
         glArea->desenha = false;
-    } else if(q->text() == "Rotacionar") {
+    } else if(q == rotacionarAct) {
         glArea->op = ROTACAO;
         glArea->desenha = false;
-    } else if (q->text() == "insertRemovePonto"){
+    } else if(q == insertRemovePontoAct) {
         glArea->op = INSERT_REMOVE_PONTO;
         glArea->desenha = false;
     }
+
     glArea->opBotaoDireito = false;
-    glArea->descelecionaALL(); // sempre que uma opção (de desenho ou transformação) for escolhida, desselecione todos os objetos
+    glArea->desselecionaALL(); // sempre que uma opção (de desenho ou transformação) for escolhida, desselecione todos os objetos
+    glArea->updateGL();
 }
 
 void Window::updateLinhaButton() {

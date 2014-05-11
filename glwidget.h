@@ -12,7 +12,7 @@
 #include <QtOpenGL/QGLWidget>
 #include <QList>
 
-enum Operacao {SELECIONAR, TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO, INSERT_REMOVE_PONTO, AGRUPAMENTO};
+enum Operacao {SELECIONAR, CRIACAO, TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO, INSERT_REMOVE_PONTO, AGRUPAMENTO};
 
 class GLWidget : public QGLWidget {
 
@@ -31,12 +31,8 @@ class GLWidget : public QGLWidget {
         bool linha;
         bool grade;
         Ponto viewport;
-
-        /* Esta variável diz se uma polilinha está sendo desenhada;
-         * É importante para diferenciar quando uma nova polilinha é criada,
-         * e quando uma nova linha é adicionada à polilinha que está sendo desenhada
-         */
         bool desenhandoPolilinha;
+        GLint gradeSep;
 
         Operacao op;
         Objeto::Forma forma;
@@ -52,13 +48,14 @@ class GLWidget : public QGLWidget {
         void resizeGL(int w, int h);
         void paintGL();
         void mousePressEvent(QMouseEvent *event);
+        void mouseReleaseEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
-        void descelecionaALL();
-
+        void desselecionaALL();
     private:
         void selecionaCirculo(Objeto *aux, Circulo *c, Ponto click);
         void selecionaQuadrilatero(Objeto *aux, Retangulo *q, Ponto click);
         Retangulo* getAreaClippingMouse(GLint xmouse, GLint ymouse);
+        GLint mouseToCoords(GLint mouse);
         void desenhaGrade(GLint sep);
 
 };

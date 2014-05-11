@@ -17,23 +17,32 @@ class Objeto {
                bool preenchido,
                Forma tipo);
 
+        int id;
         Forma tipo;
-        bool selecionado;
         GLfloat colorfill[4];
         GLfloat colorLine[4];
-        GLint xclick, yclick;
+        GLint xclick, yclick; // Tirar!
         GLint espessuraLinha;
         QString estiloLinha;
+        bool selecionado;
         bool preenchido;
         bool linha;
-        int id;
+
+        void desenha();
+        void virtual desenhaLinha() = 0;
+        void virtual desenhaFill() = 0;
+        void virtual desenhaControles() = 0;
+
+        void virtual translada(GLint xmouse, GLint ymouse) = 0;
+        //void virtual escala(xmouse, ymouse);
+
+        void virtual desseleciona() = 0;
+
+        Ponto virtual boundsMin() = 0;
+        Ponto virtual boundsMax() = 0;
 
         void Bresenham(Ponto p1, Ponto p2);
         void linhaFill(Ponto p1, Ponto p2);
-
-         GLint getEspessuraLinha(){
-            return espessuraLinha;
-        }
 
         void setEspessuraLinha(GLint v){
             espessuraLinha = v;
@@ -83,16 +92,8 @@ class Objeto {
             return yclick;
         }
 
-        Forma getTipo(){
-              return tipo;
-        }
-
-        void desenha();
-        void virtual desenhaLinha() = 0;
-        void virtual desenhaFill() = 0;
-        //void virtual desenhaControles() = 0;
-
     private:
+        // Incrementador de ID
         static int nId;
 };
 

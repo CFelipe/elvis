@@ -2,6 +2,7 @@
 #define WINDOW_H
 
 #include "glwidget.h"
+#include "documento.h"
 
 #include <QMainWindow>
 
@@ -13,17 +14,13 @@ public:
 
 private:
     GLWidget* glArea;
-
     QMenuBar* menuBar;
 
+    // Esquerda
     QToolBar* leftBar;
 
-    QToolBar* bottomBar;
-    QToolButton* linhaColorButton;
-    QToolButton* fillColorButton;
-    QToolButton *toggleGradeButton;
+    QAction *selecionarAct;
 
-    QAction *addSelecionarAct;
     QAction *addPolilinhaAct;
     QAction *addElipseAct;
     QAction *addCirculoAct;
@@ -41,12 +38,22 @@ private:
     QAction *agruparAct;
     QAction *desagruparAct;
 
+    QListView *listaCamadas;
+
+    // Embaixo
+    QToolBar* bottomBar;
+
+    QToolButton* linhaColorButton;
+    QToolButton* fillColorButton;
+    QToolButton *toggleGradeButton;
+
+    Documento documentoAtual;
+
     void createActions();
     void createLeftBar();
     void createBottomBar();
     void createStatusBar();
-    void setupFileMenu();
-    void setupHelpMenu();
+    void setupMenus();
     void mostrarAcoesObjeto(bool visivel);
 
     void updateFillButton();
@@ -54,8 +61,10 @@ private:
 
 public slots:
     void about();
-    void newFile();
-    void openFile(const QString &path = QString());
+    void abrirElv(const QString &path = QString());
+    bool salvarElv();
+    bool salvarElvComo();
+    bool exportarSVG();
     void setOperacao(QAction* q);
     void setLinhaColor();
     void setFillColor();

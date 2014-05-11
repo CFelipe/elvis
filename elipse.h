@@ -9,12 +9,20 @@ class Elipse : public Objeto {
     public:
         Elipse(Ponto centro, GLint raioHorizontal, GLint raioVertical, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha, bool preenchido);
 
-        void desenhaFill();
-        void desenhaLinha();
-
         Ponto centro;
         Vertice control;
         GLint raioHorizontal, raioVertical;
+
+        void desenhaFill();
+        void desenhaLinha();
+        void desenhaControles();
+
+        void translada(GLint xmouse, GLint ymouse);
+
+        void desseleciona();
+
+        Ponto boundsMax();
+        Ponto boundsMin();
 
         Vertice getCentro(){
             return centro;

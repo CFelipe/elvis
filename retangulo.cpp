@@ -2,15 +2,6 @@
 #include "vertice.h"
 #include "objeto.h"
 
-/*
- * O retângulo é definido por quatro vértices no sentido anti-horário:
- *
- * A-----------D
- * |           |
- * |           |
- * B-----------C
- */
-
 Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha = true, bool preenchido = true) : Objeto(colorfill, colorLine, espessuraLinha, linha, preenchido, Objeto::RETANGULO) {
     this->A = Vertice(A.p.x, A.p.y);
     this->B = Vertice(B.p.x, B.p.y);
@@ -24,6 +15,35 @@ Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorf
     this->tipo = Objeto::RETANGULO;
     this->isVisible = true;
     this->isSeletor = false;
+    this->selecionado = true;
+}
+
+void Retangulo::translada(GLint xmouse, GLint ymouse) {
+    GLint dx = xmouse - xclick;
+    GLint dy = ymouse - yclick;
+    setA(Ponto(A.p.x+dx, A.p.y+dy));
+    setB(Ponto(B.p.x+dx, B.p.y+dy));
+    setC(Ponto(C.p.x+dx, C.p.y+dy));
+    setD(Ponto(D.p.x+dx, D.p.y+dy));
+    xclick = xmouse;
+    yclick = ymouse;
+}
+
+void Retangulo::desseleciona() {
+    this->selecionado = false;
+    this->A.selecionado = false;
+    this->B.selecionado = false;
+    this->C.selecionado = false;
+    this->D.selecionado = false;
+}
+
+/* No momento isso não é verdade! Lembrar de mudar desenho */
+Ponto Retangulo::boundsMax() {
+    return D.p;
+}
+
+Ponto Retangulo::boundsMin() {
+    return B.p;
 }
 
 void Retangulo::desenhaLinha() {
@@ -55,6 +75,46 @@ void Retangulo::desenhaFill() {
     for(y = y_min; y <= y_max; y++) {
         Objeto::linhaFill(Ponto(x_min, y), Ponto(x_max, y));
     }
+}
+
+void Retangulo::desenhaControles() {
+    glPointSize(8);
+    glBegin(GL_POINTS);
+        glColor3f( 0,0.5 , 0 );
+        glVertex2i(A.p.x, A.p.y);
+        glVertex2i(B.p.x, B.p.y);
+        glVertex2i(C.p.x, C.p.y);
+        glVertex2i(D.p.x, D.p.y);
+    glEnd();
+
+    /*
+    glPointSize(1);
+    glColor3f( 0,0, 0 );
+    glBegin(GL_LINE_LOOP);
+        glVertex2i(q->A.p.x+CONTROL, q->A.p.y+CONTROL);
+        glVertex2i(q->A.p.x-CONTROL, q->A.p.y+CONTROL);
+        glVertex2i(q->A.p.x-CONTROL, q->A.p.y-CONTROL);
+        glVertex2i(q->A.p.x+CONTROL, q->A.p.y-CONTROL);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+        glVertex2i(q->B.p.x+CONTROL, q->B.p.y+CONTROL);
+        glVertex2i(q->B.p.x-CONTROL, q->B.p.y+CONTROL);
+        glVertex2i(q->B.p.x-CONTROL, q->B.p.y-CONTROL);
+        glVertex2i(q->B.p.x+CONTROL, q->B.p.y-CONTROL);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+        glVertex2i(q->C.p.x+CONTROL, q->C.p.y+CONTROL);
+        glVertex2i(q->C.p.x-CONTROL, q->C.p.y+CONTROL);
+        glVertex2i(q->C.p.x-CONTROL, q->C.p.y-CONTROL);
+        glVertex2i(q->C.p.x+CONTROL, q->C.p.y-CONTROL);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+        glVertex2i(q->D.p.x+CONTROL, q->D.p.y+CONTROL);
+        glVertex2i(q->D.p.x-CONTROL, q->D.p.y+CONTROL);
+        glVertex2i(q->D.p.x-CONTROL, q->D.p.y-CONTROL);
+        glVertex2i(q->D.p.x+CONTROL, q->D.p.y-CONTROL);
+    glEnd();
+    */
 }
 
 void Retangulo::escala(GLdouble fatorx, GLdouble fatory){

@@ -6,11 +6,16 @@
 #include "vertice.h"
 #include "ponto.h"
 
-class Polilinha: public Objeto { // é uma lista encadeada de linhas
+class Polilinha: public Objeto {
     public:
         Polilinha(GLfloat colorLine[4], GLint espessuraLinha);
+
         void desenhaLinha();
         void desenhaFill();
+        void desenhaControles();
+
+        void translada(GLint xmouse, GLint ymouse);
+
         void remove(Linha *l);
         void insert(Ponto p0, Ponto p1, Linha *depoisDe);
         void desenha();
@@ -24,7 +29,9 @@ class Polilinha: public Objeto { // é uma lista encadeada de linhas
         void setMax(Ponto max);
         void setMin(Ponto min);
         void setCentro(Ponto centro);
-        void deseleciona();
+
+        void desseleciona();
+
         void setLinhaSelecionada1(Linha *sel);
         void setLinhaSelecionada2(Linha *sel);
         Linha* getLinhaSelecionada1();
