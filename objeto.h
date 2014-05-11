@@ -33,8 +33,7 @@ class Objeto {
         void virtual desenhaFill() = 0;
         void virtual desenhaControles() = 0;
 
-        void virtual translada(GLint xmouse, GLint ymouse) = 0;
-        //void virtual escala(xmouse, ymouse);
+        void virtual translada(GLint mouseX, GLint mouseY) = 0;
 
         void virtual desseleciona() = 0;
 

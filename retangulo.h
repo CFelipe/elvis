@@ -30,7 +30,7 @@ class Retangulo : public Objeto {
         void desenhaLinha();
         void desenhaControles();
 
-        void translada(GLint xmouse, GLint ymouse);
+        void translada(GLint mouseX, GLint mouseY);
         void escala(GLdouble fatorx, GLdouble fatory);
 
         void desseleciona();

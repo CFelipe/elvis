@@ -7,18 +7,21 @@
 
 class Polilinha: public Objeto {
     public:
-        Polilinha(GLfloat colorLine[4], GLint espessuraLinha);
+        Polilinha(GLfloat colorLine[4], GLint espessuraLinha, Ponto inicial);
 
         void desenhaLinha();
         void desenhaFill();
         void desenhaControles();
 
-        void translada(GLint xmouse, GLint ymouse);
+        void translada(GLint mouseX, GLint mouseY);
 
         void desseleciona();
 
         Ponto boundsMax();
         Ponto boundsMin();
+
+        void deslocarVertice(Vertice* v, GLint mouseX, GLint mouseY);
+        void inserirVertice(GLint mouseX, GLint mouseY);
 
         QList<Vertice*> vertices;
 };

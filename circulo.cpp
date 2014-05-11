@@ -7,9 +7,9 @@ Circulo::Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat c
     this->selecionado = true;
 }
 
-void Circulo::translada(GLint xmouse, GLint ymouse) {
-    xc = xmouse - xclick;
-    yc = ymouse - yclick;
+void Circulo::translada(GLint mouseX, GLint mouseY) {
+    xc = mouseX - xclick;
+    yc = mouseY - yclick;
 }
 
 void Circulo::desseleciona() {

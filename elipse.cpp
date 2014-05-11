@@ -8,10 +8,10 @@ Elipse::Elipse(Ponto centro, GLint raioHorizontal, GLint raioVertical, GLfloat c
     this->selecionado = true;
 }
 
-void Elipse::translada(GLint xmouse, GLint ymouse) {
+void Elipse::translada(GLint mouseX, GLint mouseY) {
     GLint ax = getControl().p.x == getCentro().p.x + getRaioHorizontal() ? (1):(-1);
     GLint ay = getControl().p.y == getCentro().p.y + getRaioVertical() ? (1):(-1);
-    setCentro(Ponto(xmouse - xclick, ymouse - yclick));
+    setCentro(Ponto(mouseX - xclick, mouseY - yclick));
     setControl(Ponto(getCentro().p.x + ax * (getRaioHorizontal()), getCentro().p.y + ay * (getRaioVertical())));
 }
 

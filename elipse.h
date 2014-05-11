@@ -17,7 +17,7 @@ class Elipse : public Objeto {
         void desenhaLinha();
         void desenhaControles();
 
-        void translada(GLint xmouse, GLint ymouse);
+        void translada(GLint mouseX, GLint mouseY);
 
         void desseleciona();
 

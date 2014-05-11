@@ -18,15 +18,15 @@ Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorf
     this->selecionado = true;
 }
 
-void Retangulo::translada(GLint xmouse, GLint ymouse) {
-    GLint dx = xmouse - xclick;
-    GLint dy = ymouse - yclick;
+void Retangulo::translada(GLint mouseX, GLint mouseY) {
+    GLint dx = mouseX - xclick;
+    GLint dy = mouseY - yclick;
     setA(Ponto(A.p.x+dx, A.p.y+dy));
     setB(Ponto(B.p.x+dx, B.p.y+dy));
     setC(Ponto(C.p.x+dx, C.p.y+dy));
     setD(Ponto(D.p.x+dx, D.p.y+dy));
-    xclick = xmouse;
-    yclick = ymouse;
+    xclick = mouseX;
+    yclick = mouseY;
 }
 
 void Retangulo::desseleciona() {

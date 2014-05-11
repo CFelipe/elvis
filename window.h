@@ -4,8 +4,6 @@
 #include "glwidget.h"
 #include "documento.h"
 
-#include <QMainWindow>
-
 class Window : public QWidget {
     Q_OBJECT
 
@@ -47,7 +45,7 @@ private:
     QToolButton* fillColorButton;
     QToolButton *toggleGradeButton;
 
-    Documento documentoAtual;
+    static Documento documentoAtual;
 
     void createActions();
     void createLeftBar();

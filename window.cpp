@@ -314,10 +314,10 @@ void Window::updateLinhaButton() {
         p->setPen(QPen(Qt::red, 2));
         p->drawLine(QPoint(0, 20), QPoint(20, 0));
         p->setPen(QPen(Qt::black, 1));
-        p->drawLine(QPoint( 7,  7), QPoint(12,  7));
-        p->drawLine(QPoint(12,  7), QPoint(12, 12));
-        p->drawLine(QPoint(12, 12), QPoint( 7, 12));
-        p->drawLine(QPoint( 7, 12), QPoint( 7,  7));
+        p->drawLine(QPoint( 6,  6), QPoint(13,  6));
+        p->drawLine(QPoint(13,  6), QPoint(13, 13));
+        p->drawLine(QPoint(13, 13), QPoint( 6, 13));
+        p->drawLine(QPoint( 6, 13), QPoint( 6,  7));
         delete p;
         linhaColorButton->setIcon(px);
     } else {
@@ -328,16 +328,16 @@ void Window::updateLinhaButton() {
         QPixmap px(20, 20);
         QPainter *p = new QPainter(&px);
         px.fill(Qt::white);
-        p->setPen(QPen(color, 6));
-        p->drawLine(QPoint( 3,  3), QPoint(17,  3));
-        p->drawLine(QPoint(17,  3), QPoint(17, 17));
-        p->drawLine(QPoint(17, 17), QPoint( 3, 17));
-        p->drawLine(QPoint( 3, 17), QPoint( 3,  3));
+        p->setPen(QPen(color, 5));
+        p->drawLine(QPoint( 2,  2), QPoint(17,  2));
+        p->drawLine(QPoint(17,  2), QPoint(17, 17));
+        p->drawLine(QPoint(17, 17), QPoint( 2, 17));
+        p->drawLine(QPoint( 2, 17), QPoint( 2,  2));
         p->setPen(QPen(Qt::black, 1));
-        p->drawLine(QPoint( 7,  7), QPoint(12,  7));
-        p->drawLine(QPoint(12,  7), QPoint(12, 12));
-        p->drawLine(QPoint(12, 12), QPoint( 7, 12));
-        p->drawLine(QPoint( 7, 12), QPoint( 7,  7));
+        p->drawLine(QPoint( 6,  6), QPoint(13,  6));
+        p->drawLine(QPoint(13,  6), QPoint(13, 13));
+        p->drawLine(QPoint(13, 13), QPoint( 6, 13));
+        p->drawLine(QPoint( 6, 13), QPoint( 6,  7));
         delete p;
         linhaColorButton->setIcon(px);
     }

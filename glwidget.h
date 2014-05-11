@@ -30,6 +30,8 @@ class GLWidget : public QGLWidget {
         bool linha;
         bool grade;
         Ponto viewport;
+        GLint canvasW;
+        GLint canvasH;
         bool desenhandoPolilinha;
         GLint gradeSep;
 
@@ -54,8 +56,9 @@ class GLWidget : public QGLWidget {
         void selecionaCirculo(Objeto *aux, Circulo *c, Ponto click);
         void selecionaQuadrilatero(Objeto *aux, Retangulo *q, Ponto click);
         Retangulo* getAreaClippingMouse(GLint xmouse, GLint ymouse);
-        GLint mouseToCoords(GLint mouse);
+        GLint snap(GLint mouse);
         void desenhaGrade(GLint sep);
+        void desenhaCanvas();
 
 };
 
