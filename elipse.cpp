@@ -1,6 +1,7 @@
 #include "elipse.h"
+#include "window.h"
 
-Elipse::Elipse(Ponto centro, GLint raioHorizontal, GLint raioVertical, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha, bool preenchido) : Objeto(colorfill, colorLine, espessuraLinha, linha, preenchido, Objeto::ELIPSE) {
+Elipse::Elipse(Ponto centro, GLint raioHorizontal, GLint raioVertical) : Objeto(ELIPSE) {
     this->centro = centro;
     this->raioHorizontal = raioHorizontal;
     this->raioVertical = raioVertical;
@@ -108,9 +109,9 @@ void Elipse::desenhaFill() {
 
         glBegin(GL_POINTS);
             // De cima pra baixo
-            Objeto::linhaFill(Ponto(-x + centro.x,  y + centro.y),
+            linhaFill(Ponto(-x + centro.x,  y + centro.y),
                               Ponto( x + centro.x,  y + centro.y));
-            Objeto::linhaFill(Ponto(-x + centro.x, -y + centro.y),
+            linhaFill(Ponto(-x + centro.x, -y + centro.y),
                               Ponto( x + centro.x, -y + centro.y));
         glEnd();
     }
@@ -126,9 +127,9 @@ void Elipse::desenhaFill() {
         }
         y--;
 
-        Objeto::linhaFill(Ponto(-x + centro.x,  y + centro.y),
+        linhaFill(Ponto(-x + centro.x,  y + centro.y),
                           Ponto( x + centro.x,  y + centro.y));
-        Objeto::linhaFill(Ponto(-x + centro.x, -y + centro.y),
+        linhaFill(Ponto(-x + centro.x, -y + centro.y),
                           Ponto( x + centro.x, -y + centro.y));
     }
 }

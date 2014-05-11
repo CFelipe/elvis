@@ -9,6 +9,7 @@ class Window : public QWidget {
 
 public:
     Window();
+    static Documento* docAtual;
 
 private:
     GLWidget* glArea;
@@ -43,9 +44,7 @@ private:
 
     QToolButton* linhaColorButton;
     QToolButton* fillColorButton;
-    QToolButton *toggleGradeButton;
-
-    static Documento documentoAtual;
+    QToolButton* toggleGradeButton;
 
     void createActions();
     void createLeftBar();

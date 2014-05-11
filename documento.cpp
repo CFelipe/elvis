@@ -17,7 +17,7 @@ Documento::Documento() {
 
     viewport = Ponto(0, 0);
 
-    op = DOIS_CRIACAO;
+    op = CRIACAO;
 
     gradeSep = 50;
 

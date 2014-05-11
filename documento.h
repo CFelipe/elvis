@@ -9,23 +9,25 @@
 #include "retangulo.h"
 #include "camada.h"
 
-enum Operacao_2 {DOIS_SELECIONAR,
-                 DOIS_CRIACAO,
-                 DOIS_CRIACAO_POLILINHA,
-                 DOIS_TRANSLACAO,
-                 DOIS_COPIA,
-                 DOIS_ESCALA,
-                 DOIS_DESLOCARPONTOS,
-                 DOIS_ROTACAO,
-                 DOIS_INSERT_REMOVE_PONTO,
-                 DOIS_AGRUPAMENTO};
+enum Operacao {SELECIONAR,
+               CRIACAO,
+               CRIACAO_POLILINHA,
+               TRANSLACAO,
+               COPIA,
+               ESCALA,
+               DESLOCARPONTOS,
+               ROTACAO,
+               INSERT_REMOVE_PONTO,
+               AGRUPAMENTO};
 
 /* Contém todo o estado de um documento aberto */
 class Documento {
     public:
         Documento();
 
-        Operacao_2 op;
+        Operacao op;
+        Forma forma;
+
         QList<Camada*> camadas;
         Camada* camadaSelecionada;
         GLfloat linhaColorSelecionada[4];
@@ -35,8 +37,14 @@ class Documento {
         bool linha;
         bool grade;
         Ponto viewport;
+        GLint canvasW;
+        GLint canvasH;
+
+        bool desenha;
+        bool desenhandoPolilinha;
+
         QString arqAberto;
-        int gradeSep;
+        GLint gradeSep;
 
         void desselecionarTodos();
         void selecionarTodos();

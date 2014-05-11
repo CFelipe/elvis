@@ -8,10 +8,9 @@
 #include "vertice.h"
 #include "retangulo.h"
 #include "camada.h"
+#include "documento.h"
 #include <QtOpenGL/QGLWidget>
 #include <QList>
-
-enum Operacao {SELECIONAR, CRIACAO, TRANSLACAO, COPIA, ESCALA, DESLOCARPONTOS, ROTACAO, INSERT_REMOVE_PONTO, AGRUPAMENTO};
 
 class GLWidget : public QGLWidget {
 
@@ -29,14 +28,11 @@ class GLWidget : public QGLWidget {
         bool preenchimento;
         bool linha;
         bool grade;
-        Ponto viewport;
-        GLint canvasW;
-        GLint canvasH;
         bool desenhandoPolilinha;
         GLint gradeSep;
 
         Operacao op;
-        Objeto::Forma forma;
+        Forma forma;
 
         /* A variável opBotaoDireito é usada somente para controlar a possibilidade de rotação de acordo como especificado no documento
          * opBotaoDireito=true <--> o botão direito foi pressionado em algum local do canvas

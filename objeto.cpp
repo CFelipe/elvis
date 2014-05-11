@@ -1,26 +1,27 @@
 #include "objeto.h"
+#include "window.h"
 
 int Objeto::nId = 0;
 
-Objeto::Objeto(GLfloat colorFill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha, bool preenchido, Forma tipo) {
+Objeto::Objeto(Forma tipo) {
     this->id = nId++;
     this->selecionado = false;
-    this->espessuraLinha = espessuraLinha;
     this->tipo = tipo;
 
-    this->preenchido = preenchido;
-    this->linha = linha;
+    this->espessuraLinha = Window::docAtual->espessuraLinha;
+    this->preenchido = Window::docAtual->preenchimento;
+    this->linha = Window::docAtual->linha;
     this->estiloLinha = "-";
 
-    this->colorfill[0] = colorFill[0];
-    this->colorfill[1] = colorFill[1];
-    this->colorfill[2] = colorFill[2];
-    this->colorfill[3] = colorFill[3];
+    this->colorfill[0] = Window::docAtual->fillColorSelecionada[0];
+    this->colorfill[1] = Window::docAtual->fillColorSelecionada[1];
+    this->colorfill[2] = Window::docAtual->fillColorSelecionada[2];
+    this->colorfill[3] = Window::docAtual->fillColorSelecionada[3];
 
-    this->colorLine[0] = colorLine[0];
-    this->colorLine[1] = colorLine[1];
-    this->colorLine[2] = colorLine[2];
-    this->colorLine[3] = colorLine[3];
+    this->colorLine[0] = Window::docAtual->linhaColorSelecionada[0];
+    this->colorLine[1] = Window::docAtual->linhaColorSelecionada[1];
+    this->colorLine[2] = Window::docAtual->linhaColorSelecionada[2];
+    this->colorLine[3] = Window::docAtual->linhaColorSelecionada[3];
 }
 
 void Objeto::desenha() {

@@ -7,7 +7,7 @@
 
 class Polilinha: public Objeto {
     public:
-        Polilinha(GLfloat colorLine[4], GLint espessuraLinha, Ponto inicial);
+        Polilinha(Ponto inicial);
 
         void desenhaLinha();
         void desenhaFill();

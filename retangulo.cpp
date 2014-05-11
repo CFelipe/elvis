@@ -2,7 +2,7 @@
 #include "vertice.h"
 #include "objeto.h"
 
-Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha = true, bool preenchido = true) : Objeto(colorfill, colorLine, espessuraLinha, linha, preenchido, Objeto::RETANGULO) {
+Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D) : Objeto(RETANGULO) {
     this->A = Vertice(A.p.x, A.p.y);
     this->B = Vertice(B.p.x, B.p.y);
     this->C = Vertice(C.p.x, C.p.y);
@@ -12,7 +12,7 @@ Retangulo::Retangulo(Vertice A, Vertice B, Vertice C, Vertice D , GLfloat colorf
     max = m.p;
     Vertice c((max.x-min.x)/2 + min.x, (max.y- min.y)/2 + min.y);
     this->centro = c;
-    this->tipo = Objeto::RETANGULO;
+    this->tipo = RETANGULO;
     this->isVisible = true;
     this->isSeletor = false;
     this->selecionado = true;

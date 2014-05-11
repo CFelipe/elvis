@@ -16,7 +16,7 @@
 
 class Retangulo : public Objeto {
     public:
-        Retangulo(Vertice A, Vertice B, Vertice C, Vertice D, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha, bool preenchido);
+        Retangulo(Vertice A, Vertice B, Vertice C, Vertice D);
 
         Vertice A, B, C, D, centro;
         Ponto max, min;

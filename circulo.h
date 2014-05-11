@@ -6,7 +6,7 @@
 
 class Circulo: public Objeto {
     public:
-        Circulo(GLint raio, GLint xc, GLint yc, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha, bool preenchido);
+        Circulo(GLint raio, GLint xc, GLint yc);
 
         void desenhaFill();
         void desenhaLinha();

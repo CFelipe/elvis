@@ -7,7 +7,7 @@
 
 class Elipse : public Objeto {
     public:
-        Elipse(Ponto centro, GLint raioHorizontal, GLint raioVertical, GLfloat colorfill[4], GLfloat colorLine[4], GLint espessuraLinha, bool linha, bool preenchido);
+        Elipse(Ponto centro, GLint raioHorizontal, GLint raioVertical);
 
         Ponto centro;
         Vertice control;

@@ -6,16 +6,16 @@
 #include <iostream>
 #include "vertice.h"
 
+enum Forma {CIRCULO,
+            RETANGULO,
+            ELIPSE,
+            LINHA,
+            POLILINHA};
+
 class Objeto {
     public:
-        enum Forma {CIRCULO, RETANGULO, ELIPSE, LINHA, POLILINHA};
 
-        Objeto(GLfloat colorFill[4],
-               GLfloat colorLine[4],
-               GLint espessuraLinha,
-               bool linha,
-               bool preenchido,
-               Forma tipo);
+        Objeto(Forma tipo);
 
         int id;
         Forma tipo;

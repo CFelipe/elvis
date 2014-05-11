@@ -3,6 +3,8 @@
 
 #include <QtWidgets>
 
+Documento* Window::docAtual = new Documento();
+
 Window::Window() {
     setWindowTitle(tr("Elvis"));
 
@@ -260,44 +262,44 @@ void Window::about() {
 
 void Window::setOperacao(QAction* q) {
     if(q == selecionarAct) {
-        glArea->op = SELECIONAR;
-        glArea->desenha = false;
+        docAtual->op = SELECIONAR;
+        docAtual->desenha = false;
     } else if(q == addRetanguloAct) {
-        glArea->forma = Objeto::RETANGULO;
-        glArea->op = CRIACAO;
-        glArea->desenha = true;
+        docAtual->forma = RETANGULO;
+        docAtual->op = CRIACAO;
+        docAtual->desenha = true;
     } else if(q == addCirculoAct) {
-        glArea->forma = Objeto::CIRCULO;
-        glArea->op = CRIACAO;
-        glArea->desenha = true;
+        docAtual->forma = CIRCULO;
+        docAtual->op = CRIACAO;
+        docAtual->desenha = true;
     } else if(q == addPolilinhaAct) {
-        glArea->forma = Objeto::POLILINHA;
-        glArea->op = CRIACAO;
-        glArea->desenha = true;
-        glArea->linha = true;
+        docAtual->forma = POLILINHA;
+        docAtual->op = CRIACAO;
+        docAtual->desenha = true;
+        docAtual->linha = true;
         updateLinhaButton();
     } else if(q == addElipseAct) {
-        glArea->forma = Objeto::ELIPSE;
-        glArea->op = CRIACAO;
-        glArea->desenha = true;
+        docAtual->forma = ELIPSE;
+        docAtual->op = CRIACAO;
+        docAtual->desenha = true;
     } else if(q == transladarAct) {
-        glArea->op = TRANSLACAO;
-        glArea->desenha = false;
+        docAtual->op = TRANSLACAO;
+        docAtual->desenha = false;
     } else if(q == copiarAct) {
-        glArea->op = COPIA;
-        glArea->desenha = false;
+        docAtual->op = COPIA;
+        docAtual->desenha = false;
     } else if(q == escalarAct) {
-        glArea->op = ESCALA;
-        glArea->desenha = false;
+        docAtual->op = ESCALA;
+        docAtual->desenha = false;
     } else if(q == deslocarPtsAct) {
-        glArea->op = DESLOCARPONTOS;
-        glArea->desenha = false;
+        docAtual->op = DESLOCARPONTOS;
+        docAtual->desenha = false;
     } else if(q == rotacionarAct) {
-        glArea->op = ROTACAO;
-        glArea->desenha = false;
+        docAtual->op = ROTACAO;
+        docAtual->desenha = false;
     } else if(q == insertRemovePontoAct) {
-        glArea->op = INSERT_REMOVE_PONTO;
-        glArea->desenha = false;
+        docAtual->op = INSERT_REMOVE_PONTO;
+        docAtual->desenha = false;
     }
 
     glArea->opBotaoDireito = false;
@@ -306,7 +308,7 @@ void Window::setOperacao(QAction* q) {
 }
 
 void Window::updateLinhaButton() {
-    if(!glArea->linha) {
+    if(!docAtual->linha) {
         QPixmap px(20, 20);
         QPainter *p = new QPainter(&px);
         px.fill(Qt::white);
@@ -321,9 +323,9 @@ void Window::updateLinhaButton() {
         delete p;
         linhaColorButton->setIcon(px);
     } else {
-        QColor color = QColor::fromRgbF(glArea->linhaColorSelecionada[0],
-                                        glArea->linhaColorSelecionada[1],
-                                        glArea->linhaColorSelecionada[2]);
+        QColor color = QColor::fromRgbF(docAtual->linhaColorSelecionada[0],
+                                        docAtual->linhaColorSelecionada[1],
+                                        docAtual->linhaColorSelecionada[2]);
 
         QPixmap px(20, 20);
         QPainter *p = new QPainter(&px);
@@ -345,23 +347,23 @@ void Window::updateLinhaButton() {
 
 void Window::setLinhaColor() {
     if(QApplication::keyboardModifiers() == Qt::ControlModifier) {
-        if(glArea->linha) {
-            glArea->linha = false;
+        if(docAtual->linha) {
+            docAtual->linha = false;
         } else {
-            glArea->linha = true;
+            docAtual->linha = true;
         }
         updateLinhaButton();
     } else {
         const QColor color =
-                QColorDialog::getColor(QColor::fromRgbF(glArea->linhaColorSelecionada[0],
-                                                        glArea->linhaColorSelecionada[1],
-                                                        glArea->linhaColorSelecionada[2]),
+                QColorDialog::getColor(QColor::fromRgbF(docAtual->linhaColorSelecionada[0],
+                                                        docAtual->linhaColorSelecionada[1],
+                                                        docAtual->linhaColorSelecionada[2]),
                                                         this, "Selecionar cor");
 
         if (color.isValid()) {
-            glArea->linhaColorSelecionada[0] = color.redF();
-            glArea->linhaColorSelecionada[1] = color.greenF();
-            glArea->linhaColorSelecionada[2] = color.blueF();
+            docAtual->linhaColorSelecionada[0] = color.redF();
+            docAtual->linhaColorSelecionada[1] = color.greenF();
+            docAtual->linhaColorSelecionada[2] = color.blueF();
 
             updateLinhaButton();
         }
@@ -371,7 +373,7 @@ void Window::setLinhaColor() {
 void Window::updateFillButton() {
     QPixmap px(20, 20);
 
-    if(!glArea->preenchimento) {
+    if(!docAtual->preenchimento) {
         QPainter *p = new QPainter(&px);
         px.fill(Qt::white);
         p->setBrush(Qt::red);
@@ -380,9 +382,9 @@ void Window::updateFillButton() {
         delete p;
         fillColorButton->setIcon(px);
     } else {
-        QColor color = QColor::fromRgbF(glArea->fillColorSelecionada[0],
-                                        glArea->fillColorSelecionada[1],
-                                        glArea->fillColorSelecionada[2]);
+        QColor color = QColor::fromRgbF(docAtual->fillColorSelecionada[0],
+                                        docAtual->fillColorSelecionada[1],
+                                        docAtual->fillColorSelecionada[2]);
 
         px.fill(color);
         fillColorButton->setIcon(px);
@@ -391,19 +393,19 @@ void Window::updateFillButton() {
 
 void Window::setFillColor() {
     if(QApplication::keyboardModifiers() == Qt::ControlModifier) {
-        glArea->preenchimento = !glArea->preenchimento;
+        docAtual->preenchimento = !docAtual->preenchimento;
 
         updateFillButton();
     } else {
         const QColor color =
-                QColorDialog::getColor(QColor::fromRgbF(glArea->fillColorSelecionada[0],
-                                                        glArea->fillColorSelecionada[1],
-                                                        glArea->fillColorSelecionada[2]),
+                QColorDialog::getColor(QColor::fromRgbF(docAtual->fillColorSelecionada[0],
+                                                        docAtual->fillColorSelecionada[1],
+                                                        docAtual->fillColorSelecionada[2]),
                                                         this, "Selecionar cor de fill");
         if (color.isValid()) {
-            glArea->fillColorSelecionada[0] = color.redF();
-            glArea->fillColorSelecionada[1] = color.greenF();
-            glArea->fillColorSelecionada[2] = color.blueF();
+            docAtual->fillColorSelecionada[0] = color.redF();
+            docAtual->fillColorSelecionada[1] = color.greenF();
+            docAtual->fillColorSelecionada[2] = color.blueF();
 
             updateFillButton();
         }
@@ -412,10 +414,10 @@ void Window::setFillColor() {
 
 void Window::toggleGrade() {
     toggleGradeButton->setChecked(toggleGradeButton->isChecked());
-    glArea->grade = !glArea->grade;
+    docAtual->grade = !docAtual->grade;
     glArea->updateGL();
 }
 
 void Window::setEspessuraLinha(int espessura) {
-    glArea->espessuraLinha = espessura;
+    docAtual->espessuraLinha = espessura;
 }

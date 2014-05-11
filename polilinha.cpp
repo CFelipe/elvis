@@ -2,7 +2,7 @@
 
 #define CONTROL 5
 
-Polilinha::Polilinha(GLfloat colorLine[4], GLint espessuraLinha, Ponto inicial) : Objeto(colorLine, colorLine, espessuraLinha, true, false, Objeto::POLILINHA) {
+Polilinha::Polilinha(Ponto inicial) : Objeto(POLILINHA) {
     vertices.append(new Vertice(inicial));
     vertices.append(new Vertice(inicial));
     this->selecionado = true;
