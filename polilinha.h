@@ -16,6 +16,11 @@ class Polilinha: public Objeto {
 
         void translada(GLint xmouse, GLint ymouse);
 
+        void desseleciona();
+
+        Ponto boundsMax();
+        Ponto boundsMin();
+
         void remove(Linha *l);
         void insert(Ponto p0, Ponto p1, Linha *depoisDe);
         void desenha();
@@ -29,8 +34,6 @@ class Polilinha: public Objeto {
         void setMax(Ponto max);
         void setMin(Ponto min);
         void setCentro(Ponto centro);
-
-        void desseleciona();
 
         void setLinhaSelecionada1(Linha *sel);
         void setLinhaSelecionada2(Linha *sel);

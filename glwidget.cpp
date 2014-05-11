@@ -290,8 +290,10 @@ void GLWidget::desselecionaALL(){
                 Elipse *e = dynamic_cast <Elipse *>(aux);
                 e->getPControl()->selecionado = (false);
             } else if (aux->tipo == Objeto::POLILINHA){
+                /*
                 Polilinha *pol = dynamic_cast <Polilinha *>(aux);
                 pol->desseleciona();
+                */
             }
         }
     }
@@ -441,7 +443,6 @@ void GLWidget::paintGL() {
         }
     }
     glFlush();
-
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event) {
@@ -464,15 +465,16 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                     Elipse *e = new Elipse(Ponto(xc, yc), 0, 0, fillColorSelecionada, linhaColorSelecionada, espessuraLinha, linha, preenchimento);
                     camadaSelecionada->objetos->append(e);
                 } else if (forma == Objeto::POLILINHA){
-                    Ponto click(event->x(),gfWrldSizeY-event->y());
-                    //Polilinha *pol = new Polilinha(linhaColorSelecionada, espessuraLinha);
-                    //pol->insert(click, click,NULL);
-                    //camadaSelecionada->objetos->append(pol);
+                    /*
+                    Ponto click(mouseX, mouseY);
+                    Polilinha *pol = new Polilinha(linhaColorSelecionada, espessuraLinha);
+                    pol->insert(click, click, NULL);
+                    camadaSelecionada->objetos->append(pol);
                 }
             } else { // se o mouse foi clicado anteriormente, e estivermos desenhando uma polinha ...
                 if (forma == Objeto::POLILINHA){
                     /*
-                    Ponto click(event->x(),gfWrldSizeY-event->y());
+                    Ponto click(mouseX, mouseY);
                     onMouseClick = false;
                     Polilinha *pol = dynamic_cast <Polilinha *>(camadaSelecionada->objetos->last());
                     pol->insert(pol->getFim()->getV1().p, click, pol->getFim());
@@ -919,7 +921,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
 
     if (desenha){
         if(onMouseClick){
-            // Trocar isso tudo por camadaSelecionada->redimensionar
+            // Trocar isso tudo por aux->redimensionar
             if (camadaSelecionada->objetos->last()->tipo == Objeto::CIRCULO){
                 Circulo *c = dynamic_cast <Circulo *>(camadaSelecionada->objetos->last());
                 c->redimensionar(event->x(), gfWrldSizeY - event->y());
@@ -935,14 +937,12 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                 e->setRaioVertical(abs(gfWrldSizeY-event->y()-e->getCentro().p.y));
                 e->setControl(Ponto(event->x(), gfWrldSizeY-event->y()));
             } else if (camadaSelecionada->objetos->last()->tipo == Objeto::POLILINHA){
-                /*
                 Polilinha *pol = dynamic_cast <Polilinha *>(camadaSelecionada->objetos->last());
                 Ponto click(event->x(),gfWrldSizeY-event->y());
                 pol->setFim(pol->getFim()->getV0().p, click);
-                */
             }
         }
-    } else if (onMouseClick){
+    } else if (onMouseClick){ // não está desenhando e o mouse clicou e agora está se movendo
         if (op==SELECIONAR){
             Retangulo *seletor = dynamic_cast <Retangulo *>(camadaSelecionada->objetos->last());
             seletor->setD(Ponto(event->x(), gfWrldSizeY-event->y()));
@@ -959,27 +959,21 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                     if (aux->tipo == Objeto::CIRCULO){
                         Circulo *c = dynamic_cast <Circulo *>(aux);
                         Ponto con(c->getXc()+c->getRaio(), c->getYc());
-                        if (cohenClipping(con,con,seletor->max, seletor->min)){
+                        if (cohenClipping(con, con, seletor->max, seletor->min)){
                             c->selecionado = true;
                             preAgrupamento = true;
-                        } else {
-                            c->selecionado = false;
                         }
                     } else if (aux->tipo == Objeto::RETANGULO){
                         Retangulo *q = dynamic_cast <Retangulo *>(aux);
                         if (q->isSeletor==false && cohenClipping(q->A.p,q->A.p,seletor->max, seletor->min) && cohenClipping(q->B.p,q->B.p,seletor->max, seletor->min) && cohenClipping(q->C.p,q->C.p,seletor->max, seletor->min) && cohenClipping(q->D.p,q->D.p,seletor->max, seletor->min)){
                             q->selecionado = true;
                             preAgrupamento = true;
-                        } else {
-                            q->selecionado = false;
                         }
                     } else if (aux->tipo == Objeto::ELIPSE){
                         Elipse *e = dynamic_cast <Elipse *>(aux);
                         if (cohenClipping(e->control.p,e->control.p,seletor->max, seletor->min)){
                             e->selecionado = true;
                             preAgrupamento = true;
-                        } else {
-                            e->selecionado = false;
                         }
                     } else if (aux->tipo == Objeto::POLILINHA){
                         /*
@@ -995,7 +989,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                     }
                 }
             }
-        } else {
+        } else { // se a operação não for a seleção
             Objeto* aux;
             int i, j;
             for(i = 0; i < camadas.size(); i++) {
