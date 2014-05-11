@@ -4,7 +4,6 @@
 #include "objeto.h"
 #include "circulo.h"
 #include "elipse.h"
-#include "linha.h"
 #include "ponto.h"
 #include "vertice.h"
 #include "retangulo.h"

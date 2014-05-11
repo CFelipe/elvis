@@ -169,6 +169,7 @@ void rotacionaObjeto(Objeto *ob){
             break;
         case Objeto::POLILINHA:
         {
+            /*
             Polilinha *pol = dynamic_cast <Polilinha *>(ob);
             Linha *linha = pol->getInit();
             while (linha!=NULL){
@@ -188,6 +189,7 @@ void rotacionaObjeto(Objeto *ob){
                 linha->setV1(P1);
                 linha = linha->getNext();
             }
+            */
             break;
         }
             default:
@@ -209,23 +211,6 @@ unsigned int CompOutCode(Ponto p, Ponto max, Ponto min){
         code |= 0x8;
     }
     return code;
-}
-
-void deslocaPontoPolilinha(Polilinha *pol, int x, int y){
-    Linha *sel1 = pol->getLinhaSelecionada1(); // nunca é NULL
-    Linha *sel2 = pol->getLinhaSelecionada2();
-    GLint dy = y - pol->getYClick();
-    GLint dx = x - pol->getXClick();
-    if (sel1->getV0().selecionado){ // linha 1, portanto sel2=NULL
-        sel1->setV0(Vertice(sel1->getV0().p.x+dx, sel1->getV0().p.y+dy));
-    } else if (sel1->getV1().selecionado){
-        sel1->setV1(Vertice(sel1->getV1().p.x+dx, sel1->getV1().p.y+dy));
-        if (sel2!=NULL){
-            sel2->setV0(Vertice(sel2->getV0().p.x+dx, sel2->getV0().p.y+dy));
-        }
-    }
-    pol->setXClick(x);
-    pol->setYClick(y);
 }
 
 bool cohenClipping(Ponto P0, Ponto P1, Ponto max, Ponto min){
@@ -371,25 +356,6 @@ bool clippingAreaVertice(Ponto vertice, Ponto teste){
            teste.y >= (vertice.y-CONTROL);
 }
 
-void excluirPontoControlePolilinha(Polilinha *pol, int x, int y){
-    if (clippingAreaVertice(pol->getInit()->getV0().p, Ponto(x, y))){
-        pol->remove(pol->getInit());
-    } else {
-        Linha *linha = pol->getInit();
-         while (linha!=NULL){
-             if (clippingAreaVertice(linha->getV1().p, Ponto(x, y))){
-                 if (linha->getNext()!=NULL){
-                     linha->getNext()->setV0(linha->getV0());
-                 }
-                 pol->selecionado = (true);
-                 pol->remove(linha);
-                 linha = NULL;
-             } else linha = linha->getNext();
-         }
-    }
-
-}
-
 void GLWidget::resizeGL(int w, int h) {
         float viewDepth = gfWrldSizeZ/2.f;
 
@@ -470,6 +436,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                     Polilinha *pol = new Polilinha(linhaColorSelecionada, espessuraLinha);
                     pol->insert(click, click, NULL);
                     camadaSelecionada->objetos->append(pol);
+                    */
                 }
             } else { // se o mouse foi clicado anteriormente, e estivermos desenhando uma polinha ...
                 if (forma == Objeto::POLILINHA){
@@ -937,9 +904,11 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                 e->setRaioVertical(abs(gfWrldSizeY-event->y()-e->getCentro().p.y));
                 e->setControl(Ponto(event->x(), gfWrldSizeY-event->y()));
             } else if (camadaSelecionada->objetos->last()->tipo == Objeto::POLILINHA){
+                /*
                 Polilinha *pol = dynamic_cast <Polilinha *>(camadaSelecionada->objetos->last());
                 Ponto click(event->x(),gfWrldSizeY-event->y());
                 pol->setFim(pol->getFim()->getV0().p, click);
+                */
             }
         }
     } else if (onMouseClick){ // não está desenhando e o mouse clicou e agora está se movendo

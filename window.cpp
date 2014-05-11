@@ -313,6 +313,11 @@ void Window::updateLinhaButton() {
         p->setBrush(Qt::red);
         p->setPen(QPen(Qt::red, 2));
         p->drawLine(QPoint(0, 20), QPoint(20, 0));
+        p->setPen(QPen(Qt::black, 1));
+        p->drawLine(QPoint( 7,  7), QPoint(12,  7));
+        p->drawLine(QPoint(12,  7), QPoint(12, 12));
+        p->drawLine(QPoint(12, 12), QPoint( 7, 12));
+        p->drawLine(QPoint( 7, 12), QPoint( 7,  7));
         delete p;
         linhaColorButton->setIcon(px);
     } else {

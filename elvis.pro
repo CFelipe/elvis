@@ -22,7 +22,6 @@ SOURCES += main.cpp\
     circulo.cpp \
     ponto.cpp \
     polilinha.cpp \
-    linha.cpp \
     camada.cpp \
     documento.cpp
 
@@ -36,7 +35,6 @@ HEADERS  += \
     circulo.h \
     ponto.h \
     polilinha.h \
-    linha.h \
     camada.h \
     documento.h
 
