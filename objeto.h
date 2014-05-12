@@ -75,6 +75,8 @@ class Objeto {
             res[3] = colorLine[3];
         }
 
+        Ponto pView(Ponto p);
+
         void setXClick(GLint n){
             xclick = n;
         }

@@ -7,6 +7,7 @@
 class Circulo: public Objeto {
     public:
         Circulo(GLint raio, GLint xc, GLint yc);
+        Circulo(Circulo* c);
 
         void desenhaFill();
         void desenhaLinha();
@@ -18,6 +19,9 @@ class Circulo: public Objeto {
 
         Ponto boundsMin();
         Ponto boundsMax();
+
+        GLint xcView();
+        GLint ycView();
 
         GLint getXc() {
             return xc;

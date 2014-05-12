@@ -135,7 +135,7 @@ void Elipse::desenhaFill() {
 }
 
 void Elipse::desenhaControles() {
-    glEnable(GL_LINE_STIPPLE);
+   glEnable(GL_LINE_STIPPLE);
     glLineStipple(1, 0xAAAA);
     glColor3f(0,0.5, 0);
     glBegin(GL_LINES);

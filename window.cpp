@@ -97,16 +97,12 @@ void Window::createActions() {
     transladarAct = new QAction("Translação", this);
     copiarAct = new QAction("Cópia", this);
     escalarAct = new QAction("Escalar", this);
-    deslocarPtsAct = new QAction("Deslocar pontos", this);
     rotacionarAct = new QAction("Rotacionar", this);
-    insertRemovePontoAct = new QAction("insertRemovePonto", this);
 
     copiarAct->setCheckable(true);
     transladarAct->setCheckable(true);
     rotacionarAct->setCheckable(true);
     escalarAct->setCheckable(true);
-    deslocarPtsAct->setCheckable(true);
-    insertRemovePontoAct->setCheckable(true);
 }
 
 void Window::mostrarAcoesObjeto(bool visivel) {
@@ -115,13 +111,11 @@ void Window::mostrarAcoesObjeto(bool visivel) {
         transladarAct->setVisible(true);
         rotacionarAct->setVisible(true);
         escalarAct->setVisible(true);
-        deslocarPtsAct->setVisible(true);
     } else {
         copiarAct->setVisible(false);
         transladarAct->setVisible(false);
         rotacionarAct->setVisible(false);
         escalarAct->setVisible(false);
-        deslocarPtsAct->setVisible(false);
     }
 }
 
@@ -146,8 +140,6 @@ void Window::createLeftBar() {
     toolGroup->addAction(transladarAct);
     toolGroup->addAction(rotacionarAct);
     toolGroup->addAction(escalarAct);
-    toolGroup->addAction(deslocarPtsAct);
-    toolGroup->addAction(insertRemovePontoAct);
     QObject::connect(toolGroup, SIGNAL(triggered(QAction*)), this, SLOT(setOperacao(QAction * )));
 
     leftBar->addAction(selecionarAct);
@@ -163,8 +155,6 @@ void Window::createLeftBar() {
     leftBar->addAction(transladarAct);
     leftBar->addAction(rotacionarAct);
     leftBar->addAction(escalarAct);
-    leftBar->addAction(deslocarPtsAct);
-    leftBar->addAction(insertRemovePontoAct);
 
     //leftBar->addWidget(listaCamadas);
 }
@@ -206,6 +196,20 @@ void Window::createBottomBar() {
     bottomBar->addWidget(espessuraLinhaLabel);
     bottomBar->addWidget(espessuraLinhaSpinBox);
     QObject::connect(espessuraLinhaSpinBox, SIGNAL(valueChanged(int)), this, SLOT(setEspessuraLinha(int)));
+
+    bottomBar->addSeparator();
+
+    QLabel* estiloLinhaLabel = new QLabel("Estilo");
+    estiloLinhaField = new QLineEdit();
+    estiloLinhaField->setMaximumWidth(150);
+    estiloLinhaField->setText("-");
+    QRegExp expr("[-][-,.]+");
+    QRegExpValidator *v = new QRegExpValidator(expr, 0);
+    estiloLinhaField->setValidator(v);
+    bottomBar->addWidget(estiloLinhaLabel);
+    bottomBar->addWidget(estiloLinhaField);
+    QObject::connect(estiloLinhaField, SIGNAL(textChanged(QString)), this, SLOT(setEstiloLinha(QString)));
+
 
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -274,7 +278,12 @@ bool Window::salvarElvComo() {
 }
 
 bool Window::exportarSVG() {
-    //TODO
+    QString fileName = QFileDialog::getSaveFileName(this);
+    if (fileName.isEmpty()) {
+        return false;
+    }
+
+    return docAtual->exportarSVG(fileName);
 }
 
 void Window::about() {
@@ -284,8 +293,12 @@ void Window::about() {
 }
 
 void Window::setOperacao(QAction* q) {
+    glArea->setCursor(Qt::ArrowCursor);
     if(q == selecionarAct) {
         docAtual->op = SELECIONAR;
+        docAtual->desenha = false;
+    } else if(q == selecionarPontosAct) {
+        docAtual->op = DESLOCARPONTOS;
         docAtual->desenha = false;
     } else if(q == addRetanguloAct) {
         docAtual->forma = RETANGULO;
@@ -305,24 +318,19 @@ void Window::setOperacao(QAction* q) {
         docAtual->forma = ELIPSE;
         docAtual->op = CRIACAO;
         docAtual->desenha = true;
-    } else if(q == transladarAct) {
-        docAtual->op = TRANSLACAO;
-        docAtual->desenha = false;
     } else if(q == copiarAct) {
         docAtual->op = COPIA;
         docAtual->desenha = false;
     } else if(q == escalarAct) {
         docAtual->op = ESCALA;
         docAtual->desenha = false;
-    } else if(q == deslocarPtsAct) {
-        docAtual->op = DESLOCARPONTOS;
-        docAtual->desenha = false;
     } else if(q == rotacionarAct) {
         docAtual->op = ROTACAO;
         docAtual->desenha = false;
-    } else if(q == insertRemovePontoAct) {
-        docAtual->op = INSERT_REMOVE_PONTO;
+    } else if(q == panAct) {
+        docAtual->op = PAN;
         docAtual->desenha = false;
+        glArea->setCursor(Qt::OpenHandCursor);
     }
 
     glArea->opBotaoDireito = false;
@@ -443,4 +451,12 @@ void Window::toggleGrade() {
 
 void Window::setEspessuraLinha(int espessura) {
     docAtual->espessuraLinha = espessura;
+}
+
+void Window::setEstiloLinha(QString estilo) {
+    if(estilo != "") {
+        docAtual->estiloLinha = estilo;
+    } else {
+        estiloLinhaField->setText("-");
+    }
 }

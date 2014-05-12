@@ -17,11 +17,12 @@
 class Retangulo : public Objeto {
     public:
         Retangulo(Vertice A, Vertice B, Vertice C, Vertice D);
+        Retangulo(Retangulo *r);
 
         Vertice A, B, C, D, centro;
         Ponto max, min;
-        bool isSeletor;
-        bool isVisible;
+        //bool isSeletor;
+        //bool isVisible;
         /* A variável is visible serve ao agrupamento de formas. Na verdade,
          * quando agrupamos as formas, devemos ter um Retângulo imaginário o tamanho necessário e suficiente para acomodar as formas
          * Tal retângulo será um objeto do tipo Retangulo invisível (ou melhor, apenasos vértices de controle aparecem);
@@ -37,6 +38,9 @@ class Retangulo : public Objeto {
 
         Ponto boundsMax();
         Ponto boundsMin();
+
+        int w();
+        int h();
 
         void Bresenham(Vertice p1, Vertice p2);
         void atualizaMINMAX();

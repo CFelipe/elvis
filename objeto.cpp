@@ -11,7 +11,7 @@ Objeto::Objeto(Forma tipo) {
     this->espessuraLinha = Window::docAtual->espessuraLinha;
     this->preenchido = Window::docAtual->preenchimento;
     this->linha = Window::docAtual->linha;
-    this->estiloLinha = "-";
+    this->estiloLinha = Window::docAtual->estiloLinha;
 
     this->colorfill[0] = Window::docAtual->fillColorSelecionada[0];
     this->colorfill[1] = Window::docAtual->fillColorSelecionada[1];
@@ -34,6 +34,11 @@ void Objeto::desenha() {
     if(selecionado) {
         desenhaControles();
     }
+}
+
+Ponto Objeto::pView(Ponto p) {
+    return Ponto(p.x + Window::docAtual->viewport.x,
+                 p.y + Window::docAtual->viewport.y);
 }
 
 void Objeto::linhaFill(Ponto p1, Ponto p2) {

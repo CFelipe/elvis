@@ -32,8 +32,6 @@ private:
     QAction *transladarAct;
     QAction *rotacionarAct;
     QAction *escalarAct;
-    QAction *deslocarPtsAct;
-    QAction *insertRemovePontoAct;
 
     QAction *agruparAct;
     QAction *desagruparAct;
@@ -46,6 +44,7 @@ private:
     QToolButton* linhaColorButton;
     QToolButton* fillColorButton;
     QToolButton* toggleGradeButton;
+    QLineEdit* estiloLinhaField;
 
     void createActions();
     void createLeftBar();
@@ -69,6 +68,7 @@ public slots:
     void setLinhaColor();
     void setFillColor();
     void setEspessuraLinha(int espessura);
+    void setEstiloLinha(QString linha);
     void toggleGrade();
 };
 

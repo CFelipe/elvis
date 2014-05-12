@@ -1,10 +1,33 @@
 #include "circulo.h"
+#include "window.h"
 
 Circulo::Circulo(GLint raio, GLint xc, GLint yc) : Objeto(CIRCULO) {
     this->raio = raio;
     this->xc = xc;
     this->yc = yc;
     this->selecionado = true;
+}
+
+Circulo::Circulo(Circulo *c) : Objeto(CIRCULO) {
+    this->raio = c->raio;
+    this->xc = c->xc;
+    this->yc = c->yc;
+    this->colorfill[0] = c->colorfill[0];
+    this->colorfill[1] = c->colorfill[1];
+    this->colorfill[2] = c->colorfill[2];
+    this->colorLine[0] = c->colorLine[0];
+    this->colorLine[1] = c->colorLine[1];
+    this->colorLine[2] = c->colorLine[2];
+    this->espessuraLinha = c->espessuraLinha;
+    this->selecionado = true;
+}
+
+GLint Circulo::xcView() {
+    return xc + Window::docAtual->viewport.x;
+}
+
+GLint Circulo::ycView() {
+    return yc + Window::docAtual->viewport.y;
 }
 
 void Circulo::translada(GLint mouseX, GLint mouseY) {
@@ -57,14 +80,14 @@ void Circulo::desenhaLinha() {
 
         if(estiloLinha[linha_i] == '-') {
             glBegin(GL_POINTS);
-                glVertex2i( x+xc,  y+yc);
-                glVertex2i( x+xc, -y+yc);
-                glVertex2i(-x+xc,  y+yc);
-                glVertex2i(-x+xc, -y+yc);
-                glVertex2i( y+xc,  x+yc);
-                glVertex2i( y+xc, -x+yc);
-                glVertex2i(-y+xc,  x+yc);
-                glVertex2i(-y+xc, -x+yc);
+                glVertex2i( x + xcView(),  y+ycView());
+                glVertex2i( x + xcView(), -y+ycView());
+                glVertex2i(-x + xcView(),  y+ycView());
+                glVertex2i(-x + xcView(), -y+ycView());
+                glVertex2i( y + xcView(),  x+ycView());
+                glVertex2i( y + xcView(), -x+ycView());
+                glVertex2i(-y + xcView(),  x+ycView());
+                glVertex2i(-y + xcView(), -x+ycView());
             glEnd( );
         }
 
@@ -72,10 +95,10 @@ void Circulo::desenhaLinha() {
     }
 
     glBegin(GL_POINTS);
-        glVertex2i(xc - raio, yc);
-        glVertex2i(xc + raio, yc);
-        glVertex2i(xc, yc - raio);
-        glVertex2i(xc, yc + raio);
+        glVertex2i(xcView() - raio, ycView());
+        glVertex2i(xcView() + raio, ycView());
+        glVertex2i(xcView(), ycView() - raio);
+        glVertex2i(xcView(), ycView() + raio);
     glEnd();
 
 }
@@ -109,26 +132,26 @@ void Circulo::desenhaFill() {
         x++;
 
         // De cima pra baixo
-        Objeto::linhaFill(Ponto(-x+xc,  y+yc),
-                          Ponto( x+xc,  y+yc));
-        Objeto::linhaFill(Ponto(-y+xc,  x+yc),
-                          Ponto( y+xc,  x+yc));
-        Objeto::linhaFill(Ponto(-y+xc, -x+yc),
-                          Ponto( y+xc, -x+yc));
-        Objeto::linhaFill(Ponto(-x+xc, -y+yc),
-                          Ponto( x+xc, -y+yc));
+        Objeto::linhaFill(Ponto(-x+xcView(),  y+ycView()),
+                          Ponto( x+xcView(),  y+ycView()));
+        Objeto::linhaFill(Ponto(-y+xcView(),  x+ycView()),
+                          Ponto( y+xcView(),  x+ycView()));
+        Objeto::linhaFill(Ponto(-y+xcView(), -x+ycView()),
+                          Ponto( y+xcView(), -x+ycView()));
+        Objeto::linhaFill(Ponto(-x+xcView(), -y+ycView()),
+                          Ponto( x+xcView(), -y+ycView()));
     }
 
-    Objeto::linhaFill(Ponto(xc - raio, yc),
-                      Ponto(xc + raio, yc));
+    Objeto::linhaFill(Ponto(xcView() - raio, ycView()),
+                      Ponto(xcView() + raio, ycView()));
 }
 
 void Circulo::desenhaControles() {
     glPointSize(8);
     glBegin(GL_POINTS);
         glColor3f( 0,0.5 , 0 );
-        glVertex2i(getXc(), getYc());
-        glVertex2i(getXc() + getRaio(), getYc());
+        glVertex2i(xcView(), ycView());
+        glVertex2i(xcView() + getRaio(), ycView());
     glEnd();
 
 
