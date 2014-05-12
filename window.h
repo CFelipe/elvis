@@ -19,6 +19,7 @@ private:
     QToolBar* leftBar;
 
     QAction *selecionarAct;
+    QAction *selecionarPontosAct;
 
     QAction *addPolilinhaAct;
     QAction *addElipseAct;
@@ -55,6 +56,8 @@ private:
 
     void updateFillButton();
     void updateLinhaButton();
+
+    bool eventFilter(QObject *watched, QEvent *e);
 
 public slots:
     void about();

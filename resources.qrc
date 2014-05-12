@@ -7,5 +7,18 @@
         <file>images/polilinha.png</file>
         <file>images/retangulo.png</file>
         <file>images/zoom.png</file>
+        <file>images/adicionar.png</file>
+        <file>images/agrupar.png</file>
+        <file>images/alinhar_horizontal.png</file>
+        <file>images/alinhar_vertical.png</file>
+        <file>images/base.png</file>
+        <file>images/desagrupar.png</file>
+        <file>images/descer.png</file>
+        <file>images/pontos.png</file>
+        <file>images/remover.png</file>
+        <file>images/selecionar_pontos.png</file>
+        <file>images/selecionar.png</file>
+        <file>images/subir.png</file>
+        <file>images/topo.png</file>
     </qresource>
 </RCC>

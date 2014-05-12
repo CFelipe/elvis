@@ -21,18 +21,7 @@ class GLWidget : public QGLWidget {
 
         QList<Camada*> camadas;
         Camada* camadaSelecionada;
-        GLfloat linhaColorSelecionada[4];
-        GLfloat fillColorSelecionada[4];
-        GLint espessuraLinha;
-        bool desenha; // true = desenha. false = seleciona
-        bool preenchimento;
-        bool linha;
-        bool grade;
         bool desenhandoPolilinha;
-        GLint gradeSep;
-
-        Operacao op;
-        Forma forma;
 
         /* A variável opBotaoDireito é usada somente para controlar a possibilidade de rotação de acordo como especificado no documento
          * opBotaoDireito=true <--> o botão direito foi pressionado em algum local do canvas
@@ -47,12 +36,14 @@ class GLWidget : public QGLWidget {
         void mousePressEvent(QMouseEvent *event);
         void mouseReleaseEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
+        void keyPressEvent(QKeyEvent *keyEvent);
         void desselecionaALL();
     private:
         void selecionaCirculo(Objeto *aux, Circulo *c, Ponto click);
         void selecionaQuadrilatero(Objeto *aux, Retangulo *q, Ponto click);
         Retangulo* getAreaClippingMouse(GLint xmouse, GLint ymouse);
         GLint snap(GLint mouse);
+        void desenhaSelecao();
         void desenhaGrade(GLint sep);
         void desenhaCanvas();
 

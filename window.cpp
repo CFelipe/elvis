@@ -12,7 +12,6 @@ Window::Window() {
     menuBar = new QMenuBar();
 
     glArea = new GLWidget();
-    glArea->setFocusPolicy(Qt::StrongFocus);
 
     setupMenus();
 
@@ -30,6 +29,21 @@ Window::Window() {
     mostrarAcoesObjeto(true);
 
     setLayout(mainLayout);
+
+    glArea->installEventFilter(this);
+}
+
+bool Window::eventFilter(QObject *watched, QEvent *e) {
+    if (watched == glArea && e->type() == QEvent::KeyPress) {
+        QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+        if (ke->key() == Qt::Key_Delete) {
+            docAtual->deletarSelecionados();
+            glArea->updateGL();
+            return true;
+        }
+    }
+
+    return QWidget::eventFilter(watched, e);
 }
 
 void Window::createActions() {
@@ -37,7 +51,12 @@ void Window::createActions() {
     // Ferramentas
     // -----------
     selecionarAct = new QAction("Selecionar", this);
+    selecionarAct->setIcon(QIcon(":/images/selecionar.png"));
     selecionarAct->setShortcut(QKeySequence("S"));
+
+    selecionarPontosAct = new QAction("Selecionar pontos", this);
+    selecionarPontosAct->setIcon(QIcon(":/images/selecionar_pontos.png"));
+    selecionarPontosAct->setShortcut(QKeySequence("Shift+S"));
 
     addPolilinhaAct = new QAction("Desenhar polilinha", this);
     addPolilinhaAct->setIcon(QIcon(":/images/polilinha.png"));
@@ -63,6 +82,7 @@ void Window::createActions() {
     panAct->setIcon(QIcon(":/images/pan.png"));
 
     selecionarAct->setCheckable(true);
+    selecionarPontosAct->setCheckable(true);
     addPolilinhaAct->setCheckable(true);
     addElipseAct->setCheckable(true);
     addCirculoAct->setCheckable(true);
@@ -110,9 +130,11 @@ void Window::createLeftBar() {
     leftBar->setOrientation(Qt::Vertical);
     leftBar->setFloatable(false);
     leftBar->setMovable(false);
+    leftBar->setIconSize(QSize(32, 32));
 
     QActionGroup* toolGroup = new QActionGroup(this);
     toolGroup->addAction(selecionarAct);
+    toolGroup->addAction(selecionarPontosAct);
     toolGroup->addAction(addPolilinhaAct);
     toolGroup->addAction(addElipseAct);
     toolGroup->addAction(addCirculoAct);
@@ -129,6 +151,7 @@ void Window::createLeftBar() {
     QObject::connect(toolGroup, SIGNAL(triggered(QAction*)), this, SLOT(setOperacao(QAction * )));
 
     leftBar->addAction(selecionarAct);
+    leftBar->addAction(selecionarPontosAct);
     leftBar->addAction(addPolilinhaAct);
     leftBar->addAction(addElipseAct);
     leftBar->addAction(addCirculoAct);

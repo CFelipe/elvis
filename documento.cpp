@@ -21,10 +21,27 @@ Documento::Documento() {
 
     gradeSep = 50;
 
+    desenha = true;
     espessuraLinha = 1;
     preenchimento = true;
     linha = true;
     grade = false;
+
+    selecaoMultipla = false;
+}
+
+void Documento::deletarSelecionados() {
+    int i;
+    for(i = 0; i < camadas.size(); i++) {
+        QList<Objeto*>::iterator j = camadas.at(i)->objetos->begin();
+        while (j != camadas.at(i)->objetos->end()) {
+            if ((*j)->selecionado) {
+                j = camadas.at(i)->objetos->erase(j);
+            } else {
+                ++j;
+            }
+        }
+    }
 }
 
 /*

@@ -39,15 +39,20 @@ class Documento {
         Ponto viewport;
         GLint canvasW;
         GLint canvasH;
+        Ponto selecaoMin;
+        Ponto selecaoMax;
 
         bool desenha;
         bool desenhandoPolilinha;
+
+        bool selecaoMultipla;
 
         QString arqAberto;
         GLint gradeSep;
 
         void desselecionarTodos();
         void selecionarTodos();
+        void deletarSelecionados();
 };
 
 #endif // DOCUMENTO_H
