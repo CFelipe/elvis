@@ -70,7 +70,7 @@ bool Documento::exportarSVG(const QString &fileName) {
     out << "<?xml version=\"1.0\" standalone=\"no\"?>\n";
     out << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"  \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
     out << QString("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%1\" height=\"%2\">\n")
-           .arg(canvasW, canvasH);
+           .arg(QString::number(canvasW), QString::number(canvasH));
 
     QString estiloLinha;
     QString corLinha;
@@ -108,7 +108,6 @@ bool Documento::exportarSVG(const QString &fileName) {
                        .arg(QString::number(c->getXc()),
                             QString::number(canvasH - c->getYc()),
                             QString::number(c->getRaio()));
-
             } else if(aux->tipo == RETANGULO) {
                 Retangulo *r = dynamic_cast <Retangulo *>(aux);
                 out << QString("<rect x=\"%1\" y=\"%2\" width=\"%3\" height=\"%4\" \n")
@@ -116,6 +115,13 @@ bool Documento::exportarSVG(const QString &fileName) {
                             QString::number(canvasH - r->boundsMax().y),
                             QString::number(r->w()),
                             QString::number(r->h()));
+            } else if(aux->tipo == ELIPSE) {
+                Elipse *e = dynamic_cast <Elipse *>(aux);
+                out << QString("<ellipse cx=\"%1\" cy=\"%2\" rx=\"%3\" ry=\"%4\" \n")
+                       .arg(QString::number(e->centro.x),
+                            QString::number(canvasH - e->centro.y),
+                            QString::number(e->raioHorizontal),
+                            QString::number(e->raioVertical));
             } else if(aux->tipo == POLILINHA) {
                 Polilinha *p = dynamic_cast <Polilinha *>(aux);
                 out << QString("<polyline points=\"");
@@ -133,10 +139,17 @@ bool Documento::exportarSVG(const QString &fileName) {
 
             }
 
-            out << QString("fill=\"%1\" stroke=\"%2\" stroke-width=\"%3\" />\n")
+            out << QString("fill=\"%1\" stroke=\"%2\" stroke-width=\"%3\"")
                    .arg(corFill,
                         corLinha,
                         QString::number(aux->espessuraLinha));
+
+            if(estiloLinha != "-") {
+                out <<  QString(" stroke-dasharray=\"%1\"")
+                        .arg(dasharrayToSVG(estiloLinha));
+            }
+
+            out << "/>\n";
         }
     }
 

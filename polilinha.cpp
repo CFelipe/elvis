@@ -157,7 +157,6 @@ void Polilinha::deslocarVerticeSelecionado(GLint mouseX, GLint mouseY) {
 }
 
 void Polilinha::removerVertice(int i) {
-    qDebug() << "remover vertice";
     if(vertices.size() > 2) {
         vertices.removeAt(i);
     }
@@ -169,7 +168,6 @@ void Polilinha::inserirVertice(GLint mouseX, GLint mouseY) {
 }
 
 void Polilinha::inserirVertice(int pre, GLint mouseX, GLint mouseY) {
-    qDebug() << "entrou";
     desseleciona();
     Vertice *novo = new Vertice(mouseX, mouseY);
     novo->selecionado = true;
