@@ -41,6 +41,14 @@ Ponto Objeto::pView(Ponto p) {
                  p.y + Window::docAtual->viewport.y);
 }
 
+int Objeto::intXView(GLint i) {
+    return i + Window::docAtual->viewport.x;
+}
+
+int Objeto::intYView(GLint i) {
+    return i + Window::docAtual->viewport.y;
+}
+
 void Objeto::linhaFill(Ponto p1, Ponto p2) {
     // Sempre da esquerda pra direita ou
     // de cima pra baixo

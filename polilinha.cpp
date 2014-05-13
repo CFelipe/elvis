@@ -83,7 +83,7 @@ void Polilinha::desenhaLinha() {
     int i;
     for(i = 0; i < vertices.size(); i++) {
         if(i + 1 < vertices.size()) {
-            Objeto::Bresenham(vertices.at(i)->p, vertices.at(i + 1)->p);
+            Objeto::Bresenham(pView(vertices.at(i)->p), pView(vertices.at(i + 1)->p));
         }
     }
 }
@@ -110,16 +110,16 @@ void Polilinha::desenhaControles() {
             glPointSize(8);
             glBegin(GL_POINTS);
                 glColor3f( 0,0.5 , 0 );
-                glVertex2i(vertices.at(i)->p.x, vertices.at(i)->p.y);
+                glVertex2i(intXView(vertices.at(i)->p.x), intYView(vertices.at(i)->p.y));
             glEnd();
         } else {
             glLineWidth(1);
             glColor3f(0, 0, 0);
             glBegin(GL_LINE_LOOP);
-                glVertex2i(vertices.at(i)->p.x + 5 , vertices.at(i)->p.y + 5);
-                glVertex2i(vertices.at(i)->p.x - 5 , vertices.at(i)->p.y + 5);
-                glVertex2i(vertices.at(i)->p.x - 5 , vertices.at(i)->p.y - 5);
-                glVertex2i(vertices.at(i)->p.x + 5 , vertices.at(i)->p.y - 5);
+                glVertex2i(intXView(vertices.at(i)->p.x + 5), intYView(vertices.at(i)->p.y + 5));
+                glVertex2i(intXView(vertices.at(i)->p.x - 5), intYView(vertices.at(i)->p.y + 5));
+                glVertex2i(intXView(vertices.at(i)->p.x - 5), intYView(vertices.at(i)->p.y - 5));
+                glVertex2i(intXView(vertices.at(i)->p.x + 5), intYView(vertices.at(i)->p.y - 5));
             glEnd();
         }
 

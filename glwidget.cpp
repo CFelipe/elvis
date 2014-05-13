@@ -19,7 +19,7 @@ GLfloat gfWrldSizeZ = 400.f;
 Ponto clickCanvas;
 Ponto *click1, click2;
 GLdouble distanciaAB = 0; // guarda a distancia entre dois pontos quaisquer A e B
-GLdouble anguloDeRotacao = M_PI/3; // Valor do ângulo (em radianos) de rotação. Entrada do usuário (seletor)
+GLdouble anguloDeRotacao = M_PI/2; // Valor do ângulo (em radianos) de rotação. Entrada do usuário (seletor)
 
 /* A variável opBotaoDireito é usada somente para controlar a possibilidade de rotação de acordo como especificado no documento
  * opBotaoDireito=true <--> o botão direito foi pressionado em algum local do canvas
@@ -57,10 +57,10 @@ void GLWidget::desenhaSelecao() {
     glLineStipple(2, 0xAAAA);
     glColor3f(0.55f, 0.55f, 1.f);
     glBegin(GL_LINE_LOOP);
-         glVertex2i(Window::docAtual->selecaoMin.x, Window::docAtual->selecaoMin.y);
-         glVertex2i(Window::docAtual->selecaoMin.x, Window::docAtual->selecaoMax.y);
-         glVertex2i(Window::docAtual->selecaoMax.x, Window::docAtual->selecaoMax.y);
-         glVertex2i(Window::docAtual->selecaoMax.x, Window::docAtual->selecaoMin.y);
+         glVertex2i(Objeto::intXView(Window::docAtual->selecaoMin.x), Objeto::intYView(Window::docAtual->selecaoMin.y));
+         glVertex2i(Objeto::intXView(Window::docAtual->selecaoMin.x), Objeto::intYView(Window::docAtual->selecaoMax.y));
+         glVertex2i(Objeto::intXView(Window::docAtual->selecaoMax.x), Objeto::intYView(Window::docAtual->selecaoMax.y));
+         glVertex2i(Objeto::intXView(Window::docAtual->selecaoMax.x), Objeto::intYView(Window::docAtual->selecaoMin.y));
     glEnd();
     glDisable(GL_LINE_STIPPLE);
 }
@@ -71,19 +71,19 @@ void GLWidget::desenhaGrade(GLint sep) {
     glColor3f( .75f, .75f, .75f );
 
     // Linhas verticais
-    for(x = 0; x <= this->width(); x += sep) {
+    for(x = 0; x <= Window::docAtual->canvasW; x += sep) {
         glBegin( GL_LINES );
-            glVertex2i(x, 0);
-            glVertex2i(x, height());
-        glEnd( );
+            glVertex2i(Objeto::intXView(x), Objeto::intYView(0));
+            glVertex2i(Objeto::intXView(x), Objeto::intYView(Window::docAtual->canvasH));
+        glEnd();
     }
 
     // Linhas horizontais
-    for(y = 0; y <= this->height(); y += sep) {
+    for(y = 0; y <= Window::docAtual->canvasH; y += sep) {
         glBegin( GL_LINES );
-            glVertex2i(0, y);
-            glVertex2i(width(), y);
-        glEnd( );
+            glVertex2i(Objeto::intXView(0), Objeto::intYView(y));
+            glVertex2i(Objeto::intXView(Window::docAtual->canvasW), Objeto::intYView(y));
+        glEnd();
     }
 }
 
@@ -91,14 +91,12 @@ void GLWidget::desenhaCanvas() {
     glLineWidth(2);
     glColor3f(0.f, 0.f, 0.f);
 
-    /*
     glBegin(GL_LINE_LOOP);
-        glVertex2i(0, 0);
-        glVertex2i(canvasW, 0);
-        glVertex2i(canvasW, canvasW);
-        glVertex2i(0, canvasW);
+        glVertex2i(Objeto::intXView(0), Objeto::intYView(0));
+        glVertex2i(Objeto::intXView(Window::docAtual->canvasW), Objeto::intYView(0));
+        glVertex2i(Objeto::intXView(Window::docAtual->canvasW), Objeto::intYView(Window::docAtual->canvasH));
+        glVertex2i(Objeto::intXView(0), Objeto::intYView(Window::docAtual->canvasH));
     glEnd( );
-    */
 }
 
 void GLWidget::initializeGL() {}
@@ -418,6 +416,9 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
 
     GLint mouseX = event->x();
     GLint mouseY = gfWrldSizeY - event->y();
+    GLint mouseXR = event->x() - Window::docAtual->viewport.x;
+    GLint mouseYR = gfWrldSizeY - event->y() - Window::docAtual->viewport.y;
+
     clickCanvas = Ponto(mouseX, mouseY);
     pressing = true;
 
@@ -429,37 +430,37 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
         if (Window::docAtual->desenha) {
             if (onMouseClick==false){ // se o mouse ainda não foi clicado
                 if (Window::docAtual->forma == CIRCULO){
-                    Circulo *c = new Circulo(0, snap(mouseX), snap(mouseY));
+                    Circulo *c = new Circulo(0, snap(mouseXR), snap(mouseYR));
                     Window::docAtual->camadaSelecionada->objetos->append(c);
                 } else if (Window::docAtual->forma == RETANGULO) {
-                    Ponto M(snap(mouseX), snap(mouseY));
+                    Ponto M(snap(mouseXR), snap(mouseYR));
                     Retangulo *q = new Retangulo(M, M, M, M);
                     Window::docAtual->camadaSelecionada->objetos->append(q);
                 } else if (Window::docAtual->forma == ELIPSE){
-                    Elipse *e = new Elipse(Ponto(snap(mouseX), snap(mouseY)), 0, 0);
+                    Elipse *e = new Elipse(Ponto(snap(mouseXR), snap(mouseYR)), 0, 0);
                     Window::docAtual->camadaSelecionada->objetos->append(e);
                 } else if (Window::docAtual->forma == POLILINHA){
-                    Polilinha *p = new Polilinha(Ponto(snap(mouseX), snap(mouseY)));
+                    Polilinha *p = new Polilinha(Ponto(snap(mouseXR), snap(mouseYR)));
                     Window::docAtual->camadaSelecionada->objetos->append(p);
                 }
             } else { // se o mouse foi clicado anteriormente e estivermos desenhando uma polinha ...
                 if (Window::docAtual->forma == POLILINHA){
                     onMouseClick = false;
                     Polilinha *pol = dynamic_cast <Polilinha *>(Window::docAtual->camadaSelecionada->objetos->last());
-                    pol->inserirVertice(mouseX, mouseY);
+                    pol->inserirVertice(mouseXR, mouseYR);
                 }
             }
 
             onMouseClick = !onMouseClick;
         } else if (Window::docAtual->op==SELECIONAR) {
             Window::docAtual->selecaoMultipla = true;
-            Window::docAtual->selecaoMin = Ponto(mouseX, mouseY);
-            Window::docAtual->selecaoMax = Ponto(mouseX, mouseY);
+            Window::docAtual->selecaoMin = Ponto(mouseXR, mouseYR);
+            Window::docAtual->selecaoMax = Ponto(mouseXR, mouseYR);
             onMouseClick = true;
 
             if (preAgrupamento==true){
                 qDebug() << "caso 25";
-                Ponto click(mouseX, mouseY);
+                Ponto click(mouseXR, mouseYR);
 
                 if (clippingAreaVertice(Window::docAtual->selecaoMin, click) ||
                     clippingAreaVertice(Window::docAtual->selecaoMax, click)) {
@@ -468,15 +469,15 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                     Window::docAtual->op = TRANSLACAO;
                     qDebug() << "caso1";
                 } else {
-                    Retangulo *clik = getAreaClippingMouse(mouseX, mouseY);
+                    Retangulo *clik = getAreaClippingMouse(mouseXR, mouseYR);
                     if (cohenClipping(Window::docAtual->selecaoMin, Window::docAtual->selecaoMax, clik->C.p, clik->B.p)) {
                         voltaSelecao = true;
                         Window::docAtual->op = TRANSLACAO;
                         qDebug() << "caso2";
-                    } else if (mouseX <= Window::docAtual->selecaoMax.x &&
-                               mouseX >= Window::docAtual->selecaoMin.x &&
-                               mouseY <= Window::docAtual->selecaoMax.y &&
-                               mouseY >= Window::docAtual->selecaoMin.y) {
+                    } else if (mouseXR <= Window::docAtual->selecaoMax.x &&
+                               mouseXR >= Window::docAtual->selecaoMin.x &&
+                               mouseYR <= Window::docAtual->selecaoMax.y &&
+                               mouseYR >= Window::docAtual->selecaoMin.y) {
                         voltaSelecao = true;
                         Window::docAtual->op = TRANSLACAO;
                         qDebug() << "caso3";
@@ -496,15 +497,15 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                             if (aux->selecionado){
                                 if (aux->tipo==CIRCULO){
                                     Circulo *c = dynamic_cast <Circulo *>(aux);
-                                    aux->setXClick(event->x() -c->getXc());
-                                    aux->setYClick(gfWrldSizeY-event->y() - c->getYc());
+                                    aux->setXClick(mouseXR -c->getXc());
+                                    aux->setYClick(mouseYR - c->getYc());
                                 } else if (aux->tipo==ELIPSE){
                                     Elipse *e = dynamic_cast <Elipse *>(aux);
-                                    aux->setXClick(event->x()-e->getCentro().p.x);
-                                    aux->setYClick(gfWrldSizeY-event->y()-e->getCentro().p.y);
+                                    aux->setXClick(mouseXR -e->getCentro().p.x);
+                                    aux->setYClick(mouseYR -e->getCentro().p.y);
                                 } else{
-                                    aux->setXClick(event->x());
-                                    aux->setYClick(gfWrldSizeY-event->y());
+                                    aux->setXClick(mouseXR);
+                                    aux->setYClick(mouseYR);
                                 }
                             }
                         }
@@ -523,11 +524,11 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                         if (aux->tipo == CIRCULO){
                             qDebug() << "caso 20";
                             Circulo *c = dynamic_cast <Circulo *>(aux);
-                            GLint distancia = sqrt(pow(event->x() - c->getXc(), 2) + pow(gfWrldSizeY - event->y()-c->getYc(), 2));
+                            GLint distancia = sqrt(pow(mouseXR - c->getXc(), 2) + pow(mouseYR -c->getYc(), 2));
                             if (abs(c->getRaio()-distancia)<=CONTROL){
                                 c->selecionado = true;
-                                aux->setXClick(event->x() -c->getXc());
-                                aux->setYClick(gfWrldSizeY-event->y() - c->getYc());
+                                aux->setXClick(mouseXR - c->getXc());
+                                aux->setYClick(mouseYR - c->getYc());
 
                                 oneAnySelection = true;
                                 voltaSelecao = true;
@@ -540,8 +541,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                                 if(distancia<=c->getRaio()){
                                     c->selecionado = true;
                                     oneAnySelection = true;
-                                    aux->setXClick(event->x() -c->getXc());
-                                    aux->setYClick(gfWrldSizeY-event->y() - c->getYc());
+                                    aux->setXClick(mouseXR - c->getXc());
+                                    aux->setYClick(mouseYR - c->getYc());
 
                                     voltaSelecao = true;
                                     Window::docAtual->op = TRANSLACAO;
@@ -551,11 +552,11 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                             }
                         } else if(aux->tipo == ELIPSE){
                             Elipse *e = dynamic_cast <Elipse *>(aux);
-                            Ponto click(event->x(),gfWrldSizeY-event->y());
+                            Ponto click(mouseXR, mouseYR);
                             if (clippingAreaVertice(e->getControl().p, click)){  // clicou sobre o ponto de controle?
                                 aux->selecionado = (true);
-                                aux->setXClick(event->x()-e->getCentro().p.x);
-                                aux->setYClick(gfWrldSizeY-event->y()-e->getCentro().p.y);
+                                aux->setXClick(mouseXR -e->getCentro().p.x);
+                                aux->setYClick(mouseYR -e->getCentro().p.y);
 
                                 oneAnySelection = true;
                                 voltaSelecao = true;
@@ -565,24 +566,24 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                             }
                         } else if (aux->tipo == RETANGULO){
                             Retangulo *q = dynamic_cast <Retangulo *>(aux);
-                            Ponto click(event->x(),gfWrldSizeY-event->y());
+                            Ponto click(mouseXR,mouseYR);
                             if (clippingAreaVertice(q->A.p, click) || clippingAreaVertice(q->B.p, click) || clippingAreaVertice(q->C.p, click) || clippingAreaVertice(q->D.p, click)){
                                 aux->selecionado = (true);
-                                aux->setXClick(event->x());
-                                aux->setYClick(gfWrldSizeY-event->y());
+                                aux->setXClick(mouseXR);
+                                aux->setYClick(mouseYR);
 
                                 oneAnySelection = true;
                                 voltaSelecao = true;
                                 Window::docAtual->op=TRANSLACAO;
                             } else { // testa se o click foi na linha do quadrado (não preenchido)
-                                Retangulo *clik = getAreaClippingMouse(mouseX, mouseY);
+                                Retangulo *clik = getAreaClippingMouse(mouseXR, mouseYR);
                                 if (cohenClipping(q->A.p, q->B.p,clik->C.p, clik->B.p) ||
                                     cohenClipping(q->B.p, q->D.p,clik->C.p, clik->B.p) ||
                                     cohenClipping(q->D.p, q->C.p,clik->C.p, clik->B.p) ||
                                     cohenClipping(q->C.p, q->A.p,clik->C.p, clik->B.p)){
                                     aux->selecionado = (true);
-                                    aux->setXClick(event->x());
-                                    aux->setYClick(gfWrldSizeY-event->y());
+                                    aux->setXClick(mouseXR);
+                                    aux->setYClick(mouseYR);
 
                                     oneAnySelection = true;
                                     voltaSelecao = true;
@@ -593,10 +594,10 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                             }
                             if (q->selecionado == false && q->preenchido){ // se o quadrilátero estiver preenchido
                                 qDebug() << "caso 6";
-                                if (event->x()<=q->D.p.x && event->x()>=q->A.p.x && (gfWrldSizeY-event->y())<=q->A.p.y && (gfWrldSizeY-event->y())>=q->D.p.y){
+                                if (mouseXR<=q->D.p.x && mouseXR>=q->A.p.x && (mouseYR)<=q->A.p.y && (mouseYR)>=q->D.p.y){
                                     aux->selecionado = (true);
-                                    aux->setXClick(event->x());
-                                    aux->setYClick(gfWrldSizeY-event->y());
+                                    aux->setXClick(mouseXR);
+                                    aux->setYClick(mouseYR);
                                     oneAnySelection = true;
                                     voltaSelecao = true;
                                     Window::docAtual->op=TRANSLACAO;
@@ -606,7 +607,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                             }
                         } else if (aux->tipo==POLILINHA){
                             Polilinha *pol = dynamic_cast <Polilinha *>(aux);
-                            Retangulo *clik = getAreaClippingMouse(mouseX, mouseY);
+                            Retangulo *clik = getAreaClippingMouse(mouseXR, mouseYR);
                             pol->selecionado = (false);
 
                             int i;
@@ -614,8 +615,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                                 if(i + 1 < pol->vertices.size()) {
                                     if (cohenClipping(pol->vertices.at(i)->p, pol->vertices.at(i + 1)->p, clik->C.p, clik->B.p)){
                                         pol->selecionado = true;
-                                        aux->setXClick(mouseX);
-                                        aux->setYClick(mouseY);
+                                        aux->setXClick(mouseXR);
+                                        aux->setYClick(mouseYR);
 
                                         oneAnySelection = true;
                                         voltaSelecao = true;
@@ -627,8 +628,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                     }
                 }
                 if (oneAnySelection==false){
-                    Window::docAtual->selecaoMin = Ponto(mouseX, mouseY);
-                    Window::docAtual->selecaoMax = Ponto(mouseX, mouseY);
+                    Window::docAtual->selecaoMin = Ponto(mouseXR, mouseYR);
+                    Window::docAtual->selecaoMax = Ponto(mouseXR, mouseYR);
                     preAgrupamento=false;
                 }
             }
@@ -645,8 +646,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                     if (aux->tipo == CIRCULO){
                         qDebug() << "caso 7";
                         Circulo *c = dynamic_cast <Circulo *>(aux);
-                        Ponto click = Ponto(event->x(), gfWrldSizeY-event->y());
-                        GLint distancia =sqrt(pow(event->x()-c->getXc(), 2)+pow(gfWrldSizeY-event->y()-c->getYc(), 2));
+                        Ponto click = Ponto(mouseXR, mouseYR);
+                        GLint distancia =sqrt(pow(mouseXR-c->getXc(), 2)+pow(mouseYR-c->getYc(), 2));
                         if (abs(c->getRaio()-distancia)<=CONTROL){
                             selecionaCirculo(aux, c, click);
                         } else {
@@ -654,7 +655,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                         }
                         if (c->selecionado == false && c->preenchido){
                             if(distancia <= c->getRaio()){
-                                selecionaCirculo(aux, c, Ponto(event->x(), gfWrldSizeY-event->y()));
+                                selecionaCirculo(aux, c, Ponto(mouseXR, mouseYR));
                             }
                         }
                     } else if(aux->tipo == ELIPSE){
@@ -665,7 +666,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                                             * através do ponto de controle ou clicando sobre seus limites
                                             * que formam o desenho (e não as linhas potilhadas)
                                         */
-                        Ponto click(event->x(),gfWrldSizeY-event->y());
+                        Ponto click(mouseXR,mouseYR);
                         GLint a = e->getRaioHorizontal(), b=e->getRaioVertical();
                         GLint x = e->getCentro().p.x - click.x, y = e->getCentro().p.y- click.y;
 
@@ -703,7 +704,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
 
                     }else if (aux->tipo == RETANGULO){
                         Retangulo *q = dynamic_cast <Retangulo *>(aux);
-                        Ponto click(event->x(),gfWrldSizeY-event->y());
+                        Ponto click(mouseXR,mouseYR);
                         if (clippingAreaVertice(q->A.p, click) || clippingAreaVertice(q->B.p, click) || clippingAreaVertice(q->C.p, click) || clippingAreaVertice(q->D.p, click)){
                             selecionaQuadrilatero(aux, q, click);
                             if(clippingAreaVertice(q->A.p, click)){
@@ -714,30 +715,30 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                                 q->C.selecionado = (true);
                             } else q->D.selecionado = (true);
                         } else { // testa se o click foi na linha do quadrado (não preenchido)
-                            Retangulo *clik = getAreaClippingMouse(event->x(),gfWrldSizeY-event->y());
+                            Retangulo *clik = getAreaClippingMouse(mouseXR,mouseYR);
                             if (cohenClipping(q->A.p, q->B.p,clik->C.p, clik->B.p) ||
                                 cohenClipping(q->B.p, q->D.p,clik->C.p, clik->B.p) ||
                                 cohenClipping(q->D.p, q->C.p,clik->C.p, clik->B.p) ||
                                 cohenClipping(q->C.p, q->A.p,clik->C.p, clik->B.p)) {
-                                selecionaQuadrilatero(aux, q, Ponto(event->x(),gfWrldSizeY-event->y()));
+                                selecionaQuadrilatero(aux, q, Ponto(mouseXR,mouseYR));
                             } else {
                                 aux->selecionado = (false);
                             }
                         }
                         if (q->selecionado == false && q->preenchido){// se o quadrilátero estiver preenchido
-                            if (event->x()<=q->D.p.x && event->x()>=q->A.p.x && (gfWrldSizeY-event->y())<=q->A.p.y && (gfWrldSizeY-event->y())>=q->D.p.y){
+                            if (mouseXR<=q->D.p.x && mouseXR>=q->A.p.x && (mouseYR)<=q->A.p.y && (mouseYR)>=q->D.p.y){
                                 selecionaQuadrilatero(aux, q, click);
                             }
                         }
                     } else if (aux->tipo == POLILINHA){
                         Polilinha *pol = dynamic_cast <Polilinha *>(aux);
-                        Retangulo *clik = getAreaClippingMouse(mouseX, mouseY);
+                        Retangulo *clik = getAreaClippingMouse(mouseXR, mouseYR);
                         pol->desseleciona();
                         bool pontoSelecionado = false;
                         int i, tamanho;
                         tamanho = pol->vertices.size();
                         for(i = 0; i < tamanho; i++) {
-                            if (clippingAreaVertice(pol->vertices.at(i)->p, Ponto(mouseX, mouseY))) {
+                            if (clippingAreaVertice(pol->vertices.at(i)->p, Ponto(mouseXR, mouseYR))) {
                                 if(QApplication::keyboardModifiers() & Qt::ControlModifier) {
                                     pol->removerVertice(i);
                                     pontoSelecionado = true;
@@ -756,10 +757,10 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                             for(i = 0; i < tamanho; i++) {
                                 if(cohenClipping(pol->vertices.at(i)->p, pol->vertices.at(i + 1)->p, clik->C.p, clik->B.p)){
                                     pol->selecionado = (true);
-                                    pol->setXClick(mouseX);
-                                    pol->setYClick(mouseY);
+                                    pol->setXClick(mouseXR);
+                                    pol->setYClick(mouseYR);
                                     if(QApplication::keyboardModifiers() & Qt::ControlModifier) {
-                                        pol->inserirVertice(i, mouseX, mouseY);
+                                        pol->inserirVertice(i, mouseXR, mouseYR);
                                         break;
                                     }
                                 }
@@ -776,16 +777,16 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
                                 Window::docAtual->camadaSelecionada->objetos->append(novo);
                                 qDebug() << "daqui passou 2";
                                 Window::docAtual->camadaSelecionada->objetos->last()->selecionado = true;
-                                Window::docAtual->camadaSelecionada->objetos->last()->setXClick(mouseX);
-                                Window::docAtual->camadaSelecionada->objetos->last()->setYClick(mouseY);
+                                Window::docAtual->camadaSelecionada->objetos->last()->setXClick(mouseXR);
+                                Window::docAtual->camadaSelecionada->objetos->last()->setYClick(mouseYR);
                             }
                         }
                     }
 
                     if (Window::docAtual->op == ROTACAO){
                         if (opBotaoDireito==false) { // se o usuário não clicou com o botão direito fora da área do quadrado
-                            clickCanvas.x = (mouseX);
-                            clickCanvas.y = (mouseY);
+                            clickCanvas.x = (mouseXR);
+                            clickCanvas.y = (mouseYR);
                         }
                         rotacionaObjeto(aux);
                     }
@@ -801,8 +802,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event) {
             }
         } else {
             if (Window::docAtual->op==ROTACAO){
-                clickCanvas.x = (mouseX);
-                clickCanvas.y = (mouseY);
+                clickCanvas.x = (mouseXR);
+                clickCanvas.y = (mouseYR);
                 opBotaoDireito = true;
             } else if (Window::docAtual->op == INSERT_REMOVE_PONTO || Window::docAtual->op == DESLOCARPONTOS) { // removemos o ponto selecionado (apenas para polilinha)
                 /*
@@ -840,6 +841,8 @@ void GLWidget::mouseReleaseEvent(QMouseEvent *event) {
 void GLWidget::mouseMoveEvent(QMouseEvent *event) {
     GLint mouseX = event->x();
     GLint mouseY = gfWrldSizeY - event->y();
+    GLint mouseXR = event->x() - Window::docAtual->viewport.x;
+    GLint mouseYR = gfWrldSizeY - event->y() - Window::docAtual->viewport.y;
 
     if(Window::docAtual->op == PAN) {
         if(pressing) {
@@ -856,26 +859,25 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
             // Criação de objeto
             if (Window::docAtual->camadaSelecionada->objetos->last()->tipo == CIRCULO){
                 Circulo *c = dynamic_cast <Circulo *>(Window::docAtual->camadaSelecionada->objetos->last());
-                c->redimensionar(snap(mouseX), snap(mouseY));
+                c->redimensionar(snap(mouseXR), snap(mouseYR));
             } else if (Window::docAtual->camadaSelecionada->objetos->last()->tipo == RETANGULO){
-                // Trocar pra depender do ponto
                 Retangulo *q = dynamic_cast <Retangulo *>(Window::docAtual->camadaSelecionada->objetos->last());
-                q->setD(Ponto(snap(mouseX), snap(mouseY)));
+                q->setD(Ponto(snap(mouseXR), snap(mouseYR)));
                 q->setC(Ponto(q->D.p.x, q->A.p.y));
                 q->setB(Ponto(q->A.p.x, q->D.p.y));
             } else if (Window::docAtual->camadaSelecionada->objetos->last()->tipo == ELIPSE){
                 Elipse *e = dynamic_cast <Elipse *>(Window::docAtual->camadaSelecionada->objetos->last());
-                e->setRaioHorizontal(abs(snap(mouseX) - e->getCentro().p.x));
-                e->setRaioVertical(abs(snap(mouseY) - e->getCentro().p.y));
-                e->setControl(Ponto(snap(mouseX), snap(mouseY)));
+                e->setRaioHorizontal(abs(snap(mouseXR) - e->getCentro().p.x));
+                e->setRaioVertical(abs(snap(mouseYR) - e->getCentro().p.y));
+                e->setControl(Ponto(snap(mouseXR), snap(mouseYR)));
             } else if (Window::docAtual->camadaSelecionada->objetos->last()->tipo == POLILINHA){
                 Polilinha *pol = dynamic_cast <Polilinha *>(Window::docAtual->camadaSelecionada->objetos->last());
-                pol->deslocarVertice(pol->vertices.last(), snap(mouseX), snap(mouseY));
+                pol->deslocarVertice(pol->vertices.last(), snap(mouseXR), snap(mouseYR));
             }
         }
     } else if (onMouseClick){ // não está desenhando e o mouse clicou e agora está se movendo
         if (Window::docAtual->op==SELECIONAR){
-            Window::docAtual->selecaoMax = Ponto(mouseX, mouseY);
+            Window::docAtual->selecaoMax = Ponto(mouseXR, mouseYR);
 
             Objeto* aux;
             preAgrupamento = false;
@@ -937,17 +939,17 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                     if (aux->selecionado){
                         if (Window::docAtual->op==TRANSLACAO || Window::docAtual->op==COPIA){
                             qDebug() << "transl";
-                            aux->translada(mouseX, mouseY);
+                            aux->translada(mouseXR, mouseYR);
                         } else if (Window::docAtual->op==ESCALA){
                             // Escala objetos
                             if (aux->tipo == CIRCULO){
                                 Circulo *c = dynamic_cast <Circulo *>(aux);
-                                c->redimensionar(event->x(), gfWrldSizeY-event->y());
+                                c->redimensionar(mouseXR, mouseYR);
                             } else if (aux->tipo == RETANGULO){
                                 Retangulo *q = dynamic_cast <Retangulo *>(aux);
                                 Ponto centro =  q->centro.p;
                                 GLdouble aux = distanciaAB;
-                                distanciaAB = sqrt(pow(event->x()-centro.x, 2)+pow(gfWrldSizeY-event->y()-centro.y, 2));
+                                distanciaAB = sqrt(pow(mouseXR-centro.x, 2)+pow(mouseYR-centro.y, 2));
                                 GLdouble fatorx = 2, fatory = 2;//abs(distanciaAB-(xclick-centro.x)), fatory = abs(distanciaAB-(yclick -centro.y));
                                 if (aux-distanciaAB>0){ // setinha do mouse "entrando" na forma
                                     q->escala(-1*fatorx, -1*fatory);
@@ -956,8 +958,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                                 }
                             } else if (aux->tipo == ELIPSE){  // de qualquer ponto selecionado
                                 Elipse *e = dynamic_cast <Elipse *>(aux);
-                                GLint rh = abs(event->x()-e->getCentro().p.x)+1;
-                                GLint rv = abs(gfWrldSizeY-event->y()-e->getCentro().p.y)+1;
+                                GLint rh = abs(mouseXR-e->getCentro().p.x)+1;
+                                GLint rv = abs(mouseYR-e->getCentro().p.y)+1;
                                 GLint ax = e->getControl().p.x==e->getCentro().p.x+e->getRaioHorizontal()?(1):(-1), ay = e->getControl().p.y==e->getCentro().p.y+e->getRaioVertical()?(1):(-1);
 
                                 e->setControl(Ponto(e->getCentro().p.x+ax*(rh),e->getCentro().p.y+ay*(rv)));
@@ -976,38 +978,38 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
                             if (aux->tipo == RETANGULO){
                                 Retangulo *q = dynamic_cast <Retangulo *>(aux);
                                 if (q->A.selecionado){
-                                    q->setA(Ponto(event->x(), gfWrldSizeY-event->y())); //
+                                    q->setA(Ponto(mouseXR, mouseYR)); //
                                     q->setB(Ponto(q->A.p.x, q->B.p.y));
                                     q->setC(Ponto(q->C.p.x,q->A.p.y));
                                     q->atualizaMINMAX();
                                 } else if (q->B.selecionado){
-                                    q->setB(Ponto(event->x(), gfWrldSizeY-event->y()));
+                                    q->setB(Ponto(mouseXR, mouseYR));
                                     q->setA(Ponto(q->B.p.x, q->A.p.y));
                                     q->setD(Ponto(q->D.p.x, q->B.p.y));
                                 } else if (q->C.selecionado){
-                                    q->setC(Ponto(event->x(), gfWrldSizeY-event->y()));
+                                    q->setC(Ponto(mouseXR, mouseYR));
                                     q->setA(Ponto(q->A.p.x, q->C.p.y));
                                     q->setD(Ponto(q->C.p.x, q->D.p.y));
                                     q->atualizaMINMAX();
                                 } else if (q->D.selecionado) {
-                                    q->setD(Ponto(event->x(), gfWrldSizeY-event->y()));
+                                    q->setD(Ponto(mouseXR, mouseYR));
                                     q->setB(Ponto(q->B.p.x, q->D.p.y));
                                     q->setC(Ponto(q->D.p.x, q->C.p.y));
                                     q->atualizaMINMAX();
                                 }
                             } else if (aux->tipo == CIRCULO){
                                 Circulo *c = dynamic_cast <Circulo *>(aux);
-                                c->redimensionar(event->x(), gfWrldSizeY-event->y());
+                                c->redimensionar(mouseXR, mouseYR);
                             } else if (aux->tipo == ELIPSE){
                                 Elipse *e = dynamic_cast <Elipse *>(aux);
                                 if (e->getControl().selecionado){ // apenas por ponto de controle
-                                    e->setRaioHorizontal(abs(event->x()-e->getCentro().p.x));
-                                    e->setRaioVertical(abs(gfWrldSizeY-event->y()-e->getCentro().p.y));
-                                    e->setControl(Ponto(event->x(), gfWrldSizeY-event->y()));
+                                    e->setRaioHorizontal(abs(mouseXR-e->getCentro().p.x));
+                                    e->setRaioVertical(abs(mouseYR-e->getCentro().p.y));
+                                    e->setControl(Ponto(mouseXR, mouseYR));
                                 }
                             } else if (aux->tipo == POLILINHA){
                                 Polilinha *pol = dynamic_cast <Polilinha *>(aux);
-                                pol->deslocarVerticeSelecionado(mouseX, mouseY);
+                                pol->deslocarVerticeSelecionado(mouseXR, mouseYR);
                             }
                         }
                     }

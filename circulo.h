@@ -20,9 +20,6 @@ class Circulo: public Objeto {
         Ponto boundsMin();
         Ponto boundsMax();
 
-        GLint xcView();
-        GLint ycView();
-
         GLint getXc() {
             return xc;
         }

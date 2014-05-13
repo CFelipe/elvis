@@ -53,10 +53,10 @@ void Elipse::desenhaLinha() {
         x++;
         if(estiloLinha[linha_i] == '-') {
             glBegin(GL_POINTS);
-                glVertex2i(  x+centro.x,  y+centro.y );
-                glVertex2i(  x+centro.x, -y+centro.y );
-                glVertex2i( -x+centro.x,  y+centro.y );
-                glVertex2i( -x+centro.x, -y+centro.y );
+                glVertex2i( intXView( x+centro.x), intYView( y+centro.y));
+                glVertex2i( intXView( x+centro.x), intYView(-y+centro.y));
+                glVertex2i( intXView(-x+centro.x), intYView( y+centro.y));
+                glVertex2i( intXView(-x+centro.x), intYView(-y+centro.y));
             glEnd();
         }
 
@@ -76,10 +76,10 @@ void Elipse::desenhaLinha() {
 
         if(estiloLinha[linha_i] == '-') {
             glBegin(GL_POINTS);
-                glVertex2i(  x+centro.x,  y+centro.y );
-                glVertex2i(  x+centro.x, -y+centro.y );
-                glVertex2i( -x+centro.x,  y+centro.y );
-                glVertex2i( -x+centro.x, -y+centro.y );
+                glVertex2i(intXView( x+centro.x), intYView( y+centro.y));
+                glVertex2i(intXView( x+centro.x), intYView(-y+centro.y));
+                glVertex2i(intXView(-x+centro.x), intYView( y+centro.y));
+                glVertex2i(intXView(-x+centro.x), intYView(-y+centro.y));
             glEnd();
         }
 
@@ -109,10 +109,10 @@ void Elipse::desenhaFill() {
 
         glBegin(GL_POINTS);
             // De cima pra baixo
-            linhaFill(Ponto(-x + centro.x,  y + centro.y),
-                              Ponto( x + centro.x,  y + centro.y));
-            linhaFill(Ponto(-x + centro.x, -y + centro.y),
-                              Ponto( x + centro.x, -y + centro.y));
+            linhaFill(pView(Ponto(-x + centro.x,  y + centro.y)),
+                      pView(Ponto( x + centro.x,  y + centro.y)));
+            linhaFill(pView(Ponto(-x + centro.x, -y + centro.y)),
+                      pView(Ponto( x + centro.x, -y + centro.y)));
         glEnd();
     }
 
@@ -127,10 +127,10 @@ void Elipse::desenhaFill() {
         }
         y--;
 
-        linhaFill(Ponto(-x + centro.x,  y + centro.y),
-                          Ponto( x + centro.x,  y + centro.y));
-        linhaFill(Ponto(-x + centro.x, -y + centro.y),
-                          Ponto( x + centro.x, -y + centro.y));
+        linhaFill(pView(Ponto(-x + centro.x,  y + centro.y)),
+                  pView(Ponto( x + centro.x,  y + centro.y)));
+        linhaFill(pView(Ponto(-x + centro.x, -y + centro.y)),
+                  pView(Ponto( x + centro.x, -y + centro.y)));
     }
 }
 
@@ -139,21 +139,21 @@ void Elipse::desenhaControles() {
     glLineStipple(1, 0xAAAA);
     glColor3f(0,0.5, 0);
     glBegin(GL_LINES);
-         glVertex2i(-getRaioHorizontal()+getCentro().p.x,  getRaioVertical()+getCentro().p.y);
-         glVertex2i(-getRaioHorizontal()+getCentro().p.x, -getRaioVertical()+getCentro().p.y);
-         glVertex2i( getRaioHorizontal()+getCentro().p.x,  getRaioVertical()+getCentro().p.y);
-         glVertex2i( getRaioHorizontal()+getCentro().p.x, -getRaioVertical()+getCentro().p.y);
-         glVertex2i(-getRaioHorizontal()+getCentro().p.x,  getRaioVertical()+getCentro().p.y);
-         glVertex2i( getRaioHorizontal()+getCentro().p.x,  getRaioVertical()+getCentro().p.y);
-         glVertex2i( getRaioHorizontal()+getCentro().p.x, -getRaioVertical()+getCentro().p.y);
-         glVertex2i(-getRaioHorizontal()+getCentro().p.x, -getRaioVertical()+getCentro().p.y);
+         glVertex2i(intXView(-getRaioHorizontal()+getCentro().p.x), intYView( getRaioVertical()+getCentro().p.y));
+         glVertex2i(intXView(-getRaioHorizontal()+getCentro().p.x), intYView(-getRaioVertical()+getCentro().p.y));
+         glVertex2i(intXView( getRaioHorizontal()+getCentro().p.x), intYView( getRaioVertical()+getCentro().p.y));
+         glVertex2i(intXView( getRaioHorizontal()+getCentro().p.x), intYView(-getRaioVertical()+getCentro().p.y));
+         glVertex2i(intXView(-getRaioHorizontal()+getCentro().p.x), intYView( getRaioVertical()+getCentro().p.y));
+         glVertex2i(intXView( getRaioHorizontal()+getCentro().p.x), intYView( getRaioVertical()+getCentro().p.y));
+         glVertex2i(intXView( getRaioHorizontal()+getCentro().p.x), intYView(-getRaioVertical()+getCentro().p.y));
+         glVertex2i(intXView(-getRaioHorizontal()+getCentro().p.x), intYView(-getRaioVertical()+getCentro().p.y));
     glEnd();
 
     glDisable(GL_LINE_STIPPLE);
     glPointSize(8);
     glBegin(GL_POINTS);
-        glVertex2i(getCentro().p.x,  getCentro().p.y);
-        glVertex2i(getControl().p.x, getControl().p.y);
+        glVertex2i(intXView(getCentro().p.x),  intYView(getCentro().p.y));
+        glVertex2i(intXView(getControl().p.x), intYView(getControl().p.y));
     glEnd();
 
     /*

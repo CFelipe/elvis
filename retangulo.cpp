@@ -122,10 +122,10 @@ void Retangulo::desenhaControles() {
     glPointSize(8);
     glBegin(GL_POINTS);
         glColor3f( 0,0.5 , 0 );
-        glVertex2i(A.p.x, A.p.y);
-        glVertex2i(B.p.x, B.p.y);
-        glVertex2i(C.p.x, C.p.y);
-        glVertex2i(D.p.x, D.p.y);
+        glVertex2i(Objeto::intXView(A.p.x), Objeto::intYView(A.p.y));
+        glVertex2i(Objeto::intXView(B.p.x), Objeto::intYView(B.p.y));
+        glVertex2i(Objeto::intXView(C.p.x), Objeto::intYView(C.p.y));
+        glVertex2i(Objeto::intXView(D.p.x), Objeto::intYView(D.p.y));
     glEnd();
 
     /*
@@ -156,18 +156,6 @@ void Retangulo::desenhaControles() {
         glVertex2i(q->D.p.x+CONTROL, q->D.p.y-CONTROL);
     glEnd();
     */
-
-    glPointSize(8);
-    glBegin(GL_POINTS);
-        glColor3f( 1 , 1 , 0 );
-        glVertex2i(boundsMax().x, boundsMax().y);
-    glEnd();
-
-    glPointSize(8);
-    glBegin(GL_POINTS);
-        glColor3f( 1 , 0 , 1 );
-        glVertex2i(boundsMin().x, boundsMin().y);
-    glEnd();
 }
 
 void Retangulo::escala(GLdouble fatorx, GLdouble fatory){
